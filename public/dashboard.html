@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แดชบอร์ดสรุปความพึงพอใจลูกค้า - Sales Tracking</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="container-dashboard">
+        
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="logo-box" style="background-color: var(--primary); box-shadow: 0 4px 10px rgba(15,110,86,0.15);">📊</div>
+                <div class="header-text">
+                    <h1 style="font-size: 24px;">ระบบแดชบอร์ดวิเคราะห์ผล</h1>
+                    <p>สรุปคะแนนความพึงพอใจลูกค้าและการสร้าง QR Code</p>
+                </div>
+            </div>
+
+            <!-- Date Filters -->
+            <div class="filter-bar">
+                <button type="button" class="filter-btn" id="filter-today">วันนี้</button>
+                <button type="button" class="filter-btn" id="filter-7d">7 วันที่ผ่านมา</button>
+                <button type="button" class="filter-btn active" id="filter-30d">30 วันที่ผ่านมา</button>
+                <button type="button" class="filter-btn" id="filter-month">เดือนนี้</button>
+                
+                <div class="date-range-container">
+                    <input type="date" id="date-from" class="date-input" title="เริ่มจากวันที่">
+                    <span style="color: var(--text-secondary);">ถึง</span>
+                    <input type="date" id="date-to" class="date-input" title="สิ้นสุดวันที่">
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards Grid -->
+        <section class="stats-grid">
+            
+            <div class="stat-card">
+                <span class="stat-title">การสร้าง QR Code</span>
+                <span class="stat-value" id="stat-qr-created">0</span>
+                <span class="stat-desc">จำนวนการทำสแกนที่พนักงานสร้างขึ้น</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-title">การตอบประเมิน</span>
+                <span class="stat-value" id="stat-surveys">0</span>
+                <span class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-title">อัตราการประเมิน (Response Rate)</span>
+                <span class="stat-value" id="stat-response-rate">0.0%</span>
+                <div class="stat-desc">สัดส่วนลูกค้าที่ตอบกลับแบบสอบถาม</div>
+            </div>
+
+            <div class="stat-card" style="border-left: 4px solid var(--warning);">
+                <span class="stat-title">คะแนนพึงพอใจเฉลี่ย</span>
+                <span class="stat-value" style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                    <span id="stat-avg-score">0.0</span>
+                    <span style="color: var(--warning); font-size: 24px;">★</span>
+                </span>
+                <span class="stat-desc">จากคะแนนประเมินความพึงพอใจ 1-5 ดาว</span>
+            </div>
+
+        </section>
+
+        <!-- Main Dashboard Data Layout -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-top: 8px;">
+            
+            <!-- Table 1: Employee Breakdown -->
+            <main class="card" style="gap: 16px; flex: 1;">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h2>สรุปคะแนนประเมินรายบุคคล</h2>
+                    <button type="button" id="btn-export" class="btn btn-outline" style="height: 34px; padding: 0 12px; font-size: 13px; font-weight: 500; width: auto; gap: 4px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        ส่งออกไฟล์ CSV
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="employee-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" id="th-emp-id">รหัสพนักงาน ▲▼</th>
+                                <th class="sortable" id="th-emp-name">ชื่อพนักงาน ▲▼</th>
+                                <th class="sortable" id="th-responses" style="text-align: center;">จำนวนการประเมิน ▲▼</th>
+                                <th class="sortable" id="th-avg-score" style="text-align: center;">คะแนนเฉลี่ย ▲▼</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-tbody">
+                            <tr>
+                                <td colspan="4" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                                    กำลังโหลดข้อมูลสรุปพนักงาน...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+        </div>
+
+        <!-- Table 2: Recent Submissions -->
+        <section class="card" style="gap: 16px;">
+            <div class="card-title">
+                <h2>ผลการประเมินล่าสุด 20 รายการ</h2>
+                <p>รายการประเมินที่ลูกค้ายื่นล่าสุด (คะแนนต่ำกว่า 3 ดาวจะแสดงด้วย แถบสีแดง ⚠️ เพื่อการปรับปรุงอย่างรวดเร็ว)</p>
+            </div>
+
+            <div class="table-responsive">
+                <table id="recent-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">เวลาประเมิน</th>
+                            <th>พนักงานที่ให้บริการ</th>
+                            <th>โครงการ / ลูกค้า</th>
+                            <th style="width: 80px; text-align: center;">คะแนน</th>
+                            <th>ข้อเสนอแนะเพิ่มเติม</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-tbody">
+                        <tr>
+                            <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                                กำลังโหลดข้อมูลผลการประเมินล่าสุด...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-container">ข้อความ</div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

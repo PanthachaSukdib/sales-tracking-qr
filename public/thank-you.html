@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ขอบคุณสำหรับความเห็น - Sales Tracking</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="container-mobile" style="margin-top: 10vh;">
+        
+        <!-- Thank You Card -->
+        <main class="card text-center" style="padding: 40px 24px; gap: 24px;">
+            <!-- Pulsing checkmark with standard bank-green animation -->
+            <div class="circle-success" id="pulse-badge">✓</div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <h1 style="color: var(--primary);">ส่งความเห็นเรียบร้อยแล้ว</h1>
+                <p style="font-size: 16px; font-weight: 500; color: var(--text-primary);">
+                    ขอบคุณสำหรับความเห็นของคุณ
+                </p>
+                <p id="reassurance-text" style="font-size: 14px; color: var(--text-secondary); margin-top: 4px; line-height: 1.6;">
+                    ความคิดเห็นของคุณมีค่าและจะช่วยปรับปรุงการบริการของเรา
+                </p>
+            </div>
+            
+            <div style="border-top: 1px solid var(--border); padding-top: 20px; color: var(--text-secondary); font-size: 12px;">
+                ระบบเก็บสถิติความพึงพอใจการให้บริการลูกค้า
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scoreVal = parseInt(urlParams.get('score'), 10);
+            const reassuranceText = document.getElementById('reassurance-text');
+            const pulseBadge = document.getElementById('pulse-badge');
+
+            if (!isNaN(scoreVal)) {
+                if (scoreVal >= 4) {
+                    reassuranceText.textContent = 'เราดีใจเป็นอย่างยิ่งที่การบริการของเราทำให้คุณพึงพอใจและตอบโจทย์ความต้องการของคุณ! เราสัญญาว่าจะรักษามาตรฐานที่ดีแบบนี้ต่อไปครับ ✨';
+                } else {
+                    reassuranceText.textContent = 'เราขออภัยอย่างยิ่งที่การบริการยังไม่สมบูรณ์ตามความคาดหวังของคุณ และจะนำความคิดเห็นของคุณไปเร่งแก้ไขและพัฒนาปรับปรุงบริการให้ดียิ่งขึ้นอย่างแน่นอนครับ 🛠️';
+                    // Optional: Change badge color for lower scores to warning orange
+                    pulseBadge.style.backgroundColor = 'var(--primary-light)';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

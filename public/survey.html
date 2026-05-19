@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>แบบสอบถามความพึงพอใจลูกค้า - Sales Tracking</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="container-mobile">
+        
+        <!-- Header -->
+        <header class="bank-header">
+            <div class="logo-box">✓</div>
+            <div class="header-text">
+                <h1>ขอบคุณที่สละเวลา</h1>
+                <p>ความเห็นของคุณช่วยให้เราบริการดีขึ้น</p>
+            </div>
+        </header>
+
+        <!-- Error Card (Hidden by default, shown if params are missing) -->
+        <main class="card hidden" id="error-card">
+            <div class="text-center" style="padding: 16px 0; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h2 style="color: var(--danger);">ลิงก์ไม่ถูกต้อง</h2>
+                <p>ข้อมูลพนักงานไม่ถูกต้องหรือข้อมูลไม่ครบถ้วน กรุณาขอ QR Code หรือลิงก์การประเมินใหม่จากเจ้าหน้าที่ผู้ให้บริการ</p>
+            </div>
+        </main>
+
+        <!-- Main Survey Form (Visible if params are correct) -->
+        <main class="card" id="survey-card">
+            
+            <!-- Employee / Project Info Badge -->
+            <div style="background-color: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; font-size: 14px;">
+                    <span style="color: var(--text-secondary); width: 140px; flex-shrink: 0;">พนักงานที่ให้บริการ:</span>
+                    <strong style="color: var(--text-primary);" id="display-emp-name">-</strong>
+                </div>
+                <div style="display: flex; font-size: 14px;">
+                    <span style="color: var(--text-secondary); width: 140px; flex-shrink: 0;">โครงการ / ลูกค้า:</span>
+                    <strong style="color: var(--text-primary);" id="display-project">-</strong>
+                </div>
+            </div>
+
+            <!-- Question 1: Satisfaction Rating -->
+            <div class="form-group">
+                <label class="text-center" style="display: block; font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                    ระดับความพึงพอใจการให้บริการ <span>*</span>
+                </label>
+                
+                <!-- Star deck -->
+                <div class="stars-container" id="stars-deck">
+                    <button type="button" class="star-btn" data-value="1" aria-label="1 ดาว">★</button>
+                    <button type="button" class="star-btn" data-value="2" aria-label="2 ดาว">★</button>
+                    <button type="button" class="star-btn" data-value="3" aria-label="3 ดาว">★</button>
+                    <button type="button" class="star-btn" data-value="4" aria-label="4 ดาว">★</button>
+                    <button type="button" class="star-btn" data-value="5" aria-label="5 ดาว">★</button>
+                </div>
+                
+                <!-- Feedback text underneath -->
+                <div class="rating-text-feedback" id="rating-text-feedback">กรุณาเลือกคะแนนประเมิน</div>
+            </div>
+
+            <!-- Question 2: Suggestions text area -->
+            <div class="form-group">
+                <label for="suggestions" style="font-weight: 500;">ข้อเสนอแนะเพิ่มเติม (ถ้ามี)</label>
+                <textarea id="suggestions" class="form-control" rows="4" placeholder="เช่น บริการดีมาก, ควรปรับปรุงเรื่องความรวดเร็ว..."></textarea>
+            </div>
+
+            <!-- Submit button (Disabled until star rating is picked) -->
+            <button type="button" id="btn-submit" class="btn btn-primary" disabled>
+                ส่งแบบสอบถาม
+            </button>
+        </main>
+
+    </div>
+
+    <!-- Reusable Black Toast Message Box -->
+    <div id="toast" class="toast-container">ข้อความแจ้งเตือน</div>
+
+    <script src="js/survey.js"></script>
+</body>
+</html>

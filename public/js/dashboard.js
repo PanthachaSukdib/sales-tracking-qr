@@ -1,0 +1,325 @@
+// public/js/dashboard.js
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
+    const statQrCreated = document.getElementById('stat-qr-created');
+    const statSurveys = document.getElementById('stat-surveys');
+    const statResponseRate = document.getElementById('stat-response-rate');
+    const statAvgScore = document.getElementById('stat-avg-score');
+
+    const employeeTbody = document.getElementById('employee-tbody');
+    const recentTbody = document.getElementById('recent-tbody');
+
+    const filterToday = document.getElementById('filter-today');
+    const filter7d = document.getElementById('filter-7d');
+    const filter30d = document.getElementById('filter-30d');
+    const filterMonth = document.getElementById('filter-month');
+    
+    const dateFromInput = document.getElementById('date-from');
+    const dateToInput = document.getElementById('date-to');
+    
+    const btnExport = document.getElementById('btn-export');
+    const toast = document.getElementById('toast');
+
+    // Sorting State
+    let employeeData = [];
+    let sortColumn = 'avg_score';
+    let sortAscending = false; // default to desc (highest rating first)
+
+    // --- Toast Notification Helper ---
+    let toastTimeout = null;
+    function showToast(message) {
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toast.textContent = message;
+        toast.classList.add('show');
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2200);
+    }
+
+    // --- Helper: Format ISO date string into Thai localized short string ---
+    function formatThaiDateTime(isoString) {
+        if (!isoString) return '-';
+        const date = new Date(isoString);
+        
+        const thaiMonths = [
+            'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+            'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+        ];
+        
+        const day = date.getDate();
+        const month = thaiMonths[date.getMonth()];
+        const year = date.getFullYear() + 543; // Convert to Buddhist Era (BE)
+        
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${day} ${month} ${year} (${hours}:${minutes} น.)`;
+    }
+
+    // --- Helper: Format Dates to YYYY-MM-DD ---
+    function formatDateString(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // --- Calculate Presets & Set Inputs ---
+    function setDateRangePreset(preset) {
+        const today = new Date();
+        let fromDate = new Date();
+
+        switch (preset) {
+            case 'today':
+                fromDate = today;
+                break;
+            case '7d':
+                fromDate.setDate(today.getDate() - 7);
+                break;
+            case '30d':
+                fromDate.setDate(today.getDate() - 30);
+                break;
+            case 'month':
+                fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                break;
+            default:
+                break;
+        }
+
+        dateFromInput.value = formatDateString(fromDate);
+        dateToInput.value = formatDateString(today);
+    }
+
+    // --- Set default filter to 30 Days on load ---
+    setDateRangePreset('30d');
+
+    // --- Preset Button Event Binding ---
+    const presetButtons = [
+        { btn: filterToday, name: 'today' },
+        { btn: filter7d, name: '7d' },
+        { btn: filter30d, name: '30d' },
+        { btn: filterMonth, name: 'month' }
+    ];
+
+    presetButtons.forEach(({ btn, name }) => {
+        btn.addEventListener('click', () => {
+            presetButtons.forEach(x => x.btn.classList.remove('active'));
+            btn.classList.add('active');
+            setDateRangePreset(name);
+            loadData();
+        });
+    });
+
+    // --- Custom Date Range Changes ---
+    [dateFromInput, dateToInput].forEach(input => {
+        input.addEventListener('change', () => {
+            // Remove active status from all preset buttons as this is custom
+            presetButtons.forEach(x => x.btn.classList.remove('active'));
+            loadData();
+        });
+    });
+
+    // --- Sort Table Event Listeners ---
+    const sortingHeaders = [
+        { element: document.getElementById('th-emp-id'), field: 'employee_id' },
+        { element: document.getElementById('th-emp-name'), field: 'employee_name' },
+        { element: document.getElementById('th-responses'), field: 'responses' },
+        { element: document.getElementById('th-avg-score'), field: 'avg_score' }
+    ];
+
+    sortingHeaders.forEach(({ element, field }) => {
+        if (element) {
+            element.addEventListener('click', () => {
+                if (sortColumn === field) {
+                    sortAscending = !sortAscending;
+                } else {
+                    sortColumn = field;
+                    sortAscending = field === 'employee_id' || field === 'employee_name'; // asc by default for strings, desc for numbers
+                }
+                renderEmployeeTable();
+            });
+        }
+    });
+
+    // --- Fetch Dashboard Aggregates ---
+    async function loadData() {
+        const from = dateFromInput.value;
+        const to = dateToInput.value;
+
+        if (!from || !to) return;
+
+        try {
+            const response = await fetch(`/api/reports/summary?from=${from}&to=${to}`);
+            
+            // Handles browser basic auth fallback on unauthorized
+            if (response.status === 401) {
+                showToast('ต้องการการยืนยันตัวตนเพื่อเข้าถึงหน้าแดชบอร์ด');
+                return;
+            }
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'เกิดข้อผิดพลาดในการโหลดรายงาน');
+            }
+
+            const data = await response.json();
+            
+            // Update Stats Box
+            statQrCreated.textContent = data.totals.qr_generated.toLocaleString();
+            statSurveys.textContent = data.totals.surveys_received.toLocaleString();
+            statResponseRate.textContent = `${data.totals.response_rate}%`;
+            statAvgScore.textContent = data.totals.avg_score.toFixed(1);
+
+            // Store Employee Breakdown for sorting
+            employeeData = data.by_employee || [];
+            renderEmployeeTable();
+
+            // Populate Recent Submissions
+            const recentResponses = data.recent_responses || [];
+            recentTbody.innerHTML = '';
+
+            if (recentResponses.length === 0) {
+                recentTbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                            ไม่มีผลการประเมินล่าสุดในช่วงเวลานี้
+                        </td>
+                    </tr>
+                `;
+            } else {
+                recentResponses.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    // Highlight row in soft red background if score is <= 2 (low score alert)
+                    if (row.score <= 2) {
+                        tr.classList.add('tr-alert-low-score');
+                    }
+
+                    const badgeClass = `score-badge score-${row.score}`;
+                    const formattedDate = formatThaiDateTime(row.submitted_at);
+                    const safeSuggestion = row.suggestions 
+                        ? `<span style="color: var(--text-primary); font-weight: 450;">${escapeHTML(row.suggestions)}</span>`
+                        : `<span style="color: #9CA3AF; font-style: italic;">ไม่มีข้อเสนอแนะ</span>`;
+
+                    tr.innerHTML = `
+                        <td style="color: var(--text-secondary); white-space: nowrap;">${formattedDate}</td>
+                        <td><strong>${escapeHTML(row.employee_name)}</strong> <span class="caption">(${escapeHTML(row.employee_id)})</span></td>
+                        <td>${escapeHTML(row.project_name || '-')}</td>
+                        <td style="text-align: center;">
+                            <span class="${badgeClass}">${row.score}</span>
+                        </td>
+                        <td>${safeSuggestion}</td>
+                    `;
+                    recentTbody.appendChild(tr);
+                });
+            }
+
+        } catch (error) {
+            console.error('Fetch dashboard details failed:', error);
+            showToast(error.message || 'ไม่สามารถโหลดข้อมูลสถิติได้');
+        }
+    }
+
+    // --- HTML Escaping Helper ---
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // --- Render Sorted Employee Performance Table ---
+    function renderEmployeeTable() {
+        employeeTbody.innerHTML = '';
+
+        if (employeeData.length === 0) {
+            employeeTbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                        ไม่มีข้อมูลคะแนนพนักงานในช่วงเวลานี้
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort data based on column state
+        const sorted = [...employeeData].sort((a, b) => {
+            let valA = a[sortColumn];
+            let valB = b[sortColumn];
+
+            // Handle string vs numeric differences
+            if (typeof valA === 'string') {
+                return sortAscending 
+                    ? valA.localeCompare(valB, 'th') 
+                    : valB.localeCompare(valA, 'th');
+            } else {
+                return sortAscending ? valA - valB : valB - valA;
+            }
+        });
+
+        sorted.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // Build visual colored badge for score ranges
+            let badgeStyle = '';
+            if (row.avg_score >= 4.0) {
+                badgeStyle = 'background-color: var(--primary-light); color: var(--primary);';
+            } else if (row.avg_score >= 3.0) {
+                badgeStyle = 'background-color: #FEF3C7; color: #D97706;'; // orange light
+            } else {
+                badgeStyle = 'background-color: #FEE2E2; color: #DC2626;'; // red light
+            }
+
+            tr.innerHTML = `
+                <td><code>${escapeHTML(row.employee_id)}</code></td>
+                <td><strong>${escapeHTML(row.employee_name)}</strong></td>
+                <td style="text-align: center;">${row.responses.toLocaleString()}</td>
+                <td style="text-align: center;">
+                    <span style="display: inline-block; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; ${badgeStyle}">
+                        ${row.avg_score.toFixed(1)} ★
+                    </span>
+                </td>
+            `;
+            employeeTbody.appendChild(tr);
+        });
+    }
+
+    // --- Export Data to CSV (with Thai BOM character support) ---
+    btnExport.addEventListener('click', () => {
+        if (employeeData.length === 0) {
+            showToast('ไม่มีข้อมูลพนักงานเพื่อจัดทำไฟล์ดาวน์โหลด');
+            return;
+        }
+
+        let csvContent = 'รหัสพนักงาน,ชื่อพนักงาน,จำนวนผู้ประเมิน,คะแนนเฉลี่ย\n';
+        
+        employeeData.forEach(row => {
+            csvContent += `"${row.employee_id}","${row.employee_name}",${row.responses},${row.avg_score.toFixed(1)}\n`;
+        });
+
+        // Add Byte Order Mark (BOM) to force Microsoft Excel to read file as UTF-8 Thai correctly
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const from = dateFromInput.value;
+        const to = dateToInput.value;
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `รายงานคะแนนประเมิน_${from}_ถึง_${to}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('ดาวน์โหลดรายงาน CSV สำเร็จ!');
+    });
+
+    // --- Trigger Data Fetch ---
+    loadData();
+
+    // --- Auto refresh dashboard numbers every 60 seconds ---
+    setInterval(loadData, 60000);
+});
