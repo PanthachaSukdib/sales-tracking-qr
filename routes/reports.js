@@ -80,6 +80,33 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
             }))
             .sort((a, b) => b.avg_score - a.avg_score);
 
+        // Calculate pending customers (in qrLogs but not in surveys)
+        const surveyKeys = new Set(filteredSurveys.map(s => {
+            return `${s.employee_id}_${(s.project_name || '').trim().toLowerCase()}_${(s.customer_name || '').trim().toLowerCase()}`;
+        }));
+
+        const pendingMap = {};
+        filteredQR.forEach(q => {
+            const customerName = (q.customer_name || '').trim();
+            if (!customerName) return; 
+
+            const key = `${q.employee_id}_${(q.project_name || '').trim().toLowerCase()}_${customerName.toLowerCase()}`;
+            if (!surveyKeys.has(key)) {
+                // Not replied yet, keep the latest scan/generation time
+                if (!pendingMap[key] || new Date(q.created_at) > new Date(pendingMap[key].created_at)) {
+                    pendingMap[key] = {
+                        employee_name: q.employee_name,
+                        project_name: q.project_name,
+                        customer_name: q.customer_name,
+                        created_at: q.created_at
+                    };
+                }
+            }
+        });
+
+        const pending_customers = Object.values(pendingMap)
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
         // Recent 20
         const recent_responses = filteredSurveys
             .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
@@ -94,9 +121,16 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
             }));
 
         res.json({
-            totals: { qr_generated, surveys_received, response_rate, avg_score },
+            totals: { 
+                qr_generated, 
+                surveys_received, 
+                response_rate, 
+                avg_score,
+                pending_count: pending_customers.length 
+            },
             by_employee,
-            recent_responses
+            recent_responses,
+            pending_customers
         });
     } catch (err) {
         console.error('Reports failed:', err);

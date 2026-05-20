@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const statResponseRate = document.getElementById('stat-response-rate');
     const statAvgScore = document.getElementById('stat-avg-score');
 
+    const statPendingBadge = document.getElementById('stat-pending-badge');
+    const pendingList = document.getElementById('pending-list');
+
     const employeeTbody = document.getElementById('employee-tbody');
     const recentTbody = document.getElementById('recent-tbody');
 
@@ -170,6 +173,27 @@ document.addEventListener('DOMContentLoaded', () => {
             statSurveys.textContent = data.totals.surveys_received.toLocaleString();
             statResponseRate.textContent = `${data.totals.response_rate}%`;
             statAvgScore.textContent = data.totals.avg_score.toFixed(1);
+
+            // Update Pending Surveys Hover UI
+            if (data.totals.pending_count > 0) {
+                statPendingBadge.textContent = `รอตอบ: ${data.totals.pending_count}`;
+                statPendingBadge.style.display = 'inline-block';
+            } else {
+                statPendingBadge.style.display = 'none';
+            }
+
+            pendingList.innerHTML = '';
+            if (data.pending_customers && data.pending_customers.length > 0) {
+                data.pending_customers.forEach(p => {
+                    const li = document.createElement('li');
+                    li.style.borderBottom = '1px solid #F3F4F6';
+                    li.style.paddingBottom = '4px';
+                    li.innerHTML = `<strong>${escapeHTML(p.customer_name)}</strong> <br><span style="font-size: 11px; color: #9CA3AF;">เซลล์: ${escapeHTML(p.employee_name)} | ${escapeHTML(p.project_name || '-')}</span>`;
+                    pendingList.appendChild(li);
+                });
+            } else {
+                pendingList.innerHTML = '<li style="text-align: center; padding: 8px 0;">ไม่มีลูกค้าค้างตอบ 🎉</li>';
+            }
 
             // Store Employee Breakdown for sorting
             employeeData = data.by_employee || [];

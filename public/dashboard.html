@@ -8,6 +8,30 @@
     <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .tooltip-parent:hover .custom-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .custom-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 280px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease-in-out;
+            z-index: 100;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -47,10 +71,21 @@
                 <span class="stat-desc">จำนวนการทำสแกนที่พนักงานสร้างขึ้น</span>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card tooltip-parent" style="position: relative;">
                 <span class="stat-title">การตอบประเมิน</span>
-                <span class="stat-value" id="stat-surveys">0</span>
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                    <span class="stat-value" id="stat-surveys">0</span>
+                    <span id="stat-pending-badge" style="font-size: 13px; font-weight: 500; color: #DC2626; background: #FEE2E2; padding: 2px 8px; border-radius: 12px; cursor: help; display: none;">รอตอบ: 0</span>
+                </div>
                 <span class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</span>
+                
+                <!-- Tooltip Card (Hidden by default, shown on hover) -->
+                <div class="custom-tooltip" id="pending-tooltip">
+                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อลูกค้ารอตอบกลับ</div>
+                    <ul id="pending-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
+                        <!-- JS will populate list here -->
+                    </ul>
+                </div>
             </div>
 
             <div class="stat-card">
