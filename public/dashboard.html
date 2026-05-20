@@ -61,46 +61,56 @@
                 </div>
             </div>
         </header>
-
-        <!-- Stats Cards Grid -->
         <section class="stats-grid">
             
-            <div class="stat-card">
+            <!-- Card 1: QR Created -->
+            <div class="stat-card tooltip-parent" style="position: relative;">
                 <span class="stat-title">การสร้าง QR Code</span>
                 <span class="stat-value" id="stat-qr-created">0</span>
                 <span class="stat-desc">จำนวนการทำสแกนที่พนักงานสร้างขึ้น</span>
+                <div class="custom-tooltip" id="qr-tooltip">
+                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อที่สร้าง QR ล่าสุด</div>
+                    <ul id="qr-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
+                </div>
             </div>
 
+            <!-- Card 2: Surveys Received -->
             <div class="stat-card tooltip-parent" style="position: relative;">
                 <span class="stat-title">การตอบประเมิน</span>
+                <span class="stat-value" id="stat-surveys">0</span>
+                <span class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</span>
+                <div class="custom-tooltip" id="survey-tooltip">
+                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อผู้ตอบประเมินล่าสุด</div>
+                    <ul id="survey-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Response Rate -->
+            <div class="stat-card tooltip-parent" style="position: relative;">
+                <span class="stat-title">อัตราการประเมิน (Response Rate)</span>
                 <div style="display: flex; align-items: baseline; gap: 8px;">
-                    <span class="stat-value" id="stat-surveys">0</span>
+                    <span class="stat-value" id="stat-response-rate">0%</span>
                     <span id="stat-pending-badge" style="font-size: 13px; font-weight: 500; color: #DC2626; background: #FEE2E2; padding: 2px 8px; border-radius: 12px; cursor: help; display: none;">รอตอบ: 0</span>
                 </div>
-                <span class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</span>
-                
-                <!-- Tooltip Card (Hidden by default, shown on hover) -->
+                <div class="stat-desc">สัดส่วนลูกค้าที่ตอบกลับแบบสอบถาม</div>
                 <div class="custom-tooltip" id="pending-tooltip">
                     <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อลูกค้ารอตอบกลับ</div>
-                    <ul id="pending-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
-                        <!-- JS will populate list here -->
-                    </ul>
+                    <ul id="pending-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <span class="stat-title">อัตราการประเมิน (Response Rate)</span>
-                <span class="stat-value" id="stat-response-rate">0.0%</span>
-                <div class="stat-desc">สัดส่วนลูกค้าที่ตอบกลับแบบสอบถาม</div>
-            </div>
-
-            <div class="stat-card" style="border-left: 4px solid var(--warning);">
+            <!-- Card 4: Avg Score -->
+            <div class="stat-card tooltip-parent" style="position: relative; border-left: 4px solid var(--warning);">
                 <span class="stat-title">คะแนนพึงพอใจเฉลี่ย</span>
                 <span class="stat-value" style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
                     <span id="stat-avg-score">0.0</span>
                     <span style="color: var(--warning); font-size: 24px;">★</span>
                 </span>
                 <span class="stat-desc">จากคะแนนประเมินความพึงพอใจ 1-5 ดาว</span>
+                <div class="custom-tooltip" id="score-tooltip">
+                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">คะแนนประเมินล่าสุด</div>
+                    <ul id="score-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
+                </div>
             </div>
 
         </section>

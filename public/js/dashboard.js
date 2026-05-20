@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const statPendingBadge = document.getElementById('stat-pending-badge');
     const pendingList = document.getElementById('pending-list');
+    const qrList = document.getElementById('qr-list');
+    const surveyList = document.getElementById('survey-list');
+    const scoreList = document.getElementById('score-list');
 
     const employeeTbody = document.getElementById('employee-tbody');
     const recentTbody = document.getElementById('recent-tbody');
@@ -174,7 +177,35 @@ document.addEventListener('DOMContentLoaded', () => {
             statResponseRate.textContent = `${data.totals.response_rate}%`;
             statAvgScore.textContent = data.totals.avg_score.toFixed(1);
 
-            // Update Pending Surveys Hover UI
+            // Tooltip 1: QR Created
+            qrList.innerHTML = '';
+            if (data.recent_qr && data.recent_qr.length > 0) {
+                data.recent_qr.slice(0, 15).forEach(q => {
+                    const li = document.createElement('li');
+                    li.style.borderBottom = '1px solid #F3F4F6';
+                    li.style.paddingBottom = '4px';
+                    li.innerHTML = `<strong>${escapeHTML(q.customer_name || 'ไม่ระบุลูกค้า')}</strong> <br><span style="font-size: 11px; color: #9CA3AF;">เซลล์: ${escapeHTML(q.employee_name)} | ${escapeHTML(q.project_name || '-')}</span>`;
+                    qrList.appendChild(li);
+                });
+            } else {
+                qrList.innerHTML = '<li style="text-align: center; padding: 8px 0;">ไม่มีประวัติการสร้าง QR 📉</li>';
+            }
+
+            // Tooltip 2: Surveys Received
+            surveyList.innerHTML = '';
+            if (data.recent_responses && data.recent_responses.length > 0) {
+                data.recent_responses.slice(0, 15).forEach(s => {
+                    const li = document.createElement('li');
+                    li.style.borderBottom = '1px solid #F3F4F6';
+                    li.style.paddingBottom = '4px';
+                    li.innerHTML = `<strong>${escapeHTML(s.customer_name || 'ไม่ระบุลูกค้า')}</strong> <br><span style="font-size: 11px; color: #9CA3AF;">เซลล์: ${escapeHTML(s.employee_name)} | ${escapeHTML(s.project_name || '-')}</span>`;
+                    surveyList.appendChild(li);
+                });
+            } else {
+                surveyList.innerHTML = '<li style="text-align: center; padding: 8px 0;">ไม่มีประวัติการตอบ 📉</li>';
+            }
+
+            // Tooltip 3: Pending Surveys Hover UI
             if (data.totals.pending_count > 0) {
                 statPendingBadge.textContent = `รอตอบ: ${data.totals.pending_count}`;
                 statPendingBadge.style.display = 'inline-block';
@@ -184,15 +215,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             pendingList.innerHTML = '';
             if (data.pending_customers && data.pending_customers.length > 0) {
-                data.pending_customers.forEach(p => {
+                data.pending_customers.slice(0, 15).forEach(p => {
                     const li = document.createElement('li');
                     li.style.borderBottom = '1px solid #F3F4F6';
                     li.style.paddingBottom = '4px';
-                    li.innerHTML = `<strong>${escapeHTML(p.customer_name)}</strong> <br><span style="font-size: 11px; color: #9CA3AF;">เซลล์: ${escapeHTML(p.employee_name)} | ${escapeHTML(p.project_name || '-')}</span>`;
+                    li.innerHTML = `<strong>${escapeHTML(p.customer_name || 'ไม่ระบุลูกค้า')}</strong> <br><span style="font-size: 11px; color: #9CA3AF;">เซลล์: ${escapeHTML(p.employee_name)} | ${escapeHTML(p.project_name || '-')}</span>`;
                     pendingList.appendChild(li);
                 });
             } else {
                 pendingList.innerHTML = '<li style="text-align: center; padding: 8px 0;">ไม่มีลูกค้าค้างตอบ 🎉</li>';
+            }
+
+            // Tooltip 4: Avg Score (Recent Scores)
+            scoreList.innerHTML = '';
+            if (data.recent_responses && data.recent_responses.length > 0) {
+                data.recent_responses.slice(0, 15).forEach(s => {
+                    const li = document.createElement('li');
+                    li.style.borderBottom = '1px solid #F3F4F6';
+                    li.style.paddingBottom = '4px';
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.style.alignItems = 'flex-start';
+                    const scoreColor = s.score >= 4 ? '#0F6E56' : (s.score === 3 ? '#F59E0B' : '#DC2626');
+                    li.innerHTML = `
+                        <div>
+                            <strong>${escapeHTML(s.customer_name || 'ไม่ระบุลูกค้า')}</strong> <br>
+                            <span style="font-size: 11px; color: #9CA3AF;">${escapeHTML(s.employee_name)}</span>
+                        </div>
+                        <div style="color: ${scoreColor}; font-weight: bold; font-size: 14px;">
+                            ${s.score} ★
+                        </div>
+                    `;
+                    scoreList.appendChild(li);
+                });
+            } else {
+                scoreList.innerHTML = '<li style="text-align: center; padding: 8px 0;">ไม่มีข้อมูลคะแนน 📉</li>';
             }
 
             // Store Employee Breakdown for sorting

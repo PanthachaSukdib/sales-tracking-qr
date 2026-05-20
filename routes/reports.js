@@ -120,6 +120,17 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                 suggestions: s.suggestions
             }));
 
+        // Recent 20 QR logs
+        const recent_qr = filteredQR
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 20)
+            .map(q => ({
+                created_at: q.created_at,
+                employee_name: q.employee_name,
+                project_name: q.project_name,
+                customer_name: q.customer_name
+            }));
+
         res.json({
             totals: { 
                 qr_generated, 
@@ -130,7 +141,8 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
             },
             by_employee,
             recent_responses,
-            pending_customers
+            pending_customers,
+            recent_qr
         });
     } catch (err) {
         console.error('Reports failed:', err);
