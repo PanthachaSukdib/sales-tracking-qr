@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>สร้าง QR Code - ระบบเก็บคะแนนความพึงพอใจลูกค้า</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <!-- QR Code client-side rendering library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script>
+        fetch('/api/config/qr-base').then(r => r.json()).then(cfg => {
+            window.QR_REDIRECT_BASE = cfg.baseUrl;
+        });
+    </script>
 </head>
 <body>
 

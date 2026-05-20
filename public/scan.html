@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>กำลังเปลี่ยนหน้า...</title>
+  <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .scan-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      width: 100%;
+    }
+    .scan-card {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 32px 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border-left-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .scan-card h2 { margin-bottom: 12px; color: var(--text-primary); }
+    .scan-card p { color: var(--text-secondary); line-height: 1.5; }
+    #scanError { color: var(--danger); font-weight: 500; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="scan-container">
+    <div class="scan-card">
+      <div class="spinner"></div>
+      <h2>กำลังเปิดแบบฟอร์ม...</h2>
+      <p id="scanStatus">กรุณารอสักครู่</p>
+      <p id="scanError" hidden></p>
+    </div>
+  </div>
+
+  <script>
+    (async function() {
+      const params = new URLSearchParams(window.location.search);
+      const empId = params.get('emp_id');
+      const empName = params.get('emp_name');
+      const project = params.get('project');
+      const customer = params.get('customer') || '';
+      const statusEl = document.getElementById('scanStatus');
+      const errorEl = document.getElementById('scanError');
+      const spinner = document.querySelector('.spinner');
+
+      if (!empId || !empName) {
+        errorEl.hidden = false;
+        errorEl.textContent = 'ลิงก์ QR Code ไม่ถูกต้อง กรุณาขอลิงก์ใหม่จากเจ้าหน้าที่';
+        statusEl.hidden = true;
+        spinner.style.display = 'none';
+        return;
+      }
+
+      // เก็บใน localStorage (session valid 4 ชม.)
+      const session = {
+        emp_id: empId,
+        emp_name: empName,
+        project: project || '',
+        customer: customer,
+        scanned_at: Date.now(),
+        expires_at: Date.now() + (4 * 60 * 60 * 1000)
+      };
+      localStorage.setItem('sst_session', JSON.stringify(session));
+
+      // log scan ไป backend
+      try {
+        await fetch('/api/qr-logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            employee_id: empId,
+            employee_name: empName,
+            project_name: project || '',
+            customer_name: customer,
+            generated_url: window.location.href
+          })
+        });
+      } catch (err) {
+        console.warn('Log failed (continuing):', err);
+      }
+
+      // Redirect ไปยังหน้าประเมินดาว survey.html หลังบันทึกข้อมูลการสแกนเสร็จสิ้น
+      setTimeout(() => {
+        window.location.href = '/survey.html';
+      }, 800);
+    })();
+  </script>
+</body>
+</html>

@@ -9,8 +9,9 @@ yarn-error.log*
 .vscode/
 
 # SQLite local database files
-/data/*.db
-/data/*.db-journal
-/data/*.db-wal
-/data/*.db-shm
+# (Removed)
+
+# Secrets
+/secrets/*.json
+!/secrets/.gitkeep
 

@@ -1,126 +1,106 @@
-// routes/reports.js
 const express = require('express');
 const router = express.Router();
-const db = require('../db/connection');
+const { getAllRowsAsObjects } = require('../db/sheets-client');
 
-// Basic Authentication Middleware
-const basicAuth = (req, res, next) => {
+// Simple Basic Auth Middleware for Reports
+const basicAuthMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard Summary Reports"');
-        return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบเพื่อดูรายงาน' });
+        res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
+        return res.status(401).send('Authentication required');
     }
 
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-        res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard Summary Reports"');
-        return res.status(401).json({ error: 'ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง' });
+    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+    const user = auth[0];
+    const pass = auth[1];
+
+    if (user === process.env.DASHBOARD_USER && pass === process.env.DASHBOARD_PASS) {
+        next();
+    } else {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
+        res.status(401).send('Invalid credentials');
     }
-
-    const auth = Buffer.from(token, 'base64').toString().split(':');
-    const username = auth[0];
-    const password = auth[1];
-
-    const expectedUser = process.env.DASHBOARD_USER || 'admin';
-    const expectedPass = process.env.DASHBOARD_PASS || 'changeme';
-
-    if (username === expectedUser && password === expectedPass) {
-        return next();
-    }
-
-    res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard Summary Reports"');
-    return res.status(401).json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
 };
 
-// Helper: Format JS Date into standard SQLite string format (YYYY-MM-DD HH:MM:SS) using local parts
-function formatSqliteDateTime(date) {
-    const pad = (n) => String(n).padStart(2, '0');
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    const hh = pad(date.getHours());
-    const mm = pad(date.getMinutes());
-    const ss = pad(date.getSeconds());
-    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
-}
-
-// GET /api/reports/summary: Fetch metrics and lists with Basic Auth protection
-router.get('/summary', basicAuth, (req, res, next) => {
+router.get('/summary', basicAuthMiddleware, async (req, res) => {
+    const { from, to } = req.query;
+    
     try {
-        // Parse filter dates (default to 30 days if not provided)
-        let startDate = req.query.from ? new Date(req.query.from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        let endDate = req.query.to ? new Date(req.query.to) : new Date();
+        const [qrLogs, surveys] = await Promise.all([
+            getAllRowsAsObjects('qr_logs'),
+            getAllRowsAsObjects('survey_results')
+        ]);
 
-        // Standardize dates to start of day and end of day in local time
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-
-        // Format dates into SQLite query strings
-        const startStr = formatSqliteDateTime(startDate);
-        const endStr = formatSqliteDateTime(endDate);
-
-        // 1. Count QR logs created in date range
-        const qrCountRow = db.prepare(
-            'SELECT COUNT(*) AS count FROM qr_logs WHERE created_at >= ? AND created_at <= ?'
-        ).get(startStr, endStr);
-        const qr_generated = qrCountRow.count || 0;
-
-        // 2. Aggregate overall survey responses (count and average score)
-        const surveyAggRow = db.prepare(
-            'SELECT COUNT(*) AS count, AVG(satisfaction_score) AS avg_score FROM survey_results WHERE submitted_at >= ? AND submitted_at <= ?'
-        ).get(startStr, endStr);
-        const surveys_received = surveyAggRow.count || 0;
-        const rawAvg = surveyAggRow.avg_score !== null ? surveyAggRow.avg_score : 0.0;
-        const avg_score = parseFloat(rawAvg.toFixed(1));
-
-        // 3. Aggregate data per employee
-        const employeeRows = db.prepare(`
-            SELECT 
-                employee_id, 
-                employee_name, 
-                COUNT(*) AS responses, 
-                ROUND(AVG(satisfaction_score), 1) AS avg_score
-            FROM survey_results 
-            WHERE submitted_at >= ? AND submitted_at <= ?
-            GROUP BY employee_id, employee_name
-            ORDER BY avg_score DESC, responses DESC
-        `).all(startStr, endStr);
-
-        // 4. Retrieve recent 20 submissions
-        const recentRows = db.prepare(`
-            SELECT 
-                submitted_at, 
-                employee_name, 
-                project_name, 
-                customer_name,
-                satisfaction_score AS score, 
-                suggestions
-            FROM survey_results
-            WHERE submitted_at >= ? AND submitted_at <= ?
-            ORDER BY submitted_at DESC
-            LIMIT 20
-        `).all(startStr, endStr);
-
-        // Response rate percentage rounded to 1 decimal place
-        const response_rate = qr_generated > 0 
-            ? parseFloat(((surveys_received / qr_generated) * 100).toFixed(1)) 
-            : 0.0;
-
-        const totals = {
-            qr_generated,
-            surveys_received,
-            response_rate,
-            avg_score
+        // Filter by date range if provided
+        const filterByDate = (rows, dateField) => {
+            if (!from && !to) return rows;
+            return rows.filter(r => {
+                const d = new Date(r[dateField]);
+                if (from && d < new Date(from)) return false;
+                if (to && d > new Date(to + 'T23:59:59')) return false;
+                return true;
+            });
         };
 
-        return res.json({
-            totals,
-            by_employee: employeeRows,
-            recent_responses: recentRows
+        const filteredQR = filterByDate(qrLogs, 'created_at');
+        const filteredSurveys = filterByDate(surveys, 'submitted_at');
+
+        // Totals
+        const qr_generated = filteredQR.length;
+        const surveys_received = filteredSurveys.length;
+        const response_rate = qr_generated > 0
+            ? Math.round((surveys_received / qr_generated) * 1000) / 10
+            : 0;
+        const scores = filteredSurveys.map(s => parseInt(s.satisfaction_score)).filter(n => !isNaN(n));
+        const avg_score = scores.length > 0
+            ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 100) / 100
+            : 0;
+
+        // By employee
+        const empMap = {};
+        filteredSurveys.forEach(s => {
+            const key = s.employee_id;
+            if (!empMap[key]) {
+                empMap[key] = {
+                    employee_id: key,
+                    employee_name: s.employee_name,
+                    responses: 0,
+                    total_score: 0
+                };
+            }
+            empMap[key].responses++;
+            empMap[key].total_score += parseInt(s.satisfaction_score) || 0;
+        });
+        const by_employee = Object.values(empMap)
+            .map(e => ({
+                employee_id: e.employee_id,
+                employee_name: e.employee_name,
+                responses: e.responses,
+                avg_score: Math.round((e.total_score / e.responses) * 100) / 100
+            }))
+            .sort((a, b) => b.avg_score - a.avg_score);
+
+        // Recent 20
+        const recent_responses = filteredSurveys
+            .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+            .slice(0, 20)
+            .map(s => ({
+                submitted_at: s.submitted_at,
+                employee_name: s.employee_name,
+                project_name: s.project_name,
+                customer_name: s.customer_name,
+                score: parseInt(s.satisfaction_score),
+                suggestions: s.suggestions
+            }));
+
+        res.json({
+            totals: { qr_generated, surveys_received, response_rate, avg_score },
+            by_employee,
+            recent_responses
         });
     } catch (err) {
-        console.error('Error generating summary report:', err);
-        return next(err);
+        console.error('Reports failed:', err);
+        res.status(500).json({ error: 'Failed to load reports' });
     }
 });
 
