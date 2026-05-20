@@ -2,18 +2,20 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const employeeIdInput = document.getElementById('employee-id');
-    const employeeNameInput = document.getElementById('employee-name');
-    const projectNameInput = document.getElementById('project-name');
+    const employeeIdInput = document.getElementById('empId');
+    const employeeNameInput = document.getElementById('empName');
+    const projectNameInput = document.getElementById('projectName');
+    const customerNameInput = document.getElementById('customerName');
     const btnGenerate = document.getElementById('btn-generate');
     
     const formCard = document.getElementById('form-card');
     const qrSection = document.getElementById('qr-section');
     const qrCanvas = document.getElementById('qr-canvas');
     
-    const summaryEmpId = document.getElementById('summary-emp-id');
-    const summaryEmpName = document.getElementById('summary-emp-name');
-    const summaryProject = document.getElementById('summary-project');
+    const displayEmpId = document.getElementById('displayEmpId');
+    const displayEmpName = document.getElementById('displayEmpName');
+    const displayProject = document.getElementById('displayProject');
+    const displayCustomer = document.getElementById('displayCustomer');
     
     const btnSave = document.getElementById('btn-save');
     const btnShare = document.getElementById('btn-share');
@@ -24,11 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let generatedSurveyUrl = '';
 
-    if (localStorage.getItem('employee_id')) {
-        employeeIdInput.value = localStorage.getItem('employee_id');
-    }
-    if (localStorage.getItem('employee_name')) {
-        employeeNameInput.value = localStorage.getItem('employee_name');
+    // โหลดตอนเปิดหน้า autofill ให้
+    const saved = localStorage.getItem('sst_employee');
+    if (saved) {
+        try {
+            const emp = JSON.parse(saved);
+            employeeIdInput.value = emp.empId || '';
+            employeeNameInput.value = emp.empName || '';
+        } catch {}
     }
 
     let toastTimeout = null;
@@ -42,16 +47,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     btnGenerate.addEventListener('click', async () => {
-        const empId = employeeIdInput.value.trim();
-        const empName = employeeNameInput.value.trim();
-        const project = projectNameInput.value.trim();
+        const data = {
+            empId: employeeIdInput.value.trim(),
+            empName: employeeNameInput.value.trim(),
+            projectName: projectNameInput.value.trim(),
+            customerName: customerNameInput.value.trim()
+        };
 
-        if (!empId) { showToast('กรุณาระบุรหัสพนักงาน'); employeeIdInput.focus(); return; }
-        if (!empName) { showToast('กรุณาระบุชื่อ-นามสกุลพนักงาน'); employeeNameInput.focus(); return; }
-        if (!project) { showToast('กรุณาระบุชื่อโครงการ / ลูกค้า'); projectNameInput.focus(); return; }
+        if (!data.empId || !data.empName || !data.projectName || !data.customerName) {
+            showToast('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+            return;
+        }
 
-        localStorage.setItem('employee_id', empId);
-        localStorage.setItem('employee_name', empName);
+        // บันทึกหลังกดสร้าง (จำได้ครั้งต่อไป)
+        localStorage.setItem('sst_employee', JSON.stringify({
+            empId: data.empId,
+            empName: data.empName
+        }));
 
         btnGenerate.disabled = true;
         btnGenerate.textContent = 'กำลังสร้าง QR Code...';
@@ -63,10 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 : window.location.origin + QR_REDIRECT_BASE;
             
             const params = new URLSearchParams({
-                emp_id: empId,
-                emp_name: empName,
-                project: project,
-                customer: ''
+                emp_id: data.empId,
+                emp_name: data.empName,
+                project: data.projectName,
+                customer: data.customerName
             });
             generatedSurveyUrl = `${baseUrl}?${params.toString()}`;
 
@@ -76,9 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 color: { dark: '#0F6E56', light: '#FFFFFF' }
             });
 
-            summaryEmpId.textContent = empId;
-            summaryEmpName.textContent = empName;
-            summaryProject.textContent = project;
+            // ส่งข้อมูลไป /api/qr-logs
+            try {
+                await fetch('/api/qr-logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employee_id: data.empId,
+                        employee_name: data.empName,
+                        project_name: data.projectName,
+                        customer_name: data.customerName,
+                        generated_url: generatedSurveyUrl
+                    })
+                });
+            } catch (err) {
+                console.warn('Failed to log QR generation:', err);
+            }
+
+            displayEmpId.textContent = data.empId;
+            displayEmpName.textContent = data.empName;
+            displayProject.textContent = data.projectName;
+            displayCustomer.textContent = data.customerName;
 
             formCard.classList.add('hidden');
             qrSection.classList.remove('hidden');

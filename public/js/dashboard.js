@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (recentResponses.length === 0) {
                 recentTbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                        <td colspan="6" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
                             ไม่มีผลการประเมินล่าสุดในช่วงเวลานี้
                         </td>
                     </tr>
@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td style="color: var(--text-secondary); white-space: nowrap;">${formattedDate}</td>
                         <td><strong>${escapeHTML(row.employee_name)}</strong> <span class="caption">(${escapeHTML(row.employee_id)})</span></td>
                         <td>${escapeHTML(row.project_name || '-')}</td>
+                        <td>${escapeHTML(row.customer_name || '-')}</td>
                         <td style="text-align: center;">
                             <span class="${badgeClass}">${row.score}</span>
                         </td>

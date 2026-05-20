@@ -32,18 +32,23 @@
         <!-- Form Card -->
         <main class="card" id="form-card">
             <div class="form-group">
-                <label for="employee-id">รหัสพนักงาน <span>*</span></label>
-                <input type="text" id="employee-id" class="form-control" placeholder="เช่น E001" autocomplete="username">
+                <label for="empId">รหัสพนักงาน <span class="required">*</span></label>
+                <input type="text" id="empId" class="form-control" placeholder="เช่น E001" autocomplete="off" required>
             </div>
 
             <div class="form-group">
-                <label for="employee-name">ชื่อ-นามสกุล <span>*</span></label>
-                <input type="text" id="employee-name" class="form-control" placeholder="เช่น สมชาย ใจดี" autocomplete="name">
+                <label for="empName">ชื่อ-นามสกุล <span class="required">*</span></label>
+                <input type="text" id="empName" class="form-control" placeholder="เช่น สมชาย ใจดี" autocomplete="off" required>
             </div>
 
             <div class="form-group">
-                <label for="project-name">ชื่อโครงการ / ลูกค้า <span>*</span></label>
-                <input type="text" id="project-name" class="form-control" placeholder="เช่น ABC Tower">
+                <label for="projectName">ชื่อโครงการ / Job Number <span class="required">*</span></label>
+                <input type="text" id="projectName" class="form-control" placeholder="เช่น JOB-2026-001 หรือ ABC Tower" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="customerName">ลูกค้า <span class="required">*</span></label>
+                <input type="text" id="customerName" class="form-control" placeholder="เช่น บริษัท ABC จำกัด" autocomplete="off" required>
             </div>
 
             <button type="button" id="btn-generate" class="btn btn-primary">
@@ -58,18 +63,22 @@
                     <canvas id="qr-canvas"></canvas>
                 </div>
                 
-                <div class="qr-summary">
+                <div class="qr-info">
                     <div class="qr-summary-row">
-                        <span>รหัสพนักงาน:</span>
-                        <span id="summary-emp-id">-</span>
+                        <span class="qr-info-label">รหัสพนักงาน:</span>
+                        <span class="qr-info-value" id="displayEmpId">-</span>
                     </div>
                     <div class="qr-summary-row">
-                        <span>พนักงานผู้ดูแล:</span>
-                        <span id="summary-emp-name">-</span>
+                        <span class="qr-info-label">ชื่อเซลล์:</span>
+                        <span class="qr-info-value" id="displayEmpName">-</span>
                     </div>
                     <div class="qr-summary-row">
-                        <span>โครงการ / ลูกค้า:</span>
-                        <span id="summary-project">-</span>
+                        <span class="qr-info-label">โครงการ:</span>
+                        <span class="qr-info-value" id="displayProject">-</span>
+                    </div>
+                    <div class="qr-summary-row">
+                        <span class="qr-info-label">ลูกค้า:</span>
+                        <span class="qr-info-value" id="displayCustomer">-</span>
                     </div>
                 </div>
             </div>

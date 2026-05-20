@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
     const { employee_id, employee_name, project_name, customer_name, generated_url } = req.body;
     
     // Validation
-    if (!employee_id || !employee_name || !generated_url) {
+    if (!employee_id || !employee_name || !project_name || !customer_name) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 

@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    document.getElementById('display-emp-name').textContent = session.emp_name;
-    document.getElementById('display-project').textContent = session.project || '-';
+    document.getElementById('empName').textContent = session.emp_name;
+    document.getElementById('projectName').textContent = session.project || '-';
+    document.getElementById('customerName').textContent = session.customer || '-';
 
     setupRating();
     setupSubmit(session);
@@ -140,7 +141,7 @@ function setupSubmit(session) {
                     emp_id: session.emp_id,
                     emp_name: session.emp_name,
                     project: session.project,
-                    customer_name: session.customer || '',
+                    customer_name: session.customer,
                     satisfaction_score: score,
                     suggestions
                 })
