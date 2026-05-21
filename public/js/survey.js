@@ -23,7 +23,9 @@ window.addEventListener('pageshow', (event) => {
             window.location.replace('/next-step.html');
             return;
         }
-        const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+        const completedKey = session.job_no
+            ? 'sst_completed_job_' + session.job_no
+            : 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
         if (localStorage.getItem(completedKey) === 'true') {
             window.location.replace('/thank-you.html?already_completed=1');
             return;
@@ -46,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ป้องกันการประเมินซ้ำถ้าเคยส่งผลประเมินเรียบร้อยแล้ว
-    const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+    const completedKey = session.job_no
+        ? 'sst_completed_job_' + session.job_no
+        : 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
     if (localStorage.getItem(completedKey) === 'true') {
         window.location.replace('/thank-you.html?already_completed=1');
         return;
@@ -172,14 +176,17 @@ function setupSubmit(session) {
                     project: session.project,
                     customer_name: session.customer,
                     satisfaction_score: score,
-                    suggestions
+                    suggestions,
+                    job_no: session.job_no || ''
                 })
             });
             
             if (!res.ok) throw new Error('Submit failed');
 
             // บันทึกสถานะว่าทำแบบสอบถามการสแกนนี้เรียบร้อยแล้วลงใน localStorage เพื่อใช้ป้องกันการทำซ้ำทันที
-            const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+            const completedKey = session.job_no
+                ? 'sst_completed_job_' + session.job_no
+                : 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
             localStorage.setItem(completedKey, 'true');
 
             // 2. ยิง Event "survey_submitted" → event tracking

@@ -277,11 +277,6 @@ p {
     gap: 8px;
 }
 
-#btn-next-customer {
-    margin-top: 16px;
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
-}
-
 .btn-subtle-text {
     background: none;
     border: none;

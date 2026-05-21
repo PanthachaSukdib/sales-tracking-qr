@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeIdInput = document.getElementById('empId');
     const employeeNameInput = document.getElementById('empName');
     const projectNameInput = document.getElementById('projectName');
+    const jobNoInput = document.getElementById('jobNo');
     const customerNameInput = document.getElementById('customerName');
     const btnGenerate = document.getElementById('btn-generate');
     
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const displayEmpId = document.getElementById('displayEmpId');
     const displayEmpName = document.getElementById('displayEmpName');
+    const displayJobNo = document.getElementById('displayJobNo');
     const displayProject = document.getElementById('displayProject');
     const displayCustomer = document.getElementById('displayCustomer');
     
@@ -21,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnShare = document.getElementById('btn-share');
     const btnCopy = document.getElementById('btn-copy');
     const btnReset = document.getElementById('btn-reset');
-    const btnNextCustomer = document.getElementById('btn-next-customer');
     
     const toast = document.getElementById('toast');
 
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (displayEmpId) displayEmpId.textContent = '-';
         if (displayEmpName) displayEmpName.textContent = '-';
+        if (displayJobNo) displayJobNo.textContent = '-';
         if (displayProject) displayProject.textContent = '-';
         if (displayCustomer) displayCustomer.textContent = '-';
     }
@@ -103,10 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
             empId: employeeIdInput.value.trim(),
             empName: employeeNameInput.value.trim(),
             projectName: projectNameInput.value.trim(),
+            jobNo: jobNoInput.value.trim(),
             customerName: customerNameInput.value.trim()
         };
 
-        if (!data.empId || !data.empName || !data.projectName || !data.customerName) {
+        if (!data.empId || !data.empName || !data.projectName || !data.jobNo || !data.customerName) {
             showToast('กรุณากรอกข้อมูลให้ครบทุกช่อง');
             return;
         }
@@ -129,21 +132,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? QR_REDIRECT_BASE
                 : window.location.origin + QR_REDIRECT_BASE;
             
-            const params = new URLSearchParams({
+            // คาดการณ์ URL ชั่วคราวก่อน (สำหรับเคสข้อมูลใหม่)
+            const tempParams = new URLSearchParams({
                 emp_id: data.empId,
                 emp_name: data.empName,
                 project: data.projectName,
-                customer: data.customerName
+                customer: data.customerName,
+                job_no: data.jobNo
             });
-            generatedSurveyUrl = `${baseUrl}?${params.toString()}`;
+            const tempUrl = `${baseUrl}?${tempParams.toString()}`;
 
-            // ดึง canvas ตัวใหม่ที่ถูกสร้างขึ้นจากการ cleanup เสมอ
-            const newCanvas = document.getElementById('qr-canvas');
-            await renderQR(newCanvas, generatedSurveyUrl);
+            let finalUrl = tempUrl;
+            let displayData = { ...data };
+            let isDuplicate = false;
 
-            // ส่งข้อมูลไป /api/qr-logs
+            // ตรวจสอบกับเซิร์ฟเวอร์ก่อนว่า เลข Job นี้เคยเจนไปแล้วหรือยัง
             try {
-                await fetch('/api/qr-logs', {
+                const response = await fetch('/api/qr-logs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -151,23 +156,51 @@ document.addEventListener('DOMContentLoaded', () => {
                         employee_name: data.empName,
                         project_name: data.projectName,
                         customer_name: data.customerName,
-                        generated_url: generatedSurveyUrl
+                        generated_url: tempUrl,
+                        job_number: data.jobNo
                     })
                 });
+
+                if (response.ok) {
+                    const resData = await response.json();
+                    if (resData.already_exists) {
+                        isDuplicate = true;
+                        finalUrl = resData.generated_url || tempUrl;
+                        displayData = {
+                            empId: resData.employee_id || data.empId,
+                            empName: resData.employee_name || data.empName,
+                            projectName: resData.project_name || data.projectName,
+                            customerName: resData.customer_name || data.customerName,
+                            jobNo: data.jobNo
+                        };
+                    }
+                }
             } catch (err) {
-                console.warn('Failed to log QR generation:', err);
+                console.warn('Failed to communicate with qr-logs backend:', err);
             }
 
-            displayEmpId.textContent = data.empId;
-            displayEmpName.textContent = data.empName;
-            displayProject.textContent = data.projectName;
-            displayCustomer.textContent = data.customerName;
+            generatedSurveyUrl = finalUrl;
+
+            // ดึง canvas ตัวใหม่ที่ถูกสร้างขึ้นจากการ cleanup เสมอ
+            const newCanvas = document.getElementById('qr-canvas');
+            await renderQR(newCanvas, generatedSurveyUrl);
+
+            displayEmpId.textContent = displayData.empId;
+            displayEmpName.textContent = displayData.empName;
+            displayJobNo.textContent = displayData.jobNo;
+            displayProject.textContent = displayData.projectName;
+            displayCustomer.textContent = displayData.customerName;
 
             formCard.classList.add('hidden');
             qrSection.classList.remove('hidden');
             
             qrSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            showToast('สร้าง QR Code สำเร็จ!');
+
+            if (isDuplicate) {
+                showToast('พบเลข Job นี้ในระบบแล้ว ดึงข้อมูล QR Code เดิม', 4000);
+            } else {
+                showToast('สร้าง QR Code สำเร็จ!');
+            }
 
         } catch (error) {
             console.error('QR Generation error:', error);
@@ -301,36 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnCopy.addEventListener('click', copyLinkToClipboard);
 
-    // ปุ่มสร้าง QR ให้ลูกค้าถัดไป (Next Customer)
-    if (btnNextCustomer) {
-        btnNextCustomer.addEventListener('click', () => {
-            // เคลียร์ข้อมูลโครงการและชื่อลูกค้า (เก็บรหัส/ชื่อพนักงานไว้)
-            projectNameInput.value = '';
-            customerNameInput.value = '';
-            
-            // ทำความสะอาด QR Section
-            cleanupQrSection();
-            
-            // สลับกลับไปแสดงหน้าฟอร์ม
-            qrSection.classList.add('hidden');
-            formCard.classList.remove('hidden');
-            
-            // เลื่อนกลับไปด้านบนอย่างนุ่มนวล
-            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
-            // โฟกัสไปที่ช่องชื่อโครงการเพื่อให้พร้อมพิมพ์ทันที
-            setTimeout(() => {
-                projectNameInput.focus();
-            }, 350);
-        });
-    }
-
     // ปุ่มสร้าง QR ใหม่ (Reset ทั้งระบบ)
     btnReset.addEventListener('click', () => {
         // ล้างข้อมูลทุกฟิลด์
         employeeIdInput.value = '';
         employeeNameInput.value = '';
         projectNameInput.value = '';
+        jobNoInput.value = '';
         customerNameInput.value = '';
         
         // ลบข้อมูลที่บันทึกไว้ใน localStorage
