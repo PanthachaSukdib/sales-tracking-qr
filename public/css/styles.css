@@ -277,6 +277,20 @@ p {
     gap: 8px;
 }
 
+@media (max-width: 480px) {
+    .btn-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .btn-grid button:last-child {
+        grid-column: span 2;
+    }
+    .btn {
+        font-size: 14px;
+        padding: 12px 8px;
+        white-space: nowrap;
+    }
+}
+
 .btn-subtle-text {
     background: none;
     border: none;
