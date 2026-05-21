@@ -12,15 +12,21 @@ router.get('/check-completed', async (req, res) => {
     }
 
     try {
-        const surveys = await getAllRowsAsObjects('survey_results').catch(err => {
-            console.warn('Failed to fetch survey results for duplicate check, skipping:', err);
-            return [];
-        });
+        const [surveys, events] = await Promise.all([
+            getAllRowsAsObjects('survey_results').catch(err => {
+                console.warn('Failed to fetch survey results for duplicate check, skipping:', err);
+                return [];
+            }),
+            getAllRowsAsObjects('events').catch(err => {
+                console.warn('Failed to fetch events for duplicate check, skipping:', err);
+                return [];
+            })
+        ]);
 
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const now = Date.now();
 
-        // ตรวจสอบว่าพนักงาน ลูกค้า โครงการ นี้เคยประเมินไปแล้วใน 24 ชั่วโมงที่ผ่านมาหรือไม่
+        // 1. ตรวจสอบว่าพนักงาน ลูกค้า โครงการ นี้เคยประเมินให้ดาวไปแล้วใน 24 ชั่วโมงที่ผ่านมาหรือไม่
         const alreadyCompleted = surveys.some(s => {
             const isMatch = s.employee_id === emp_id &&
                             s.customer_name === customer &&
@@ -33,7 +39,26 @@ router.get('/check-completed', async (req, res) => {
             return (now - submittedAt) < ONE_DAY_MS;
         });
 
-        res.json({ completed: alreadyCompleted });
+        // 2. ตรวจสอบว่าเคยดำเนินการทำแบบฟอร์มขั้นตอนสุดท้าย (คลิกไปต่อ หรือกดข้าม) ไปแล้วหรือยังใน 24 ชม.
+        const finalStepDone = events.some(evt => {
+            const isMatch = evt.employee_id === emp_id &&
+                            evt.customer_name === customer &&
+                            evt.project_name === project;
+            if (!isMatch) return false;
+
+            const isFinalEvent = evt.event_type === 'ms_forms_opened' || evt.event_type === 'skipped_ms_forms';
+            if (!isFinalEvent) return false;
+
+            const eventTime = new Date(evt.timestamp).getTime();
+            if (isNaN(eventTime)) return false;
+
+            return (now - eventTime) < ONE_DAY_MS;
+        });
+
+        res.json({ 
+            completed: alreadyCompleted,
+            final_step_done: finalStepDone
+        });
     } catch (err) {
         console.error('Check completed failed:', err);
         res.status(500).json({ error: 'Failed to check completion status' });

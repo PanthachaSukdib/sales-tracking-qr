@@ -79,11 +79,32 @@
         return;
       }
 
-      // 1. ตรวจสอบใน localStorage ก่อนเพื่อการตอบสนองที่รวดเร็ว (Instant Block)
+      // 1. ตรวจสอบใน localStorage ก่อนเพื่อการตอบสนองที่รวดเร็ว (Instant Check)
       const completedKey = 'sst_completed_' + empId + '_' + customer + '_' + project;
+      const finalDoneKey = 'sst_final_done_' + empId + '_' + customer + '_' + project;
+
       if (localStorage.getItem(completedKey) === 'true') {
-        window.location.href = '/thank-you.html?already_completed=1';
-        return;
+        if (localStorage.getItem(finalDoneKey) === 'true') {
+          // หากผู้ใช้ให้ดาวและทำฟอร์มครบหมดแล้ว → ส่งไปหน้าขอบคุณทันที
+          window.location.replace('/thank-you.html?already_completed=1');
+          return;
+        } else {
+          // หากผู้ใช้ให้ดาวแล้วแต่เผลอกดออก/ปิดเว็บก่อนทำฟอร์ม → ฟื้นฟู Session และพาไปหน้า Bridge สเต็ปถัดไปเพื่อกรอกฟอร์มต่อ
+          const sessionId = generateUUID();
+          const session = {
+            session_id: sessionId,
+            emp_id: empId,
+            emp_name: empName,
+            project: project,
+            customer: customer,
+            scanned_at: Date.now(),
+            expires_at: Date.now() + (4 * 60 * 60 * 1000),
+            survey_score: 5 // คะแนนจำลองเพื่อให้ระบบสเต็ป 3 สามารถทำงานได้ถูกต้อง
+          };
+          localStorage.setItem('sst_session', JSON.stringify(session));
+          window.location.replace('/next-step.html');
+          return;
+        }
       }
 
       // 2. ตรวจสอบที่ฝั่ง Server (Fallback เผื่อลูกค้าล้าง Cache หรือสแกนผ่านอุปกรณ์อื่น)
@@ -93,8 +114,27 @@
           const checkData = await checkRes.json();
           if (checkData.completed) {
             localStorage.setItem(completedKey, 'true');
-            window.location.href = '/thank-you.html?already_completed=1';
-            return;
+            if (checkData.final_step_done) {
+              localStorage.setItem(finalDoneKey, 'true');
+              window.location.replace('/thank-you.html?already_completed=1');
+              return;
+            } else {
+              // ให้ดาวแล้วแต่ยังทำฟอร์มไม่เสร็จ → สร้าง Session พาไปทำฟอร์มต่อทันที
+              const sessionId = generateUUID();
+              const session = {
+                session_id: sessionId,
+                emp_id: empId,
+                emp_name: empName,
+                project: project,
+                customer: customer,
+                scanned_at: Date.now(),
+                expires_at: Date.now() + (4 * 60 * 60 * 1000),
+                survey_score: 5
+              };
+              localStorage.setItem('sst_session', JSON.stringify(session));
+              window.location.replace('/next-step.html');
+              return;
+            }
           }
         }
       } catch (err) {
