@@ -47,8 +47,9 @@ body {
     line-height: 1.5;
     padding: 16px;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -823,9 +824,11 @@ tr:hover td {
 
 .webview-banner {
     position: sticky;
-    top: 0;
+    top: -16px;
     left: 0;
     right: 0;
+    width: calc(100% + 32px);
+    margin: -16px -16px 16px -16px;
     background: #FEF3C7;
     border-bottom: 1px solid #FDE68A;
     z-index: 1000;
