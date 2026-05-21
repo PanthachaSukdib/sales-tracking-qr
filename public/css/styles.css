@@ -821,3 +821,100 @@ tr:hover td {
     color: var(--primary);
 }
 
+.webview-banner {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FEF3C7;
+    border-bottom: 1px solid #FDE68A;
+    z-index: 1000;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to   { transform: translateY(0); }
+}
+
+.webview-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.webview-icon {
+    flex-shrink: 0;
+    color: #92400E;
+}
+
+.webview-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.webview-title {
+    color: #92400E;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 2px;
+    line-height: 1.4;
+}
+
+.webview-detail {
+    color: #78350F;
+    font-size: 11px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.webview-btn {
+    flex-shrink: 0;
+    background: #0F6E56;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.webview-btn:active {
+    transform: scale(0.96);
+}
+
+/* Long-press hint บน QR สำหรับ WebView users */
+.qr-longpress-hint {
+    display: none;
+    background: #EFF6FF;
+    border: 1px dashed #93C5FD;
+    color: #1E40AF;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.is-in-app-browser .qr-longpress-hint {
+    display: block;
+}
+
+.is-in-app-browser #btn-save .normal-label {
+    display: none;
+}
+
+.is-in-app-browser #btn-save .webview-label {
+    display: inline;
+}
+
+#btn-save .webview-label {
+    display: none;
+}
+

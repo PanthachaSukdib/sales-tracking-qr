@@ -37,13 +37,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let toastTimeout = null;
-    function showToast(message) {
+    function showToast(message, duration = 2200) {
         if (toastTimeout) clearTimeout(toastTimeout);
         toast.textContent = message;
         toast.classList.add('show');
         toastTimeout = setTimeout(() => {
             toast.classList.remove('show');
-        }, 2200);
+        }, duration);
+    }
+
+    // หลังจากสร้าง QR Canvas เสร็จ ให้แปลงเป็น <img> ด้วย เพื่อให้ long-press ได้
+    async function renderQR(canvas, url) {
+        await QRCode.toCanvas(canvas, url, {
+            width: 240,
+            margin: 1,
+            color: { dark: '#0F6E56', light: '#FFFFFF' },
+            errorCorrectionLevel: 'M'
+        });
+
+        // สร้าง <img> overlay สำหรับ long-press save (สำคัญสำหรับ Android WebView)
+        const dataUrl = canvas.toDataURL('image/png');
+        let img = document.getElementById('qr-image-overlay');
+        if (!img) {
+            img = document.createElement('img');
+            img.id = 'qr-image-overlay';
+            img.alt = 'QR Code';
+            img.width = 240;
+            img.height = 240;
+            img.style.cssText = `
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                opacity: 0;
+                pointer-events: none;
+            `;
+            canvas.parentElement.style.position = 'relative';
+            canvas.parentElement.appendChild(img);
+        }
+        img.src = dataUrl;
+
+        // ใน WebView ให้ <img> รับ touch event แทน canvas
+        if (window.InAppBrowser && window.InAppBrowser.detect()) {
+            img.style.opacity = '1';
+            img.style.pointerEvents = 'auto';
+            canvas.style.opacity = '0';
+        }
     }
 
     btnGenerate.addEventListener('click', async () => {
@@ -82,11 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             generatedSurveyUrl = `${baseUrl}?${params.toString()}`;
 
-            await QRCode.toCanvas(qrCanvas, generatedSurveyUrl, {
-                width: 240,
-                margin: 2,
-                color: { dark: '#0F6E56', light: '#FFFFFF' }
-            });
+            await renderQR(qrCanvas, generatedSurveyUrl);
 
             // ส่งข้อมูลไป /api/qr-logs
             try {
@@ -125,46 +159,97 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    btnSave.addEventListener('click', () => {
+    // Save button
+    btnSave.addEventListener('click', async function() {
+        const canvas = document.getElementById('qr-canvas');
+        if (!canvas) return;
+
+        const inApp = window.InAppBrowser && window.InAppBrowser.detect();
+        const isAndroid = window.InAppBrowser && window.InAppBrowser.isAndroid();
+
+        // ถ้าเป็น in-app browser บน Android — บอกให้กดค้างที่รูปแทน
+        if (inApp && isAndroid) {
+            showToast('กดค้างที่ QR Code ด้านบน → เลือก "บันทึกรูปภาพ"', 4000);
+            return;
+        }
+
+        // ปกติ: ดาวน์โหลดผ่าน canvas
         try {
-            const dataUrl = qrCanvas.toDataURL('image/png');
             const link = document.createElement('a');
-            const empId = employeeIdInput.value.trim();
-            const project = projectNameInput.value.trim().replace(/\s+/g, '_');
-            link.download = `qr_${empId}_${project}.png`;
-            link.href = dataUrl;
+            const empId = document.getElementById('displayEmpId').textContent || 'qr';
+            const safeName = empId.replace(/[^a-zA-Z0-9_-]/g, '');
+            link.download = `QR_${safeName}_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast('บันทึกรูปภาพลงเครื่องสำเร็จ!');
+            showToast('บันทึกรูปภาพแล้ว');
         } catch (err) {
-            showToast('ไม่สามารถบันทึกรูปภาพได้');
+            console.error(err);
+            showToast('ไม่สามารถบันทึกได้ กรุณากดค้างที่ QR Code');
         }
     });
 
-    btnShare.addEventListener('click', async () => {
-        const empId = employeeIdInput.value.trim();
-        const project = projectNameInput.value.trim();
-        const shareText = `แบบสอบถามความพึงพอใจการให้บริการโดยพนักงานรหัส ${empId} โครงการ ${project}`;
+    // Share button — fallback ฉลาดขึ้น
+    btnShare.addEventListener('click', async function() {
+        const canvas = document.getElementById('qr-canvas');
+        if (!canvas) return;
 
+        const empName = document.getElementById('displayEmpName').textContent || '';
+        const project = document.getElementById('displayProject').textContent || '';
+        const customer = document.getElementById('displayCustomer').textContent || '';
+        const shareText = `แบบประเมินความพึงพอใจจาก ${empName}\nโครงการ: ${project}\nลูกค้า: ${customer}\n\nกรุณาสแกน QR หรือคลิกลิงก์`;
+
+        const inApp = window.InAppBrowser && window.InAppBrowser.detect();
+        const isAndroid = window.InAppBrowser && window.InAppBrowser.isAndroid();
+
+        // ใน Android WebView — Web Share API มักใช้ไม่ได้ → copy ลิงก์ทันที
+        if (inApp && isAndroid) {
+            try {
+                await navigator.clipboard.writeText(generatedSurveyUrl);
+                showToast('คัดลอกลิงก์แล้ว — ไปวางในแอปที่ต้องการแชร์', 3500);
+            } catch {
+                showToast('กรุณาเปิดในเบราว์เซอร์เพื่อใช้งานการแชร์');
+            }
+            return;
+        }
+
+        // ปกติ: ลองแชร์ไฟล์ก่อน
         try {
-            if (navigator.share) {
-                const blob = await new Promise(resolve => qrCanvas.toBlob(resolve, 'image/png'));
-                const file = new File([blob], `qr_${empId}.png`, { type: 'image/png' });
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], 'QR_Survey.png', { type: 'image/png' });
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ title: 'แบบสอบถาม', text: shareText, files: [file] });
-                    showToast('แชร์ QR Code สำเร็จ!');
-                    return;
-                } else {
-                    await navigator.share({ title: 'แบบสอบถาม', text: shareText, url: generatedSurveyUrl });
-                    showToast('แชร์ลิงก์สำเร็จ!');
-                    return;
+            if (window.InAppBrowser?.canShareFiles() && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'QR Code แบบประเมิน',
+                    text: shareText
+                });
+                return;
+            }
+
+            if (navigator.share) {
+                await navigator.share({
+                    title: 'QR Code แบบประเมิน',
+                    text: shareText,
+                    url: generatedSurveyUrl
+                });
+                return;
+            }
+
+            // No share API at all → copy
+            await navigator.clipboard.writeText(generatedSurveyUrl);
+            showToast('คัดลอกลิงก์แล้ว — ไปวางในแอปที่ต้องการแชร์', 3500);
+        } catch (err) {
+            if (err && err.name !== 'AbortError') {
+                // ลอง copy เป็น fallback ของ fallback
+                try {
+                    await navigator.clipboard.writeText(generatedSurveyUrl);
+                    showToast('คัดลอกลิงก์แล้ว', 3000);
+                } catch {
+                    showToast('แชร์ไม่สำเร็จ');
                 }
             }
-            copyLinkToClipboard();
-        } catch (err) {
-            if (err.name !== 'AbortError') { copyLinkToClipboard(); }
         }
     });
 
@@ -203,4 +288,20 @@ document.addEventListener('DOMContentLoaded', () => {
         formCard.classList.remove('hidden');
         formCard.scrollIntoView({ behavior: 'smooth' });
     });
+
+    // Setup WebView banner
+    const inAppApp = window.InAppBrowser && window.InAppBrowser.detect();
+    if (inAppApp) {
+        const banner = document.getElementById('webview-banner');
+        const appName = document.getElementById('webview-app-name');
+        if (banner) banner.hidden = false;
+        if (appName) appName.textContent = inAppApp;
+
+        const openBtn = document.getElementById('open-in-browser-btn');
+        if (openBtn) {
+            openBtn.addEventListener('click', () => {
+                window.InAppBrowser.openInExternalBrowser();
+            });
+        }
+    }
 });
