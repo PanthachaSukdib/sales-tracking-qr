@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnShare = document.getElementById('btn-share');
     const btnCopy = document.getElementById('btn-copy');
     const btnReset = document.getElementById('btn-reset');
+    const btnNextCustomer = document.getElementById('btn-next-customer');
     
     const toast = document.getElementById('toast');
 
@@ -44,6 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimeout = setTimeout(() => {
             toast.classList.remove('show');
         }, duration);
+    }
+
+    // ฟังก์ชันทำความสะอาด QR Section และ Canvas container
+    function cleanupQrSection() {
+        const container = document.querySelector('.qr-canvas-container');
+        if (container) {
+            container.innerHTML = '<canvas id="qr-canvas"></canvas>';
+        }
+        
+        if (displayEmpId) displayEmpId.textContent = '-';
+        if (displayEmpName) displayEmpName.textContent = '-';
+        if (displayProject) displayProject.textContent = '-';
+        if (displayCustomer) displayCustomer.textContent = '-';
     }
 
     // หลังจากสร้าง QR Canvas เสร็จ ให้แปลงเป็น <img> ด้วย เพื่อให้ long-press ได้
@@ -107,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btnGenerate.textContent = 'กำลังสร้าง QR Code...';
 
         try {
+            // ทำความสะอาดรูป/canvas และข้อความเก่าทั้งหมดก่อนสร้างใหม่ ป้องกันการซ้อนทับ
+            cleanupQrSection();
+
             const QR_REDIRECT_BASE = window.QR_REDIRECT_BASE || '/scan.html';
             const baseUrl = QR_REDIRECT_BASE.startsWith('http')
                 ? QR_REDIRECT_BASE
@@ -120,7 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             generatedSurveyUrl = `${baseUrl}?${params.toString()}`;
 
-            await renderQR(qrCanvas, generatedSurveyUrl);
+            // ดึง canvas ตัวใหม่ที่ถูกสร้างขึ้นจากการ cleanup เสมอ
+            const newCanvas = document.getElementById('qr-canvas');
+            await renderQR(newCanvas, generatedSurveyUrl);
 
             // ส่งข้อมูลไป /api/qr-logs
             try {
@@ -282,11 +301,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnCopy.addEventListener('click', copyLinkToClipboard);
 
+    // ปุ่มสร้าง QR ให้ลูกค้าถัดไป (Next Customer)
+    if (btnNextCustomer) {
+        btnNextCustomer.addEventListener('click', () => {
+            // เคลียร์ข้อมูลโครงการและชื่อลูกค้า (เก็บรหัส/ชื่อพนักงานไว้)
+            projectNameInput.value = '';
+            customerNameInput.value = '';
+            
+            // ทำความสะอาด QR Section
+            cleanupQrSection();
+            
+            // สลับกลับไปแสดงหน้าฟอร์ม
+            qrSection.classList.add('hidden');
+            formCard.classList.remove('hidden');
+            
+            // เลื่อนกลับไปด้านบนอย่างนุ่มนวล
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // โฟกัสไปที่ช่องชื่อโครงการเพื่อให้พร้อมพิมพ์ทันที
+            setTimeout(() => {
+                projectNameInput.focus();
+            }, 350);
+        });
+    }
+
+    // ปุ่มสร้าง QR ใหม่ (Reset ทั้งระบบ)
     btnReset.addEventListener('click', () => {
+        // ล้างข้อมูลทุกฟิลด์
+        employeeIdInput.value = '';
+        employeeNameInput.value = '';
         projectNameInput.value = '';
+        customerNameInput.value = '';
+        
+        // ลบข้อมูลที่บันทึกไว้ใน localStorage
+        localStorage.removeItem('sst_employee');
+        
+        // ทำความสะอาด QR Section
+        cleanupQrSection();
+        
+        // สลับกลับไปแสดงหน้าฟอร์ม
         qrSection.classList.add('hidden');
         formCard.classList.remove('hidden');
-        formCard.scrollIntoView({ behavior: 'smooth' });
+        
+        // เลื่อนกลับไปด้านบนอย่างนุ่มนวล
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // โฟกัสที่รหัสพนักงานเพื่อให้เริ่มกรอกใหม่ทั้งหมด
+        setTimeout(() => {
+            employeeIdInput.focus();
+        }, 350);
     });
 
     // Setup WebView banner

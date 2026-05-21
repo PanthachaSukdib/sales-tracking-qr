@@ -261,6 +261,15 @@ p {
     background-color: #B91C1C;
 }
 
+.btn-success {
+    background-color: var(--success);
+    color: #FFFFFF;
+}
+
+.btn-success:hover {
+    background-color: #11843b;
+}
+
 /* Action button rows */
 .btn-grid {
     display: grid;
@@ -268,21 +277,28 @@ p {
     gap: 8px;
 }
 
+#btn-next-customer {
+    margin-top: 16px;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+
 .btn-subtle-text {
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    padding: 8px;
+    padding: 12px 8px 4px 8px;
     text-align: center;
     width: 100%;
     transition: var(--transition);
+    opacity: 0.8;
 }
 
 .btn-subtle-text:hover {
-    color: var(--primary);
+    color: var(--danger);
+    opacity: 1;
 }
 
 /* --- QR Code Display Section --- */
