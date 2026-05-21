@@ -27,6 +27,15 @@
                     ความคิดเห็นของคุณมีค่าและจะช่วยปรับปรุงการบริการของเรา
                 </p>
             </div>
+
+            <!-- Skipped MS Forms reminder (hidden by default) -->
+            <div id="skipped-reminder" class="bridge-info-box" style="display: none; text-align: left;">
+                <div class="bridge-info-icon">📋</div>
+                <div>
+                    <strong>ยังไม่ได้กรอกแบบฟอร์มเพิ่มเติม</strong>
+                    <p style="font-size: 13px; margin-top: 4px;">หากท่านมีโอกาส สามารถกรอกข้อมูลเพิ่มเติมภายหลังได้ โดยติดต่อเจ้าหน้าที่ผู้ให้บริการเพื่อขอลิงก์อีกครั้ง</p>
+                </div>
+            </div>
             
             <div style="border-top: 1px solid var(--border); padding-top: 20px; color: var(--text-secondary); font-size: 12px;">
                 ระบบเก็บสถิติความพึงพอใจการให้บริการลูกค้า
@@ -39,8 +48,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const scoreVal = parseInt(urlParams.get('score'), 10);
+            const skipped = urlParams.get('skipped') === '1';
             const reassuranceText = document.getElementById('reassurance-text');
             const pulseBadge = document.getElementById('pulse-badge');
+            const skippedReminder = document.getElementById('skipped-reminder');
 
             if (!isNaN(scoreVal)) {
                 if (scoreVal >= 4) {
@@ -50,6 +61,11 @@
                     // Optional: Change badge color for lower scores to warning orange
                     pulseBadge.style.backgroundColor = 'var(--primary-light)';
                 }
+            }
+
+            // แสดง reminder ถ้าลูกค้ากด "ข้ามขั้นตอน" จากหน้า Bridge
+            if (skipped) {
+                skippedReminder.style.display = 'flex';
             }
         });
     </script>

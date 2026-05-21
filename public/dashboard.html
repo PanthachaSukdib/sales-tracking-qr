@@ -115,6 +115,34 @@
 
         </section>
 
+        <!-- Customer Journey Funnel -->
+        <section class="funnel-grid" style="margin-top: 24px; margin-bottom: 24px;">
+            <!-- Step 1: Scan -->
+            <div class="funnel-card step-1">
+                <span class="funnel-label">ขั้นตอนที่ 1</span>
+                <strong style="font-size: 15px; margin: 4px 0; color: var(--text-primary);">สแกน QR Code (Scan)</strong>
+                <span class="funnel-value" id="funnel-scan">0</span>
+                <span class="funnel-rate good">100% (เริ่มต้น)</span>
+            </div>
+            <!-- Step 2: Survey -->
+            <div class="funnel-card step-2">
+                <span class="funnel-label">ขั้นตอนที่ 2</span>
+                <strong style="font-size: 15px; margin: 4px 0; color: var(--text-primary);">ให้ดาวความพึงพอใจ (Survey)</strong>
+                <span class="funnel-value" id="funnel-survey">0</span>
+                <span class="funnel-rate" id="funnel-survey-rate">0%</span>
+            </div>
+            <!-- Step 3: MS Forms -->
+            <div class="funnel-card step-3">
+                <span class="funnel-label">ขั้นตอนที่ 3</span>
+                <strong style="font-size: 15px; margin: 4px 0; color: var(--text-primary);">เปิดฟอร์ม (MS Forms)</strong>
+                <span class="funnel-value" id="funnel-forms">0</span>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 4px;">
+                    <span class="funnel-rate" id="funnel-forms-rate">0%</span>
+                    <span style="font-size: 11px; color: var(--text-secondary);" id="funnel-skipped-count">(ข้าม: 0 รายการ)</span>
+                </div>
+            </div>
+        </section>
+
         <!-- Main Dashboard Data Layout -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-top: 8px;">
             
@@ -148,6 +176,35 @@
                     </table>
                 </div>
             </main>
+
+            <!-- Table 2: Pending Customers -->
+            <section class="card" style="gap: 16px; flex: 1;">
+                <div class="card-title" style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h2>ลูกค้าที่ยังไม่ครบขั้นตอน (ลูกค้าค้าง)</h2>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">รายชื่อลูกค้าที่สแกนแล้วแต่ยังไม่เสร็จสิ้นกระบวนการทั้งหมด</p>
+                </div>
+
+                <div class="table-responsive pending-table-container">
+                    <table id="pending-table">
+                        <thead>
+                            <tr>
+                                <th>เวลาสแกน</th>
+                                <th>ชื่อลูกค้า</th>
+                                <th>โครงการ</th>
+                                <th>พนักงานดูแล</th>
+                                <th style="text-align: center;">สถานะล่าสุด</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-tbody">
+                            <tr>
+                                <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                                    กำลังโหลดข้อมูลลูกค้ารอบริการ...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
         </div>
 

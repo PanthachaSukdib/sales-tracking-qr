@@ -52,6 +52,15 @@
   </div>
 
   <script>
+    // Generate UUID v4 for session tracking
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     (async function() {
       const params = new URLSearchParams(window.location.search);
       const empId = params.get('emp_id');
@@ -70,8 +79,12 @@
         return;
       }
 
+      // สร้าง session_id สำหรับ tracking ตลอด journey
+      const sessionId = generateUUID();
+
       // เก็บใน localStorage (session valid 4 ชม.)
       const session = {
+        session_id: sessionId,
         emp_id: empId,
         emp_name: empName,
         project: project,
@@ -81,7 +94,7 @@
       };
       localStorage.setItem('sst_session', JSON.stringify(session));
 
-      // log scan ไป backend
+      // log scan ไป backend (qr_logs — เดิม)
       try {
         await fetch('/api/qr-logs', {
           method: 'POST',
@@ -96,6 +109,24 @@
         });
       } catch (err) {
         console.warn('Log failed (continuing):', err);
+      }
+
+      // ยิง Event "scanned" → event tracking
+      try {
+        await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            event_type: 'scanned',
+            employee_id: empId,
+            employee_name: empName,
+            customer_name: customer,
+            project_name: project
+          })
+        });
+      } catch (err) {
+        console.warn('Event tracking failed (continuing):', err);
       }
 
       // Redirect ไปยังหน้าประเมินดาว survey.html หลังบันทึกข้อมูลการสแกนเสร็จสิ้น

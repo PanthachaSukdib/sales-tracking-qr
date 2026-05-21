@@ -617,3 +617,207 @@ tr:hover td {
     color: var(--text-secondary);
     line-height: 1.7;
 }
+
+/* --- Bridge Page (next-step.html) --- */
+.bridge-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 8px 0;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.progress-step span {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.progress-step.completed span,
+.progress-step.active span {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+    transition: var(--transition);
+}
+
+.progress-step.completed .step-circle {
+    background-color: var(--primary);
+    color: #FFFFFF;
+    border-color: var(--primary);
+}
+
+.progress-step.active .step-circle {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+    animation: pulse 2s infinite;
+}
+
+.progress-line {
+    width: 40px;
+    height: 3px;
+    background-color: var(--border);
+    border-radius: 2px;
+    margin: 0 4px;
+    margin-bottom: 22px;
+}
+
+.progress-line.completed {
+    background-color: var(--primary);
+}
+
+.bridge-info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background-color: var(--primary-light);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 110, 86, 0.15);
+}
+
+.bridge-info-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.bridge-info-box strong {
+    color: var(--primary);
+    font-size: 15px;
+}
+
+.bridge-info-box p {
+    color: var(--text-secondary);
+}
+
+.btn-lg {
+    padding: 16px;
+    font-size: 17px;
+    height: 56px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(15, 110, 86, 0.25);
+}
+
+.btn-lg:hover {
+    box-shadow: 0 6px 20px rgba(15, 110, 86, 0.35);
+    transform: translateY(-1px);
+}
+
+/* --- Dashboard Funnel Cards --- */
+.funnel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 640px) {
+    .funnel-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.funnel-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.funnel-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+}
+
+.funnel-card.step-1::before { background-color: var(--primary); }
+.funnel-card.step-2::before { background-color: var(--warning); }
+.funnel-card.step-3::before { background-color: #8B5CF6; }
+
+.funnel-card .funnel-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.funnel-card .funnel-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.funnel-card .funnel-rate {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.funnel-rate.good { background-color: var(--primary-light); color: var(--primary); }
+.funnel-rate.warn { background-color: #FEF3C7; color: #D97706; }
+.funnel-rate.bad { background-color: #FEE2E2; color: #DC2626; }
+
+/* Pending customers table */
+.pending-table-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.scanned-only {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+
+.status-badge.survey-done {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+.status-badge.completed {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+

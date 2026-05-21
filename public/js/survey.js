@@ -100,15 +100,6 @@ function setupSubmit(session) {
     const suggestionsInput = document.getElementById('suggestions');
     const toast = document.getElementById('toast');
 
-    // โหลดลิงก์ Microsoft Forms เตรียมรอไว้ล่วงหน้า
-    let msFormsUrl = '';
-    fetch('/api/config/ms-forms-url')
-        .then(res => res.json())
-        .then(cfg => {
-            msFormsUrl = cfg.url;
-        })
-        .catch(err => console.warn('Failed to pre-fetch MS Forms URL:', err));
-
     let toastTimeout = null;
     function showToast(message) {
         if (toastTimeout) clearTimeout(toastTimeout);
@@ -148,28 +139,43 @@ function setupSubmit(session) {
             });
             
             if (!res.ok) throw new Error('Submit failed');
-            
-            // ลบเซสชันของพนักงานออกหลังการประเมินสำเร็จ
-            localStorage.removeItem('sst_session');
 
-            // 2. แสดงแจ้งเตือนและเตรียมเปลี่ยนเส้นทางอัตโนมัติ
-            showToast('บันทึกดาวสำเร็จ! กำลังนำคุณไปยังหน้าแบบสอบถามเพิ่มเติม...');
+            // 2. ยิง Event "survey_submitted" → event tracking
+            try {
+                await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: session.session_id,
+                        event_type: 'survey_submitted',
+                        employee_id: session.emp_id,
+                        employee_name: session.emp_name,
+                        customer_name: session.customer,
+                        project_name: session.project,
+                        metadata: { score, suggestions: suggestions || null }
+                    })
+                });
+            } catch (evtErr) {
+                console.warn('Event tracking failed (continuing):', evtErr);
+            }
 
-            // 3. เปลี่ยนหน้าไปยัง Microsoft Forms อัตโนมัติ (เด้งไปทันที)
+            // 3. เก็บคะแนนไว้ใน session เพื่อส่งต่อไปยังหน้า Bridge
+            session.survey_score = score;
+            localStorage.setItem('sst_session', JSON.stringify(session));
+
+            // 4. แสดง Toast แจ้งสำเร็จ
+            showToast('บันทึกดาวสำเร็จ! กำลังนำคุณไปยังขั้นตอนถัดไป...');
+
+            // 5. Redirect ไปหน้า Bridge (next-step.html) แทน MS Forms โดยตรง
             setTimeout(() => {
-                if (msFormsUrl) {
-                    window.location.href = msFormsUrl;
-                } else {
-                    // หากดึงลิงก์ไม่สำเร็จ ให้ใช้หน้าขอบคุณปกติเป็นระบบสำรอง (Fallback)
-                    window.location.href = `thank-you.html?score=${score}`;
-                }
+                window.location.href = '/next-step.html';
             }, 1200);
 
         } catch (err) {
             console.error(err);
             showToast('ส่งไม่สำเร็จ กรุณาลองอีกครั้ง');
             btnSubmit.disabled = false;
-            btnSubmit.textContent = 'ส่งแบบสอบถาม';
+            btnSubmit.textContent = 'ส่งคะแนน';
             suggestionsInput.disabled = false;
         }
     });

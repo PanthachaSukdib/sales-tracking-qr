@@ -32,10 +32,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 const qrLogsRouter = require('./routes/qr-logs');
 const surveyRouter = require('./routes/survey');
 const reportsRouter = require('./routes/reports');
+const eventsRouter = require('./routes/events');
 
 app.use('/api/qr-logs', qrLogsRouter);
 app.use('/api/survey', surveyRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/events', eventsRouter);
 
 // Config Endpoints
 app.get('/api/config/ms-forms-url', (req, res) => {

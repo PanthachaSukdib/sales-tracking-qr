@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const employeeTbody = document.getElementById('employee-tbody');
     const recentTbody = document.getElementById('recent-tbody');
+    const pendingTbody = document.getElementById('pending-tbody');
+
+    // Funnel Elements
+    const funnelScan = document.getElementById('funnel-scan');
+    const funnelSurvey = document.getElementById('funnel-survey');
+    const funnelSurveyRate = document.getElementById('funnel-survey-rate');
+    const funnelForms = document.getElementById('funnel-forms');
+    const funnelFormsRate = document.getElementById('funnel-forms-rate');
+    const funnelSkippedCount = document.getElementById('funnel-skipped-count');
 
     const filterToday = document.getElementById('filter-today');
     const filter7d = document.getElementById('filter-7d');
@@ -177,6 +186,39 @@ document.addEventListener('DOMContentLoaded', () => {
             statResponseRate.textContent = `${data.totals.response_rate}%`;
             statAvgScore.textContent = data.totals.avg_score.toFixed(1);
 
+            // Update Funnel Stats Card
+            if (data.funnel) {
+                funnelScan.textContent = data.funnel.scanned.toLocaleString();
+                funnelSurvey.textContent = data.funnel.survey_submitted.toLocaleString();
+                funnelForms.textContent = data.funnel.ms_forms_opened.toLocaleString();
+                funnelSkippedCount.textContent = `(ข้าม: ${data.funnel.skipped.toLocaleString()} รายการ)`;
+
+                const surveyRate = data.funnel.scanned > 0 
+                    ? Math.round((data.funnel.survey_submitted / data.funnel.scanned) * 100) 
+                    : 0;
+                const formsRate = data.funnel.survey_submitted > 0 
+                    ? Math.round((data.funnel.ms_forms_opened / data.funnel.survey_submitted) * 100) 
+                    : 0;
+
+                funnelSurveyRate.textContent = `${surveyRate}%`;
+                if (surveyRate >= 70) {
+                    funnelSurveyRate.className = 'funnel-rate good';
+                } else if (surveyRate >= 40) {
+                    funnelSurveyRate.className = 'funnel-rate warn';
+                } else {
+                    funnelSurveyRate.className = 'funnel-rate bad';
+                }
+
+                funnelFormsRate.textContent = `${formsRate}%`;
+                if (formsRate >= 70) {
+                    funnelFormsRate.className = 'funnel-rate good';
+                } else if (formsRate >= 40) {
+                    funnelFormsRate.className = 'funnel-rate warn';
+                } else {
+                    funnelFormsRate.className = 'funnel-rate bad';
+                }
+            }
+
             // Tooltip 1: QR Created
             qrList.innerHTML = '';
             if (data.recent_qr && data.recent_qr.length > 0) {
@@ -255,6 +297,37 @@ document.addEventListener('DOMContentLoaded', () => {
             // Store Employee Breakdown for sorting
             employeeData = data.by_employee || [];
             renderEmployeeTable();
+
+            // Populate Pending Customers Table
+            const pendingCustomers = data.pending_customers || [];
+            pendingTbody.innerHTML = '';
+
+            if (pendingCustomers.length === 0) {
+                pendingTbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
+                            ไม่มีลูกค้าค้างในระบบขณะนี้ 🎉
+                        </td>
+                    </tr>
+                `;
+            } else {
+                pendingCustomers.forEach(row => {
+                    const tr = document.createElement('tr');
+                    const formattedDate = formatThaiDateTime(row.created_at);
+                    const statusClass = `status-badge ${row.status_code || 'scanned-only'}`;
+
+                    tr.innerHTML = `
+                        <td style="color: var(--text-secondary); white-space: nowrap;">${formattedDate}</td>
+                        <td><strong>${escapeHTML(row.customer_name || '-')}</strong></td>
+                        <td>${escapeHTML(row.project_name || '-')}</td>
+                        <td>${escapeHTML(row.employee_name || '-')}</td>
+                        <td style="text-align: center;">
+                            <span class="${statusClass}">${escapeHTML(row.status || 'สแกนแล้ว')}</span>
+                        </td>
+                    `;
+                    pendingTbody.appendChild(tr);
+                });
+            }
 
             // Populate Recent Submissions
             const recentResponses = data.recent_responses || [];

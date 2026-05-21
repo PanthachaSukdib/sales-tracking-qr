@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ขั้นตอนถัดไป - Sales Tracking</title>
+    <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <div class="container-mobile" style="margin-top: 6vh;">
+
+        <!-- Progress Indicator -->
+        <div class="bridge-progress">
+            <div class="progress-step completed">
+                <div class="step-circle">✓</div>
+                <span>สแกน QR</span>
+            </div>
+            <div class="progress-line completed"></div>
+            <div class="progress-step completed">
+                <div class="step-circle">✓</div>
+                <span>ให้คะแนน</span>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step active">
+                <div class="step-circle">3</div>
+                <span>กรอกข้อมูล</span>
+            </div>
+        </div>
+
+        <!-- Main Bridge Card -->
+        <main class="card" style="padding: 32px 24px; gap: 24px;">
+            
+            <!-- Success Badge -->
+            <div class="text-center">
+                <div class="circle-success" id="bridge-badge">🎉</div>
+                <h1 style="color: var(--primary); margin-top: 8px;">ให้คะแนนเรียบร้อยแล้ว!</h1>
+                <p style="font-size: 15px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6;">
+                    เหลืออีกเพียง <strong style="color: var(--primary);">1 ขั้นตอนสุดท้าย</strong><br>
+                    เพื่อให้เราบริการคุณได้ดียิ่งขึ้น
+                </p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="bridge-info-box">
+                <div class="bridge-info-icon">📋</div>
+                <div>
+                    <strong>กรอกข้อมูลเพิ่มเติม</strong>
+                    <p style="font-size: 13px; margin-top: 4px;">ใช้เวลาไม่เกิน 2 นาที เพื่อให้เราเข้าใจความต้องการของคุณมากยิ่งขึ้น</p>
+                </div>
+            </div>
+
+            <!-- Primary CTA Button -->
+            <button type="button" id="btn-continue" class="btn btn-primary btn-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                ดำเนินการต่อ
+            </button>
+
+            <!-- Secondary Skip Link -->
+            <button type="button" id="btn-skip" class="btn-subtle-text">
+                ข้ามขั้นตอนนี้ →
+            </button>
+
+        </main>
+
+        <!-- Footer note -->
+        <p class="text-center" style="font-size: 11px; color: var(--text-secondary); opacity: 0.7;">
+            ระบบเก็บสถิติความพึงพอใจการให้บริการลูกค้า
+        </p>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-container">ข้อความ</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load session
+            const raw = localStorage.getItem('sst_session');
+            let session = null;
+            try {
+                session = raw ? JSON.parse(raw) : null;
+            } catch { session = null; }
+
+            if (!session || !session.session_id) {
+                // ไม่มี session — แสดงข้อความแจ้ง
+                document.querySelector('main.card').innerHTML = `
+                    <div class="text-center" style="padding: 24px 0;">
+                        <div class="warning-icon">⚠️</div>
+                        <h2 style="color: var(--danger);">ไม่พบข้อมูลการเข้าใช้</h2>
+                        <p>กรุณาสแกน QR Code จากเจ้าหน้าที่ใหม่อีกครั้ง</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let msFormsUrl = '';
+
+            // Pre-fetch MS Forms URL
+            fetch('/api/config/ms-forms-url')
+                .then(res => res.json())
+                .then(cfg => { msFormsUrl = cfg.url; })
+                .catch(err => console.warn('Failed to fetch MS Forms URL:', err));
+
+            const btnContinue = document.getElementById('btn-continue');
+            const btnSkip = document.getElementById('btn-skip');
+            const toast = document.getElementById('toast');
+
+            let toastTimeout = null;
+            function showToast(message) {
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toast.textContent = message;
+                toast.classList.add('show');
+                toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 2200);
+            }
+
+            // ปุ่ม "ดำเนินการต่อ" → ยิง ms_forms_opened → เปิด MS Forms
+            btnContinue.addEventListener('click', async () => {
+                btnContinue.disabled = true;
+                btnContinue.textContent = 'กำลังเปิดแบบฟอร์ม...';
+
+                try {
+                    await fetch('/api/events', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: session.session_id,
+                            event_type: 'ms_forms_opened',
+                            employee_id: session.emp_id,
+                            employee_name: session.emp_name,
+                            customer_name: session.customer,
+                            project_name: session.project
+                        })
+                    });
+                } catch (err) {
+                    console.warn('Event tracking failed:', err);
+                }
+
+                // ลบ session หลังจากเปิด MS Forms
+                localStorage.removeItem('sst_session');
+
+                if (msFormsUrl) {
+                    window.location.href = msFormsUrl;
+                } else {
+                    showToast('ไม่พบลิงก์แบบฟอร์ม กำลังนำไปยังหน้าขอบคุณ...');
+                    setTimeout(() => {
+                        window.location.href = `/thank-you.html?score=${session.survey_score || ''}`;
+                    }, 1000);
+                }
+            });
+
+            // ปุ่ม "ข้ามขั้นตอนนี้" → ยิง skipped_ms_forms → ไปหน้า Thank You
+            btnSkip.addEventListener('click', async () => {
+                btnSkip.disabled = true;
+                btnSkip.textContent = 'กำลังข้าม...';
+
+                try {
+                    await fetch('/api/events', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: session.session_id,
+                            event_type: 'skipped_ms_forms',
+                            employee_id: session.emp_id,
+                            employee_name: session.emp_name,
+                            customer_name: session.customer,
+                            project_name: session.project
+                        })
+                    });
+                } catch (err) {
+                    console.warn('Event tracking failed:', err);
+                }
+
+                localStorage.removeItem('sst_session');
+                window.location.href = `/thank-you.html?score=${session.survey_score || ''}&skipped=1`;
+            });
+        });
+    </script>
+</body>
+</html>
