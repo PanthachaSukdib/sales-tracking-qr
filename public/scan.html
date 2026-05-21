@@ -68,7 +68,6 @@
       const empName = params.get('emp_name');
       const project = params.get('project');
       const customer = params.get('customer');
-      const jobNo = params.get('job_no') || '';
       const statusEl = document.getElementById('scanStatus');
       const errorEl = document.getElementById('scanError');
       const spinner = document.querySelector('.spinner');
@@ -82,12 +81,9 @@
       }
 
       // 1. ตรวจสอบใน localStorage ก่อนเพื่อการตอบสนองที่รวดเร็ว (Instant Check)
-      const completedKey = jobNo
-          ? 'sst_completed_job_' + jobNo
-          : 'sst_completed_' + empId + '_' + customer + '_' + project;
-      const finalDoneKey = jobNo
-          ? 'sst_final_done_job_' + jobNo
-          : 'sst_final_done_' + empId + '_' + customer + '_' + project;
+      // ใช้ชื่อโครงการ (ซึ่งคือเลข Job งาน) ในการตรวจสอบ
+      const completedKey = 'sst_completed_project_' + project;
+      const finalDoneKey = 'sst_final_done_project_' + project;
 
       if (localStorage.getItem(completedKey) === 'true') {
         if (localStorage.getItem(finalDoneKey) === 'true') {
@@ -103,7 +99,6 @@
             emp_name: empName,
             project: project,
             customer: customer,
-            job_no: jobNo,
             scanned_at: Date.now(),
             expires_at: Date.now() + (4 * 60 * 60 * 1000),
             survey_score: 5
@@ -116,7 +111,7 @@
 
       // 2. ตรวจสอบที่ฝั่ง Server (Fallback เผื่อลูกค้าล้าง Cache หรือสแกนผ่านอุปกรณ์อื่น)
       try {
-        const checkRes = await fetch('/api/survey/check-completed?emp_id=' + encodeURIComponent(empId) + '&customer=' + encodeURIComponent(customer) + '&project=' + encodeURIComponent(project) + (jobNo ? '&job_no=' + encodeURIComponent(jobNo) : ''));
+        const checkRes = await fetch('/api/survey/check-completed?emp_id=' + encodeURIComponent(empId) + '&customer=' + encodeURIComponent(customer) + '&project=' + encodeURIComponent(project));
         if (checkRes.ok) {
           const checkData = await checkRes.json();
           if (checkData.completed) {
@@ -134,7 +129,6 @@
                 emp_name: empName,
                 project: project,
                 customer: customer,
-                job_no: jobNo,
                 scanned_at: Date.now(),
                 expires_at: Date.now() + (4 * 60 * 60 * 1000),
                 survey_score: 5
@@ -159,13 +153,12 @@
         emp_name: empName,
         project: project,
         customer: customer,
-        job_no: jobNo,
         scanned_at: Date.now(),
         expires_at: Date.now() + (4 * 60 * 60 * 1000)
       };
       localStorage.setItem('sst_session', JSON.stringify(session));
 
-      // log scan ไป backend (qr_logs — เดิม)
+      // log scan ไป backend (qr_logs)
       try {
         await fetch('/api/qr-logs', {
           method: 'POST',
@@ -175,8 +168,7 @@
             employee_name: empName,
             project_name: project,
             customer_name: customer,
-            generated_url: window.location.href,
-            job_number: jobNo
+            generated_url: window.location.href
           })
         });
       } catch (err) {
@@ -194,8 +186,7 @@
             employee_id: empId,
             employee_name: empName,
             customer_name: customer,
-            project_name: project,
-            metadata: { job_no: jobNo }
+            project_name: project
           })
         });
       } catch (err) {

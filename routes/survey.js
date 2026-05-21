@@ -5,7 +5,7 @@ const { randomUUID } = require('crypto');
 
 // ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
 router.get('/check-completed', async (req, res) => {
-    const { emp_id, customer, project, job_no } = req.query;
+    const { emp_id, customer, project } = req.query;
 
     if (!emp_id || !customer || !project) {
         return res.status(400).json({ error: 'Missing required query parameters' });
@@ -26,47 +26,13 @@ router.get('/check-completed', async (req, res) => {
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const now = Date.now();
 
-        // 1. ตรวจสอบว่าพนักงาน ลูกค้า โครงการ นี้เคยประเมินให้ดาวไปแล้วใน 24 ชั่วโมงที่ผ่านมาหรือไม่
-        const alreadyCompleted = surveys.some(s => {
-            // ถ้ามี job_no ให้ตรวจ match ด้วย job_no เป็นหลัก (แม่นยำกว่า)
-            if (job_no) {
-                const jobMatch = (s.job_number || s.job_no) === job_no;
-                if (!jobMatch) return false;
-            } else {
-                const isMatch = s.employee_id === emp_id &&
-                                s.customer_name === customer &&
-                                s.project_name === project;
-                if (!isMatch) return false;
-            }
-
-            const submittedAt = new Date(s.submitted_at).getTime();
-            if (isNaN(submittedAt)) return false;
-
-            return (now - submittedAt) < ONE_DAY_MS;
-        });
+        // 1. ตรวจสอบว่าโครงการ/เลข Job นี้เคยประเมินให้ดาวไปแล้วหรือไม่
+        const alreadyCompleted = surveys.some(s => s.project_name === project);
 
         // 2. ตรวจสอบว่าเคยดำเนินการทำแบบฟอร์มขั้นตอนสุดท้าย (คลิกไปต่อ หรือกดข้าม) ไปแล้วหรือยังใน 24 ชม.
         const finalStepDone = events.some(evt => {
-            if (job_no) {
-                // ตรวจ job_no จาก metadata ที่ส่งมาตอน event tracking
-                let metaJobNo = '';
-                try {
-                    const meta = typeof evt.metadata === 'string' ? JSON.parse(evt.metadata) : evt.metadata;
-                    metaJobNo = meta?.job_no || '';
-                } catch {}
-                if (metaJobNo !== job_no) {
-                    // fallback ตรวจแบบเดิมถ้าไม่มี metadata
-                    const isMatch = evt.employee_id === emp_id &&
-                                    evt.customer_name === customer &&
-                                    evt.project_name === project;
-                    if (!isMatch) return false;
-                }
-            } else {
-                const isMatch = evt.employee_id === emp_id &&
-                                evt.customer_name === customer &&
-                                evt.project_name === project;
-                if (!isMatch) return false;
-            }
+            const isMatch = evt.project_name === project;
+            if (!isMatch) return false;
 
             const isFinalEvent = evt.event_type === 'ms_forms_opened' || evt.event_type === 'skipped_ms_forms';
             if (!isFinalEvent) return false;
@@ -88,7 +54,7 @@ router.get('/check-completed', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { session_id, emp_id, emp_name, project, customer_name, satisfaction_score, suggestions, job_no } = req.body;
+    const { session_id, emp_id, emp_name, project, customer_name, satisfaction_score, suggestions } = req.body;
 
     // Validation
     if (!emp_id || !satisfaction_score) {
@@ -116,31 +82,16 @@ router.post('/', async (req, res) => {
             }
         }
 
-        // 2. ป้องกันการบันทึกซ้ำแบบข้าม Session — ตรวจด้วย job_no ก่อน, fallback เป็น emp+customer+project
+        // 2. ป้องกันการบันทึกซ้ำแบบข้าม Session — ใช้ชื่อโครงการ (เลข Job งาน) ในการตรวจสอบระบบ
         const surveys = await getAllRowsAsObjects('survey_results').catch(err => {
             console.warn('Failed to fetch survey results for backend cross-session duplicate check:', err);
             return [];
         });
 
-        const alreadySubmitted = surveys.some(s => {
-            if (job_no) {
-                // ตรวจ job_no เป็นหลัก — แม่นยำกว่าและไม่ขึ้นกับ 24 ชม.
-                return (s.job_number || s.job_no) === job_no;
-            }
-
-            const isMatch = s.employee_id === emp_id &&
-                            s.customer_name === customer_name &&
-                            s.project_name === project;
-            if (!isMatch) return false;
-
-            const submittedAt = new Date(s.submitted_at).getTime();
-            if (isNaN(submittedAt)) return false;
-
-            return (now - submittedAt) < ONE_DAY_MS;
-        });
+        const alreadySubmitted = surveys.some(s => s.project_name === project);
 
         if (alreadySubmitted) {
-            console.log(`[Duplicate survey block] job_no: ${job_no || 'N/A'}, emp_id: ${emp_id}, customer: ${customer_name}, project: ${project} — already submitted.`);
+            console.log(`[Duplicate survey block] project (Job Number): ${project} has already submitted score.`);
             return res.json({ id: 'duplicate', message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
         }
 
@@ -155,8 +106,7 @@ router.post('/', async (req, res) => {
             project || '',
             customer_name || '',
             score,
-            suggestions || '',
-            job_no || ''
+            suggestions || ''
         ]);
         res.json({ id, submitted_at, message: 'ขอบคุณสำหรับความเห็น' });
     } catch (err) {

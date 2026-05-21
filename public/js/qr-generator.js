@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeIdInput = document.getElementById('empId');
     const employeeNameInput = document.getElementById('empName');
     const projectNameInput = document.getElementById('projectName');
-    const jobNoInput = document.getElementById('jobNo');
     const customerNameInput = document.getElementById('customerName');
     const btnGenerate = document.getElementById('btn-generate');
     
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const displayEmpId = document.getElementById('displayEmpId');
     const displayEmpName = document.getElementById('displayEmpName');
-    const displayJobNo = document.getElementById('displayJobNo');
     const displayProject = document.getElementById('displayProject');
     const displayCustomer = document.getElementById('displayCustomer');
     
@@ -57,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (displayEmpId) displayEmpId.textContent = '-';
         if (displayEmpName) displayEmpName.textContent = '-';
-        if (displayJobNo) displayJobNo.textContent = '-';
         if (displayProject) displayProject.textContent = '-';
         if (displayCustomer) displayCustomer.textContent = '-';
     }
@@ -105,11 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
             empId: employeeIdInput.value.trim(),
             empName: employeeNameInput.value.trim(),
             projectName: projectNameInput.value.trim(),
-            jobNo: jobNoInput.value.trim(),
             customerName: customerNameInput.value.trim()
         };
 
-        if (!data.empId || !data.empName || !data.projectName || !data.jobNo || !data.customerName) {
+        if (!data.empId || !data.empName || !data.projectName || !data.customerName) {
             showToast('กรุณากรอกข้อมูลให้ครบทุกช่อง');
             return;
         }
@@ -137,8 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 emp_id: data.empId,
                 emp_name: data.empName,
                 project: data.projectName,
-                customer: data.customerName,
-                job_no: data.jobNo
+                customer: data.customerName
             });
             const tempUrl = `${baseUrl}?${tempParams.toString()}`;
 
@@ -146,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayData = { ...data };
             let isDuplicate = false;
 
-            // ตรวจสอบกับเซิร์ฟเวอร์ก่อนว่า เลข Job นี้เคยเจนไปแล้วหรือยัง
+            // ตรวจสอบกับเซิร์ฟเวอร์ก่อนว่า โครงการ/เลข Job นี้เคยเจนไปแล้วหรือยัง
             try {
                 const response = await fetch('/api/qr-logs', {
                     method: 'POST',
@@ -156,8 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         employee_name: data.empName,
                         project_name: data.projectName,
                         customer_name: data.customerName,
-                        generated_url: tempUrl,
-                        job_number: data.jobNo
+                        generated_url: tempUrl
                     })
                 });
 
@@ -170,8 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             empId: resData.employee_id || data.empId,
                             empName: resData.employee_name || data.empName,
                             projectName: resData.project_name || data.projectName,
-                            customerName: resData.customer_name || data.customerName,
-                            jobNo: data.jobNo
+                            customerName: resData.customer_name || data.customerName
                         };
                     }
                 }
@@ -187,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             displayEmpId.textContent = displayData.empId;
             displayEmpName.textContent = displayData.empName;
-            displayJobNo.textContent = displayData.jobNo;
             displayProject.textContent = displayData.projectName;
             displayCustomer.textContent = displayData.customerName;
 
@@ -197,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             qrSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             if (isDuplicate) {
-                showToast('พบเลข Job นี้ในระบบแล้ว ดึงข้อมูล QR Code เดิม', 4000);
+                showToast('พบชื่อโครงการ / เลข Job นี้ในระบบแล้ว ดึงข้อมูล QR Code เดิม', 4000);
             } else {
                 showToast('สร้าง QR Code สำเร็จ!');
             }
@@ -340,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         employeeIdInput.value = '';
         employeeNameInput.value = '';
         projectNameInput.value = '';
-        jobNoInput.value = '';
         customerNameInput.value = '';
         
         // ลบข้อมูลที่บันทึกไว้ใน localStorage

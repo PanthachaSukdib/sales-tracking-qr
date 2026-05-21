@@ -4,7 +4,7 @@ const { appendRow, getAllRowsAsObjects } = require('../db/sheets-client');
 const { randomUUID } = require('crypto');
 
 router.post('/', async (req, res) => {
-    const { employee_id, employee_name, project_name, customer_name, generated_url, job_number } = req.body;
+    const { employee_id, employee_name, project_name, customer_name, generated_url } = req.body;
     
     // Validation
     if (!employee_id || !employee_name || !project_name || !customer_name) {
@@ -12,19 +12,19 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        // ตรวจสอบว่า job_number นี้เคยสร้าง QR ไปแล้วหรือยัง
-        if (job_number) {
+        // ตรวจสอบว่า project_name (เลข Job งาน) นี้เคยสร้าง QR ไปแล้วหรือยัง
+        if (project_name) {
             const existingRows = await getAllRowsAsObjects('qr_logs').catch(err => {
                 console.warn('Failed to fetch qr_logs for duplicate check, skipping:', err);
                 return [];
             });
 
             const existing = existingRows.find(row =>
-                (row.job_number || row.job_no) === job_number
+                row.project_name === project_name
             );
 
             if (existing) {
-                console.log(`[Duplicate QR block] job_number: ${job_number} already exists in qr_logs.`);
+                console.log(`[Duplicate QR block] project_name (Job Number): ${project_name} already exists in qr_logs.`);
                 return res.json({
                     already_exists: true,
                     id: existing.id,
@@ -33,8 +33,7 @@ router.post('/', async (req, res) => {
                     employee_name: existing.employee_name,
                     project_name: existing.project_name,
                     customer_name: existing.customer_name,
-                    generated_url: existing.generated_url,
-                    job_number: job_number
+                    generated_url: existing.generated_url
                 });
             }
         }
@@ -51,8 +50,7 @@ router.post('/', async (req, res) => {
             project_name || '',
             customer_name || '',
             generated_url,
-            user_agent,
-            job_number || ''
+            user_agent
         ]);
         res.json({ id, created_at });
     } catch (err) {
