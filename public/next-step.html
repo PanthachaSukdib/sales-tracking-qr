@@ -81,6 +81,15 @@
     <div id="toast" class="toast-container">ข้อความ</div>
 
     <script>
+        // ดักจับการกด Back Button จาก bfcache
+        window.addEventListener('pageshow', (event) => {
+            const raw = localStorage.getItem('sst_session');
+            if (!raw) {
+                // หากไม่มีเซสชันเหลืออยู่ (เพราะข้ามขั้นตอนนี้หรือส่งข้อมูลฟอร์มเสร็จสิ้นแล้ว)
+                window.location.replace('/thank-you.html?already_completed=1');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             // Load session
             const raw = localStorage.getItem('sst_session');

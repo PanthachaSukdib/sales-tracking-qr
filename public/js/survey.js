@@ -15,6 +15,22 @@ function loadSession() {
     }
 }
 
+// ดักจับและป้องกันการกด Back Button จาก bfcache ของเบราว์เซอร์
+window.addEventListener('pageshow', (event) => {
+    const session = loadSession();
+    if (session) {
+        if (session.survey_score) {
+            window.location.replace('/next-step.html');
+            return;
+        }
+        const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+        if (localStorage.getItem(completedKey) === 'true') {
+            window.location.replace('/thank-you.html?already_completed=1');
+            return;
+        }
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const session = loadSession();
     
@@ -25,7 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ป้องกันการกดย้อนกลับจากหน้า Bridge เพื่อทำประเมินซ้ำใน Session เดิม
     if (session.survey_score) {
-        window.location.href = '/next-step.html';
+        window.location.replace('/next-step.html');
+        return;
+    }
+
+    // ป้องกันการประเมินซ้ำถ้าเคยส่งผลประเมินเรียบร้อยแล้ว
+    const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+    if (localStorage.getItem(completedKey) === 'true') {
+        window.location.replace('/thank-you.html?already_completed=1');
         return;
     }
 
