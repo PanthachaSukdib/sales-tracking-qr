@@ -49,11 +49,15 @@
             const urlParams = new URLSearchParams(window.location.search);
             const scoreVal = parseInt(urlParams.get('score'), 10);
             const skipped = urlParams.get('skipped') === '1';
+            const alreadyCompleted = urlParams.get('already_completed') === '1';
             const reassuranceText = document.getElementById('reassurance-text');
             const pulseBadge = document.getElementById('pulse-badge');
             const skippedReminder = document.getElementById('skipped-reminder');
 
-            if (!isNaN(scoreVal)) {
+            if (alreadyCompleted) {
+                document.querySelector('h1').textContent = 'ประเมินเรียบร้อยแล้ว';
+                reassuranceText.textContent = 'คุณได้ทำการประเมินความพึงพอใจสำหรับการบริการนี้ไปแล้ว ขอบคุณสำหรับข้อมูลและการสนับสนุนที่ดีตลอดมาครับ ✨';
+            } else if (!isNaN(scoreVal)) {
                 if (scoreVal >= 4) {
                     reassuranceText.textContent = 'เราดีใจเป็นอย่างยิ่งที่การบริการของเราทำให้คุณพึงพอใจและตอบโจทย์ความต้องการของคุณ! เราสัญญาว่าจะรักษามาตรฐานที่ดีแบบนี้ต่อไปครับ ✨';
                 } else {

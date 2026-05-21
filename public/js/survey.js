@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // ป้องกันการกดย้อนกลับจากหน้า Bridge เพื่อทำประเมินซ้ำใน Session เดิม
+    if (session.survey_score) {
+        window.location.href = '/next-step.html';
+        return;
+    }
+
     document.getElementById('empName').textContent = session.emp_name;
     document.getElementById('projectName').textContent = session.project || '-';
     document.getElementById('customerName').textContent = session.customer || '-';
@@ -110,7 +116,10 @@ function setupSubmit(session) {
         }, 2200);
     }
 
+    let isSubmitting = false;
     btnSubmit.addEventListener('click', async () => {
+        if (isSubmitting) return;
+
         const score = window.getCurrentRating ? window.getCurrentRating() : 0;
         const suggestions = suggestionsInput.value.trim();
         
@@ -119,16 +128,22 @@ function setupSubmit(session) {
             return;
         }
 
+        isSubmitting = true;
         btnSubmit.disabled = true;
         btnSubmit.textContent = 'กำลังส่งข้อมูล...';
         suggestionsInput.disabled = true;
 
+        // บันทึกคะแนนใน session ชั่วคราวก่อนยิง API เพื่อป้องกันการกดย้อนกลับ/Refresh มาระหว่างบันทึก
+        session.survey_score = score;
+        localStorage.setItem('sst_session', JSON.stringify(session));
+
         try {
-            // 1. ส่งข้อมูลคะแนนประเมินและข้อเสนอแนะเข้า Google Sheets
+            // 1. ส่งข้อมูลคะแนนประเมินและข้อเสนอแนะเข้า Google Sheets (พร้อม session_id เพื่อตรวจจับซ้ำที่ฝั่ง Server)
             const res = await fetch('/api/survey', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    session_id: session.session_id,
                     emp_id: session.emp_id,
                     emp_name: session.emp_name,
                     project: session.project,
@@ -139,6 +154,10 @@ function setupSubmit(session) {
             });
             
             if (!res.ok) throw new Error('Submit failed');
+
+            // บันทึกสถานะว่าทำแบบสอบถามการสแกนนี้เรียบร้อยแล้วลงใน localStorage เพื่อใช้ป้องกันการทำซ้ำทันที
+            const completedKey = 'sst_completed_' + session.emp_id + '_' + session.customer + '_' + session.project;
+            localStorage.setItem(completedKey, 'true');
 
             // 2. ยิง Event "survey_submitted" → event tracking
             try {
@@ -159,10 +178,6 @@ function setupSubmit(session) {
                 console.warn('Event tracking failed (continuing):', evtErr);
             }
 
-            // 3. เก็บคะแนนไว้ใน session เพื่อส่งต่อไปยังหน้า Bridge
-            session.survey_score = score;
-            localStorage.setItem('sst_session', JSON.stringify(session));
-
             // 4. แสดง Toast แจ้งสำเร็จ
             showToast('บันทึกดาวสำเร็จ! กำลังนำคุณไปยังขั้นตอนถัดไป...');
 
@@ -173,7 +188,12 @@ function setupSubmit(session) {
 
         } catch (err) {
             console.error(err);
+            // คืนค่าระดับคะแนนใน local storage หากเกิดข้อผิดพลาดในการส่งข้อมูล
+            delete session.survey_score;
+            localStorage.setItem('sst_session', JSON.stringify(session));
+
             showToast('ส่งไม่สำเร็จ กรุณาลองอีกครั้ง');
+            isSubmitting = false;
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'ส่งคะแนน';
             suggestionsInput.disabled = false;

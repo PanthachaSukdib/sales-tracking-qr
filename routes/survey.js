@@ -1,10 +1,47 @@
 const express = require('express');
 const router = express.Router();
-const { appendRow } = require('../db/sheets-client');
+const { appendRow, getAllRowsAsObjects } = require('../db/sheets-client');
 const { randomUUID } = require('crypto');
 
+// ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
+router.get('/check-completed', async (req, res) => {
+    const { emp_id, customer, project } = req.query;
+
+    if (!emp_id || !customer || !project) {
+        return res.status(400).json({ error: 'Missing required query parameters' });
+    }
+
+    try {
+        const surveys = await getAllRowsAsObjects('survey_results').catch(err => {
+            console.warn('Failed to fetch survey results for duplicate check, skipping:', err);
+            return [];
+        });
+
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        // ตรวจสอบว่าพนักงาน ลูกค้า โครงการ นี้เคยประเมินไปแล้วใน 24 ชั่วโมงที่ผ่านมาหรือไม่
+        const alreadyCompleted = surveys.some(s => {
+            const isMatch = s.employee_id === emp_id &&
+                            s.customer_name === customer &&
+                            s.project_name === project;
+            if (!isMatch) return false;
+
+            const submittedAt = new Date(s.submitted_at).getTime();
+            if (isNaN(submittedAt)) return false;
+
+            return (now - submittedAt) < ONE_DAY_MS;
+        });
+
+        res.json({ completed: alreadyCompleted });
+    } catch (err) {
+        console.error('Check completed failed:', err);
+        res.status(500).json({ error: 'Failed to check completion status' });
+    }
+});
+
 router.post('/', async (req, res) => {
-    const { emp_id, emp_name, project, customer_name, satisfaction_score, suggestions } = req.body;
+    const { session_id, emp_id, emp_name, project, customer_name, satisfaction_score, suggestions } = req.body;
 
     // Validation
     if (!emp_id || !satisfaction_score) {
@@ -15,10 +52,51 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Score must be 1-5' });
     }
 
-    const id = randomUUID();
-    const submitted_at = new Date().toISOString();
-
     try {
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        // 1. ป้องกันการบันทึกซ้ำ (Idempotency) ที่ฝั่ง Server โดยตรวจเช็คจาก session_id ในตาราง events
+        if (session_id) {
+            const events = await getAllRowsAsObjects('events').catch(err => {
+                console.warn('Failed to fetch events for duplicate check, skipping:', err);
+                return [];
+            });
+            const alreadySubmitted = events.some(evt => evt.session_id === session_id && evt.event_type === 'survey_submitted');
+            if (alreadySubmitted) {
+                console.log(`[Duplicate survey block] session_id: ${session_id} has already submitted score.`);
+                return res.json({ id: session_id, message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
+            }
+        }
+
+        // 2. ป้องกันการบันทึกซ้ำแบบข้าม Session สำหรับการสแกน QR Code เดิมซ้ำโดยลูกค้ารายเดิมภายใน 24 ชม.
+        if (emp_id && customer_name && project) {
+            const surveys = await getAllRowsAsObjects('survey_results').catch(err => {
+                console.warn('Failed to fetch survey results for backend cross-session duplicate check:', err);
+                return [];
+            });
+
+            const alreadySubmitted = surveys.some(s => {
+                const isMatch = s.employee_id === emp_id &&
+                                s.customer_name === customer_name &&
+                                s.project_name === project;
+                if (!isMatch) return false;
+
+                const submittedAt = new Date(s.submitted_at).getTime();
+                if (isNaN(submittedAt)) return false;
+
+                return (now - submittedAt) < ONE_DAY_MS;
+            });
+
+            if (alreadySubmitted) {
+                console.log(`[Duplicate survey block] emp_id: ${emp_id}, customer: ${customer_name}, project: ${project} has already submitted within 24h.`);
+                return res.json({ id: 'duplicate', message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
+            }
+        }
+
+        const id = randomUUID();
+        const submitted_at = new Date().toISOString();
+
         await appendRow('survey_results', [
             id,
             submitted_at,

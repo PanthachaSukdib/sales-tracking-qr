@@ -122,7 +122,10 @@
             }
 
             // ปุ่ม "ดำเนินการต่อ" → ยิง ms_forms_opened → เปิด MS Forms
+            let isContinuing = false;
             btnContinue.addEventListener('click', async () => {
+                if (isContinuing) return;
+                isContinuing = true;
                 btnContinue.disabled = true;
                 btnContinue.textContent = 'กำลังเปิดแบบฟอร์ม...';
 
@@ -157,7 +160,10 @@
             });
 
             // ปุ่ม "ข้ามขั้นตอนนี้" → ยิง skipped_ms_forms → ไปหน้า Thank You
+            let isSkipping = false;
             btnSkip.addEventListener('click', async () => {
+                if (isSkipping) return;
+                isSkipping = true;
                 btnSkip.disabled = true;
                 btnSkip.textContent = 'กำลังข้าม...';
 

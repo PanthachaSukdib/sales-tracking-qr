@@ -17,13 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const recentTbody = document.getElementById('recent-tbody');
     const pendingTbody = document.getElementById('pending-tbody');
 
-    // Funnel Elements
-    const funnelScan = document.getElementById('funnel-scan');
-    const funnelSurvey = document.getElementById('funnel-survey');
-    const funnelSurveyRate = document.getElementById('funnel-survey-rate');
-    const funnelForms = document.getElementById('funnel-forms');
-    const funnelFormsRate = document.getElementById('funnel-forms-rate');
-    const funnelSkippedCount = document.getElementById('funnel-skipped-count');
+
 
     const filterToday = document.getElementById('filter-today');
     const filter7d = document.getElementById('filter-7d');
@@ -186,38 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statResponseRate.textContent = `${data.totals.response_rate}%`;
             statAvgScore.textContent = data.totals.avg_score.toFixed(1);
 
-            // Update Funnel Stats Card
-            if (data.funnel) {
-                funnelScan.textContent = data.funnel.scanned.toLocaleString();
-                funnelSurvey.textContent = data.funnel.survey_submitted.toLocaleString();
-                funnelForms.textContent = data.funnel.ms_forms_opened.toLocaleString();
-                funnelSkippedCount.textContent = `(ข้าม: ${data.funnel.skipped.toLocaleString()} รายการ)`;
 
-                const surveyRate = data.funnel.scanned > 0 
-                    ? Math.round((data.funnel.survey_submitted / data.funnel.scanned) * 100) 
-                    : 0;
-                const formsRate = data.funnel.survey_submitted > 0 
-                    ? Math.round((data.funnel.ms_forms_opened / data.funnel.survey_submitted) * 100) 
-                    : 0;
-
-                funnelSurveyRate.textContent = `${surveyRate}%`;
-                if (surveyRate >= 70) {
-                    funnelSurveyRate.className = 'funnel-rate good';
-                } else if (surveyRate >= 40) {
-                    funnelSurveyRate.className = 'funnel-rate warn';
-                } else {
-                    funnelSurveyRate.className = 'funnel-rate bad';
-                }
-
-                funnelFormsRate.textContent = `${formsRate}%`;
-                if (formsRate >= 70) {
-                    funnelFormsRate.className = 'funnel-rate good';
-                } else if (formsRate >= 40) {
-                    funnelFormsRate.className = 'funnel-rate warn';
-                } else {
-                    funnelFormsRate.className = 'funnel-rate bad';
-                }
-            }
 
             // Tooltip 1: QR Created
             qrList.innerHTML = '';

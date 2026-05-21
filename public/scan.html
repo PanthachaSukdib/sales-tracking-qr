@@ -79,6 +79,28 @@
         return;
       }
 
+      // 1. ตรวจสอบใน localStorage ก่อนเพื่อการตอบสนองที่รวดเร็ว (Instant Block)
+      const completedKey = 'sst_completed_' + empId + '_' + customer + '_' + project;
+      if (localStorage.getItem(completedKey) === 'true') {
+        window.location.href = '/thank-you.html?already_completed=1';
+        return;
+      }
+
+      // 2. ตรวจสอบที่ฝั่ง Server (Fallback เผื่อลูกค้าล้าง Cache หรือสแกนผ่านอุปกรณ์อื่น)
+      try {
+        const checkRes = await fetch('/api/survey/check-completed?emp_id=' + encodeURIComponent(empId) + '&customer=' + encodeURIComponent(customer) + '&project=' + encodeURIComponent(project));
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.completed) {
+            localStorage.setItem(completedKey, 'true');
+            window.location.href = '/thank-you.html?already_completed=1';
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Duplicate check failed, letting user proceed:', err);
+      }
+
       // สร้าง session_id สำหรับ tracking ตลอด journey
       const sessionId = generateUUID();
 
