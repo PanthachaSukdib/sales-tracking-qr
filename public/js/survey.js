@@ -115,6 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Prevent clicking the text input from toggling the label's checkbox
+    improveOtherText.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
     // 4. PDPA Toggle
     const pdpaToggleBtn = document.getElementById('pdpaToggleBtn');
     const pdpaToggleLessBtn = document.getElementById('pdpaToggleLessBtn');
