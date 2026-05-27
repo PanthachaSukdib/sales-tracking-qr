@@ -587,9 +587,11 @@ body {
 /* Stars */
 .stars-container {
     display: flex;
-    gap: 10px;
-    font-size: 36px;
+    gap: 12px;
+    font-size: 48px;
     line-height: 1;
+    justify-content: center;
+    margin-bottom: 8px;
 }
 
 .star-btn {
@@ -600,10 +602,11 @@ body {
     cursor: pointer;
     color: #D1D5DB;
     transition: color 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .star-btn.active, .star-btn.hover-active {
-    color: #F59E0B; /* Golden Yellow stars */
+    color: var(--warning); /* Golden Yellow stars */
 }
 
 .star-btn:active {
