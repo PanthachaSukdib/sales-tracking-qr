@@ -465,18 +465,18 @@ body {
 }
 
 .survey-container {
-    padding: 16px;
+    padding: 24px 16px 40px;
     display: flex;
     justify-content: center;
 }
 
 .survey-card {
     background: #FFFFFF;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 400px;
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 420px;
     width: 100%;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
     border: 1px solid #F3F4F6;
     box-sizing: border-box;
     margin-bottom: 32px;
@@ -496,9 +496,8 @@ body {
     border: 1px solid #E5E7EB;
     border-radius: 12px;
     padding: 16px;
-    margin-bottom: 24px;
-    background: #FFFFFF;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    margin-bottom: 28px;
+    background: #F9FAFB;
 }
 
 .info-row {
@@ -513,40 +512,44 @@ body {
 }
 
 .info-label {
-    color: #4B5563;
-    width: 120px;
+    color: #6B7280;
+    width: 130px;
     flex-shrink: 0;
 }
 
 .info-value {
     color: #111827;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Titles */
 .survey-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0F6E56;
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.4;
 }
 
 /* Questions */
 .question-block {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .question-title {
-    font-size: 14px;
-    color: #374151;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1F2937;
     margin-bottom: 12px;
+    line-height: 1.4;
 }
 
 /* Stars */
 .stars-container {
     display: flex;
-    gap: 12px;
-    font-size: 32px;
+    gap: 10px;
+    font-size: 36px;
     line-height: 1;
 }
 
@@ -556,32 +559,32 @@ body {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    color: #E5E7EB;
+    color: #D1D5DB;
     transition: color 0.2s, transform 0.1s;
 }
 
 .star-btn.active, .star-btn.hover-active {
-    color: #111827; /* Black stars as per mockup */
+    color: #F59E0B; /* Golden Yellow stars */
 }
 
 .star-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.85);
 }
 
 /* Checkboxes */
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-left: 12px;
+    gap: 14px;
+    margin-left: 4px;
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 14px;
-    color: #4B5563;
+    font-size: 14.5px;
+    color: #374151;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -589,18 +592,20 @@ body {
 }
 
 .custom-checkbox {
-    width: 18px;
-    height: 18px;
-    background: #E5E7EB;
-    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    background: #F3F4F6;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
     margin-right: 12px;
     position: relative;
-    transition: background 0.2s;
+    transition: all 0.2s;
     flex-shrink: 0;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
-    background: #111827;
+    background: #0F6E56;
+    border-color: #0F6E56;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .custom-checkbox::after {
@@ -617,6 +622,7 @@ body {
 
 .inline-input-wrapper {
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .inline-text-input {
@@ -624,12 +630,13 @@ body {
     border-bottom: 1px solid #D1D5DB;
     background: transparent;
     font-family: inherit;
-    font-size: 14px;
-    padding: 2px 4px;
+    font-size: 14.5px;
+    padding: 4px 6px;
     margin-left: 8px;
-    width: 150px;
+    width: 180px;
     outline: none;
     color: #111827;
+    transition: border-color 0.2s;
 }
 
 .inline-text-input:disabled {
@@ -639,71 +646,78 @@ body {
 }
 
 .inline-text-input:focus {
-    border-bottom-color: #111827;
+    border-bottom-color: #0F6E56;
 }
 
 /* Divider */
 .survey-divider {
     border: none;
     border-top: 1px solid #E5E7EB;
-    margin: 32px 0;
+    margin: 36px 0;
 }
 
 /* Contact Section */
 .section-subtitle {
-    font-size: 15px;
-    font-weight: 500;
-    color: #111827;
-    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0F6E56;
+    margin-bottom: 24px;
     line-height: 1.5;
 }
 
 .section-subtitle.bold {
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .form-group-contact {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .form-group-contact label {
     display: block;
-    font-size: 13px;
-    color: #4B5563;
-    margin-bottom: 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
 }
 
 .form-input-contact {
     width: 100%;
-    padding: 12px;
-    font-size: 14px;
+    padding: 14px;
+    font-size: 15px;
     font-family: inherit;
     color: #111827;
+    background: #F9FAFB;
     border: 1px solid #E5E7EB;
-    border-radius: 8px;
+    border-radius: 10px;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
 .form-input-contact:focus {
     outline: none;
-    border-color: #111827;
+    border-color: #0F6E56;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.1);
 }
 
 /* PDPA */
 .pdpa-section {
-    margin-top: 32px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid #E5E7EB;
 }
 
 .pdpa-intro {
-    font-size: 13px;
+    font-size: 14px;
     color: #4B5563;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .pdpa-toggle {
     color: #DC2626;
+    font-weight: 500;
     text-decoration: none;
 }
 
@@ -713,13 +727,14 @@ body {
 
 .pdpa-full-text {
     background: #FEF2F2;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #FEE2E2;
 }
 
 .pdpa-red-text {
-    font-size: 12px;
+    font-size: 13px;
     color: #DC2626;
     line-height: 1.6;
     margin: 0;
@@ -728,28 +743,30 @@ body {
 .pdpa-red-text a {
     color: #DC2626;
     text-decoration: underline;
+    font-weight: 500;
 }
 
 .pdpa-question {
-    font-size: 13px;
-    color: #4B5563;
-    margin-bottom: 12px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #1F2937;
+    margin-bottom: 16px;
 }
 
 /* Radio Buttons */
 .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-left: 12px;
+    gap: 14px;
+    margin-left: 4px;
 }
 
 .radio-label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 14px;
-    color: #111827;
+    font-size: 14.5px;
+    color: #374151;
 }
 
 .radio-label input[type="radio"] {
@@ -757,25 +774,27 @@ body {
 }
 
 .custom-radio {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border: 2px solid #D1D5DB;
+    background: #F9FAFB;
     border-radius: 50%;
     margin-right: 12px;
     position: relative;
     box-sizing: border-box;
+    transition: all 0.2s;
 }
 
 .radio-label input[type="radio"]:checked + .custom-radio {
-    border-color: #111827;
+    border-color: #0F6E56;
 }
 
 .radio-label input[type="radio"]:checked + .custom-radio::after {
     content: '';
     position: absolute;
-    width: 10px;
-    height: 10px;
-    background: #111827;
+    width: 12px;
+    height: 12px;
+    background: #0F6E56;
     border-radius: 50%;
     top: 50%;
     left: 50%;
@@ -784,27 +803,36 @@ body {
 
 /* Submit Button */
 .btn-submit-survey {
-    background: #FFFFFF;
-    color: #111827;
-    border: 1px solid #D1D5DB;
-    border-radius: 8px;
-    padding: 12px 32px;
-    font-size: 15px;
-    font-weight: 500;
+    background: #0F6E56;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
-    display: inline-block;
+    width: 100%;
+    margin-top: 12px;
+    box-shadow: 0 4px 6px -1px rgba(15, 110, 86, 0.2);
 }
 
 .btn-submit-survey:hover {
-    background: #F9FAFB;
-    border-color: #9CA3AF;
+    background: #0B5341;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(15, 110, 86, 0.3);
+}
+
+.btn-submit-survey:active {
+    transform: translateY(0);
 }
 
 .btn-submit-survey:disabled {
-    opacity: 0.5;
+    background: #9CA3AF;
+    box-shadow: none;
     cursor: not-allowed;
+    transform: none;
 }
 
 /* Success Card */
