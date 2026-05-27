@@ -1,10 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Parse URL Parameters
-    const params = new URLSearchParams(window.location.search);
-    const empId = params.get('emp_id');
-    const empName = params.get('emp_name');
-    const project = params.get('project');
-    const customer = params.get('customer');
+    // 1. Retrieve Session Data from LocalStorage
+    let empId, empName, project, customer;
+    
+    try {
+        const sessionStr = localStorage.getItem('sst_session');
+        if (sessionStr) {
+            const session = JSON.parse(sessionStr);
+            empId = session.emp_id;
+            empName = session.emp_name;
+            project = session.project;
+            customer = session.customer;
+        } else {
+            // Fallback to URL Parameters (just in case they accessed directly)
+            const params = new URLSearchParams(window.location.search);
+            empId = params.get('emp_id');
+            empName = params.get('emp_name');
+            project = params.get('project');
+            customer = params.get('customer');
+        }
+    } catch (e) {
+        console.error('Error parsing session', e);
+    }
 
     const errorCard = document.getElementById('error-card');
     const surveyCard = document.getElementById('survey-card');
