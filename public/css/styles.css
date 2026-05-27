@@ -456,3 +456,402 @@ body {
         padding: 12px 10px;
     }
 }
+
+/* ==========================================
+   Survey Form Card Styles
+   ========================================== */
+.survey-body {
+    background: #F9FAFB;
+}
+
+.survey-container {
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.survey-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #F3F4F6;
+    box-sizing: border-box;
+    margin-bottom: 32px;
+}
+
+.error-content {
+    text-align: center;
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Info Badge */
+.info-badge {
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.info-row {
+    display: flex;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    color: #4B5563;
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.info-value {
+    color: #111827;
+    font-weight: 500;
+}
+
+/* Titles */
+.survey-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+/* Questions */
+.question-block {
+    margin-bottom: 24px;
+}
+
+.question-title {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 12px;
+}
+
+/* Stars */
+.stars-container {
+    display: flex;
+    gap: 12px;
+    font-size: 32px;
+    line-height: 1;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: #E5E7EB;
+    transition: color 0.2s, transform 0.1s;
+}
+
+.star-btn.active, .star-btn.hover-active {
+    color: #111827; /* Black stars as per mockup */
+}
+
+.star-btn:active {
+    transform: scale(0.9);
+}
+
+/* Checkboxes */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4B5563;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    width: 18px;
+    height: 18px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    margin-right: 12px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
+    background: #111827;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .custom-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.inline-input-wrapper {
+    align-items: center;
+}
+
+.inline-text-input {
+    border: none;
+    border-bottom: 1px solid #D1D5DB;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 2px 4px;
+    margin-left: 8px;
+    width: 150px;
+    outline: none;
+    color: #111827;
+}
+
+.inline-text-input:disabled {
+    background: transparent;
+    border-bottom-color: #E5E7EB;
+    color: #9CA3AF;
+}
+
+.inline-text-input:focus {
+    border-bottom-color: #111827;
+}
+
+/* Divider */
+.survey-divider {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin: 32px 0;
+}
+
+/* Contact Section */
+.section-subtitle {
+    font-size: 15px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.section-subtitle.bold {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-group-contact {
+    margin-bottom: 16px;
+}
+
+.form-group-contact label {
+    display: block;
+    font-size: 13px;
+    color: #4B5563;
+    margin-bottom: 6px;
+}
+
+.form-input-contact {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #111827;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.form-input-contact:focus {
+    outline: none;
+    border-color: #111827;
+}
+
+/* PDPA */
+.pdpa-section {
+    margin-top: 32px;
+}
+
+.pdpa-intro {
+    font-size: 13px;
+    color: #4B5563;
+    margin-bottom: 16px;
+}
+
+.pdpa-toggle {
+    color: #DC2626;
+    text-decoration: none;
+}
+
+.pdpa-toggle:hover {
+    text-decoration: underline;
+}
+
+.pdpa-full-text {
+    background: #FEF2F2;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.pdpa-red-text {
+    font-size: 12px;
+    color: #DC2626;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.pdpa-red-text a {
+    color: #DC2626;
+    text-decoration: underline;
+}
+
+.pdpa-question {
+    font-size: 13px;
+    color: #4B5563;
+    margin-bottom: 12px;
+}
+
+/* Radio Buttons */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 12px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #111827;
+}
+
+.radio-label input[type="radio"] {
+    display: none;
+}
+
+.custom-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #D1D5DB;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.radio-label input[type="radio"]:checked + .custom-radio {
+    border-color: #111827;
+}
+
+.radio-label input[type="radio"]:checked + .custom-radio::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #111827;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Submit Button */
+.btn-submit-survey {
+    background: #FFFFFF;
+    color: #111827;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.btn-submit-survey:hover {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+}
+
+.btn-submit-survey:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Success Card */
+.success-card {
+    text-align: center;
+    padding: 40px 24px;
+}
+
+.success-icon-wrapper {
+    background: #ECFDF5;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.success-title {
+    font-size: 20px;
+    color: #059669;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.success-subtitle {
+    font-size: 16px;
+    color: #111827;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.success-desc {
+    font-size: 14px;
+    color: #4B5563;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.success-divider {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin-bottom: 16px;
+}
+
+.success-footer {
+    font-size: 12px;
+    color: #9CA3AF;
+}

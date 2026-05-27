@@ -3,275 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0F6E56">
+    <meta name="theme-color" content="#F9FAFB">
     <title>แบบประเมินความพึงพอใจ — SST</title>
     <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
+<body class="survey-body">
 
-    <div class="survey-page">
+    <div class="survey-container">
 
-        <!-- Top Bar (green) -->
-        <div class="survey-topbar">
-            <div class="survey-topbar-logo">
-                <img src="/img/company_logo.png" alt="SST" class="company-logo">
+        <!-- Error Card -->
+        <main class="survey-card hidden" id="error-card">
+            <div class="error-content">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h2 style="color: #DC2626; margin-top: 16px;">ลิงก์ไม่ถูกต้อง</h2>
+                <p style="color: #4B5563; text-align: center; margin-top: 8px;">ข้อมูลพนักงานไม่ถูกต้องหรือข้อมูลไม่ครบถ้วน กรุณาขอ QR Code หรือลิงก์การประเมินใหม่จากเจ้าหน้าที่ผู้ให้บริการ</p>
             </div>
-            <div class="survey-topbar-text">
-                <h1>ประเมินความพึงพอใจ</h1>
-                <span>สยามซินดิเคทเทคโนโลยี (มหาชน)</span>
-            </div>
-        </div>
+        </main>
 
-        <!-- Progress Bar -->
-        <div class="progress-track">
-            <div class="progress-fill" id="progressFill" style="width: 33%"></div>
-        </div>
-
-        <!-- Step Chips -->
-        <div class="step-indicator" id="stepIndicator">
-            <span class="step-chip active" data-step="1">PDPA</span>
-            <span class="step-chip" data-step="2">ให้คะแนน</span>
-            <span class="step-chip" data-step="3">ข้อมูลติดต่อ</span>
-        </div>
-
-        <!-- Content Area -->
-        <div class="survey-content" id="surveyContent">
-
-            <!-- Meta Info -->
-            <div class="meta-card" id="metaCard">
-                <div class="meta-row">
-                    <span class="meta-label">พนักงาน</span>
-                    <span class="meta-value" id="empName">-</span>
+        <!-- Main Survey Form -->
+        <main class="survey-card" id="survey-card">
+            
+            <!-- Employee / Project Info Badge -->
+            <div class="info-badge">
+                <div class="info-row">
+                    <span class="info-label">พนักงานที่ให้บริการ:</span>
+                    <strong class="info-value" id="empName">-</strong>
                 </div>
-                <div class="meta-row">
-                    <span class="meta-label">โครงการ</span>
-                    <span class="meta-value" id="projectName">-</span>
+                <div class="info-row">
+                    <span class="info-label">โครงการ:</span>
+                    <strong class="info-value" id="projectName">-</strong>
                 </div>
-                <div class="meta-row">
-                    <span class="meta-label">ลูกค้า</span>
-                    <span class="meta-value" id="customerName">-</span>
+                <div class="info-row">
+                    <span class="info-label">ลูกค้า:</span>
+                    <strong class="info-value" id="customerName">-</strong>
                 </div>
             </div>
 
-            <!-- ============ STEP 1: PDPA ============ -->
-            <div id="step1" class="step-panel">
+            <!-- Title -->
+            <h2 class="survey-title">ความพึงพอใจต่อด้านการขายและบริการ</h2>
 
-                <div class="section-header">ขอการยินยอมในข้อมูลส่วนบุคคล</div>
-
-                <div class="pdpa-box" id="pdpaText1">
-                    <p>ท่านยินยอมให้บริษัทเก็บรวบรวมและใช้ข้อมูลส่วนบุคคล ได้แก่ ชื่อ นามสกุล เบอร์โทร และ email เพื่อการติดต่อธุรกิจ ประชาสัมพันธ์ การตลาด และ/หรือ การบริการของบริษัทฯ โดยท่านรับทราบว่าหากไม่ให้ความยินยอมในครั้งนี้ ท่านจะไม่ได้รับสิทธิประโยชน์อื่น ๆ ที่บริษัทอาจมอบให้ในอนาคต</p>
-                    <p>รายละเอียดในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของบริษัทและสิทธิต่าง ๆ ของท่านในฐานะผู้เป็นเจ้าของข้อมูลส่วนบุคคล รวมถึงสิทธิในการถอนความยินยอม จะเป็นไปตามประกาศความเป็นส่วนตัว (Privacy Policy) ของบริษัท ท่านสามารถศึกษารายละเอียดได้ที่ <a href="https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf" target="_blank" rel="noopener" class="pdpa-link">เอกสาร Privacy Policy</a></p>
-                    <p>หากท่านมีความประสงค์ที่จะถอนความยินยอม ท่านสามารถติดต่อมาที่ โทรศัพท์: <span class="phone-number">+662 733 6080-88</span> หรืออีเมล: <a href="mailto:contact@sst.co.th" class="pdpa-link">contact@sst.co.th</a>, <a href="mailto:info@sst.co.th" class="pdpa-link">info@sst.co.th</a></p>
-                </div>
-
-                <div class="section-header">
-                    ท่านรับทราบและให้ความยินยอม<span class="required">*</span>
-                </div>
-
-                <div class="option-group" id="pdpa1Group">
-                    <label class="option-card">
-                        <input type="radio" name="pdpa1" value="ยินยอม">
-                        <div class="option-dot"></div>
-                        <span class="option-text">ยินยอม</span>
-                    </label>
-                    <label class="option-card">
-                        <input type="radio" name="pdpa1" value="ไม่ยินยอม">
-                        <div class="option-dot"></div>
-                        <span class="option-text">ไม่ยินยอม</span>
-                    </label>
+            <!-- Question 1 -->
+            <div class="question-block">
+                <div class="question-title">1. สินค้ามีความคุ้มค่าเมื่อเทียบกับราคา</div>
+                <div class="stars-container" data-q="q1">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
                 </div>
             </div>
 
-            <!-- ============ STEP 2: Rating ============ -->
-            <div id="step2" class="step-panel" hidden>
-
-                <div class="section-header" style="margin-top: 4px;">ความพึงพอใจต่อการขายและบริการ</div>
-
-                <!-- Q1 -->
-                <div class="rating-card" id="ratingCard1">
-                    <div class="rating-label">1. สินค้ามีความคุ้มค่าเมื่อเทียบกับราคา</div>
-                    <div class="stars-row">
-                        <div class="star-rating" data-q="q1">
-                            <button type="button" class="star-btn" data-val="1"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="2"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="3"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="4"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="5"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                        </div>
-                        <span class="rating-feedback" id="fb-q1">—</span>
-                    </div>
+            <!-- Question 2 -->
+            <div class="question-block">
+                <div class="question-title">2. ข้อมูลในการนำเสนอขายถูกต้อง ครบถ้วน</div>
+                <div class="stars-container" data-q="q2">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
                 </div>
+            </div>
 
-                <!-- Q2 -->
-                <div class="rating-card" id="ratingCard2">
-                    <div class="rating-label">2. ความรวดเร็วในการประสานงานและจัดส่ง</div>
-                    <div class="stars-row">
-                        <div class="star-rating" data-q="q2">
-                            <button type="button" class="star-btn" data-val="1"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="2"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="3"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="4"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="5"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                        </div>
-                        <span class="rating-feedback" id="fb-q2">—</span>
-                    </div>
+            <!-- Question 3 -->
+            <div class="question-block">
+                <div class="question-title">3. การให้บริการติดตั้ง บำรุงรักษา มีคุณภาพ</div>
+                <div class="stars-container" data-q="q3">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
                 </div>
+            </div>
 
-                <!-- Q3 -->
-                <div class="rating-card" id="ratingCard3">
-                    <div class="rating-label">3. พนักงานมีมนุษย์สัมพันธ์ดีและสุภาพ</div>
-                    <div class="stars-row">
-                        <div class="star-rating" data-q="q3">
-                            <button type="button" class="star-btn" data-val="1"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="2"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="3"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="4"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="5"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                        </div>
-                        <span class="rating-feedback" id="fb-q3">—</span>
-                    </div>
+            <!-- Question 4 -->
+            <div class="question-block">
+                <div class="question-title">4. กระบวนการสั่งซื้อมีความสะดวก ไม่ซับซ้อน</div>
+                <div class="stars-container" data-q="q4">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
                 </div>
+            </div>
 
-                <!-- Q4 -->
-                <div class="rating-card" id="ratingCard4">
-                    <div class="rating-label">4. พนักงานมีความรู้ความเข้าใจในสินค้า</div>
-                    <div class="stars-row">
-                        <div class="star-rating" data-q="q4">
-                            <button type="button" class="star-btn" data-val="1"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="2"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="3"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="4"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                            <button type="button" class="star-btn" data-val="5"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
-                        </div>
-                        <span class="rating-feedback" id="fb-q4">—</span>
-                    </div>
-                </div>
-
-                <!-- Q5: Multi-choice improvements -->
-                <div class="section-header" style="margin-top: 20px;">
-                    5. สิ่งที่ควรปรับปรุง (เลือกได้มากกว่า 1 ข้อ)
-                </div>
-
-                <div class="check-group" id="improveGroup">
-                    <label class="check-card">
+            <!-- Question 5: Improvements -->
+            <div class="question-block">
+                <div class="question-title">5. สิ่งที่ควรปรับปรุงทันที (ตอบได้มากกว่า 1 ข้อ))</div>
+                
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="improve" value="ไม่มีสิ่งที่ควรปรับปรุง" id="improveNone">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">ไม่มีสิ่งที่ควรปรับปรุง</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">ไม่มีสิ่งที่ควรปรับปรุง</span>
                     </label>
-                    <label class="check-card">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="improve" value="คุณภาพราคา">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">คุณภาพราคา</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">คุณภาพราคา</span>
                     </label>
-                    <label class="check-card">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="improve" value="ราคาสินค้า">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">ราคาสินค้า</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">ราคาสินค้า</span>
                     </label>
-                    <label class="check-card">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="improve" value="การประชาสัมพันธ์">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">การประชาสัมพันธ์</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">การประชาสัมพันธ์</span>
                     </label>
-                    <label class="check-card">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="improve" value="ความรวดเร็วในการประสานงานขาย">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">ความรวดเร็วในการประสานงานขาย</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">ความรวดเร็วในการประสานงานขาย</span>
                     </label>
-                    <label class="check-card">
+                    <label class="checkbox-label inline-input-wrapper">
                         <input type="checkbox" name="improve" value="อื่นๆ" id="improveOtherCheckbox">
-                        <div class="check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <span class="check-text">อื่น ๆ (โปรดระบุ)</span>
+                        <span class="custom-checkbox"></span>
+                        <span class="checkbox-text">อื่น ๆ <input type="text" id="improveOtherText" class="inline-text-input" placeholder="โปรดระบุ" disabled></span>
                     </label>
-                </div>
-
-                <div class="other-field" id="otherField">
-                    <input type="text" id="improveOtherText" class="other-input" placeholder="ระบุรายละเอียด...">
                 </div>
             </div>
 
-            <!-- ============ STEP 3: Contact Info ============ -->
-            <div id="step3" class="step-panel" hidden>
+            <hr class="survey-divider">
 
-                <div class="section-header" style="margin-top: 4px; font-size: 14px; font-weight: 600; line-height: 1.6;">
-                    เพื่อการบริการที่ดียิ่งขึ้น กรุณากรอกข้อมูลสำหรับการติดต่อกลับ
+            <!-- Contact Info -->
+            <div class="contact-section">
+                <h3 class="section-subtitle">เพื่อให้การบริการที่ดียิ่งขึ้น ขอความร่วมมือท่านระบุข้อมูลติดต่อสำหรับการติดต่อกลับ</h3>
+                
+                <div class="form-group-contact">
+                    <label for="contactName">ชื่อ - นามสกุล</label>
+                    <input type="text" id="contactName" class="form-input-contact" autocomplete="name">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="contactName">ชื่อ - นามสกุล</label>
-                    <input type="text" id="contactName" class="form-input" placeholder="ระบุชื่อ-นามสกุล" autocomplete="name">
+                
+                <div class="form-group-contact">
+                    <label for="contactPhone">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="contactPhone" class="form-input-contact" autocomplete="tel">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="contactPhone">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="contactPhone" class="form-input" placeholder="0xx-xxx-xxxx" autocomplete="tel">
+                
+                <div class="form-group-contact">
+                    <label for="contactEmail">E-mail</label>
+                    <input type="email" id="contactEmail" class="form-input-contact" autocomplete="email">
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="contactEmail">E-mail</label>
-                    <input type="email" id="contactEmail" class="form-input" placeholder="email@example.com" autocomplete="email">
-                </div>
-
-                <div class="section-header" style="margin-top: 20px;">ขอการยินยอมในข้อมูลส่วนบุคคล</div>
-
-                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
-                    เพื่อวัตถุประสงค์ในการติดต่อและดูแลลูกค้า
-                    <a href="#" id="pdpaReadMore2" class="pdpa-link">(อ่านเพิ่มเติม)</a>
+            <!-- PDPA -->
+            <div class="pdpa-section">
+                <h3 class="section-subtitle bold">ขอการยินยอมในข้อมูลส่วนบุคคล</h3>
+                <p class="pdpa-intro">
+                    เพื่อการติดต่อและการบริการของทางบริษัท <a href="#" id="pdpaToggleBtn" class="pdpa-toggle">(อ่านเพิ่มเติม)</a>
                 </p>
-
-                <div class="pdpa-box" id="pdpaText2" hidden>
-                    <p>ท่านยินยอมให้บริษัทเก็บรวบรวมและใช้ข้อมูลส่วนบุคคล ได้แก่ ชื่อ นามสกุล เบอร์โทร และ email เพื่อการติดต่อธุรกิจ ประชาสัมพันธ์ การตลาด และ/หรือ การบริการของบริษัทฯ โดยท่านรับทราบว่าหากไม่ให้ความยินยอมในครั้งนี้ ท่านจะไม่ได้รับสิทธิประโยชน์อื่น ๆ ที่บริษัทอาจมอบให้ในอนาคต</p>
-                    <p>รายละเอียดเป็นไปตามประกาศความเป็นส่วนตัว (Privacy Policy) ของบริษัท ศึกษารายละเอียดได้ที่ <a href="https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf" target="_blank" rel="noopener" class="pdpa-link">เอกสาร Privacy Policy</a></p>
-                    <p>ถอนความยินยอมได้ที่ โทร: <span class="phone-number">+662 733 6080-88</span> หรืออีเมล: <a href="mailto:contact@sst.co.th" class="pdpa-link">contact@sst.co.th</a></p>
+                
+                <div id="pdpaFullText" class="pdpa-full-text" hidden>
+                    <p class="pdpa-red-text">ท่านยินยอมให้บริษัทเก็บรวบรวมและใช้ข้อมูลส่วนบุคคล ได้แก่ ชื่อ นามสกุล เบอร์โทร และ email เพื่อการติดต่อ ธุรกิจ ประชาสัมพันธ์ การตลาด และ/หรือ การบริการของบริษัทฯ โดยท่านรับทราบว่าหากไม่ให้ความยินยอมในครั้งนี้ ท่านจะไม่ได้รับสิทธิประโยชน์อื่น ๆ ที่บริษัทอาจมอบให้ในอนาคต</p>
+                    <br>
+                    <p class="pdpa-red-text">รายละเอียดในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของบริษัทและสิทธิต่าง ๆ ของท่านในฐานะผู้เป็นเจ้าของข้อมูลส่วนบุคคล รวมถึงสิทธิในการถอนความยินยอม จะเป็นไปตามประกาศความเป็นส่วนตัว (Privacy Policy) ของบริษัท ท่านสามารถศึกษารายละเอียดได้ที่ <a href="https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf" target="_blank" rel="noopener">https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf</a> หากท่านมีความประสงค์ที่จะถอนความยินยอมของท่านทั้งหมดหรือบางส่วน ท่านสามารถดำเนินการได้โดย ติดต่อมาที่ โทรศัพท์: +662 733 6080 - 88 หรืออีเมล: contact@sst.co.th , info@sst.co.th <a href="#" id="pdpaToggleLessBtn" class="pdpa-toggle">(อ่านน้อยลง)</a></p>
                 </div>
 
-                <div class="section-header">
-                    ท่านรับทราบและให้ความยินยอม<span class="required">*</span>
+                <div class="pdpa-question">
+                    1. ท่านรับทราบและให้ความยินยอมในข้อมูลส่วนบุคคล<span class="required">*</span>
                 </div>
-
-                <div class="option-group" id="pdpa2Group">
-                    <label class="option-card">
-                        <input type="radio" name="pdpa2" value="ยินยอม">
-                        <div class="option-dot"></div>
-                        <span class="option-text">ยินยอม</span>
+                
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="pdpa" value="ยินยอม">
+                        <span class="custom-radio"></span>
+                        <span class="radio-text">ยินยอม</span>
                     </label>
-                    <label class="option-card">
-                        <input type="radio" name="pdpa2" value="ไม่ยินยอม">
-                        <div class="option-dot"></div>
-                        <span class="option-text">ไม่ยินยอม</span>
+                    <label class="radio-label">
+                        <input type="radio" name="pdpa" value="ไม่ยินยอม">
+                        <span class="custom-radio"></span>
+                        <span class="radio-text">ไม่ยินยอม</span>
                     </label>
                 </div>
             </div>
 
-        </div> <!-- /survey-content -->
+            <div style="text-align: center; margin-top: 24px;">
+                <button type="button" id="btn-submit" class="btn-submit-survey">
+                    ส่งข้อมูล
+                </button>
+            </div>
+        </main>
 
-        <!-- Sticky Bottom Button -->
-        <div class="survey-bottom" id="surveyBottom">
-            <button type="button" class="btn btn-primary" id="mainActionBtn">ดำเนินการต่อ</button>
-        </div>
-
-    </div> <!-- /survey-page -->
-
-    <!-- Completed Screen (outside survey-page, full-page takeover) -->
-    <div id="step4" class="completed-screen" hidden>
-        <div class="completed-card">
-            <div class="success-icon">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Success Screen -->
+        <main class="survey-card success-card hidden" id="success-card">
+            <div class="success-icon-wrapper">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
-            <h1>ส่งประเมินเรียบร้อย</h1>
-            <p class="subtitle">ขอบคุณสำหรับความคิดเห็นของท่าน</p>
-            <p class="detail">ข้อมูลของท่านได้รับการบันทึกเรียบร้อยแล้ว ความคิดเห็นจะถูกนำไปพัฒนาคุณภาพบริการต่อไป</p>
-            <p class="footnote">ระบบเก็บสถิติความพึงพอใจ — สยามซินดิเคทเทคโนโลยี</p>
-        </div>
+            <h1 class="success-title">ประเมินเรียบร้อยแล้ว</h1>
+            <h2 class="success-subtitle">ขอบคุณสำหรับความคิดเห็นของคุณ</h2>
+            <p class="success-desc">คุณได้ทำการประเมินความพึงพอใจสำหรับการบริการนี้ไปแล้ว ขอบคุณสำหรับข้อมูลและการสนับสนุนที่ดีตลอดมา</p>
+            
+            <hr class="success-divider">
+            <p class="success-footer">ระบบเก็บสถิติความพึงพอใจการให้บริการลูกค้า</p>
+        </main>
+
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="toast-container" hidden>ข้อความแจ้งเตือน</div>
+    <!-- Reusable Black Toast Message Box -->
+    <div id="toast" class="toast-container">ข้อความแจ้งเตือน</div>
 
     <script src="/js/survey.js"></script>
 </body>
