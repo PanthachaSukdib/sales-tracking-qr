@@ -34,7 +34,7 @@ router.get('/check-completed', async (req, res) => {
             const isMatch = evt.project_name === project;
             if (!isMatch) return false;
 
-            const isFinalEvent = evt.event_type === 'ms_forms_opened' || evt.event_type === 'skipped_ms_forms';
+            const isFinalEvent = evt.event_type === 'survey_submitted' || evt.event_type === 'declined_at_step_1';
             if (!isFinalEvent) return false;
 
             const eventTime = new Date(evt.timestamp).getTime();
@@ -54,21 +54,31 @@ router.get('/check-completed', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { session_id, emp_id, emp_name, project, customer_name, satisfaction_score, suggestions } = req.body;
+    const {
+        session_id,
+        employee_id,
+        employee_name,
+        project_name,
+        customer_name,
+        pdpa_consent_1,
+        score_q1,
+        score_q2,
+        score_q3,
+        score_q4,
+        improvements,
+        improvements_other,
+        contact_name,
+        contact_phone,
+        contact_email,
+        pdpa_consent_2
+    } = req.body;
 
     // Validation
-    if (!emp_id || !satisfaction_score) {
+    if (!employee_id || !score_q1 || !score_q2 || !score_q3 || !score_q4 || !pdpa_consent_1) {
         return res.status(400).json({ error: 'Missing required fields' });
-    }
-    const score = parseInt(satisfaction_score);
-    if (isNaN(score) || score < 1 || score > 5) {
-        return res.status(400).json({ error: 'Score must be 1-5' });
     }
 
     try {
-        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const now = Date.now();
-
         // 1. ป้องกันการบันทึกซ้ำ (Idempotency) ที่ฝั่ง Server โดยตรวจเช็คจาก session_id ในตาราง events
         if (session_id) {
             const events = await getAllRowsAsObjects('events').catch(err => {
@@ -88,26 +98,39 @@ router.post('/', async (req, res) => {
             return [];
         });
 
-        const alreadySubmitted = surveys.some(s => s.project_name === project);
+        const alreadySubmitted = surveys.some(s => s.project_name === project_name);
 
         if (alreadySubmitted) {
-            console.log(`[Duplicate survey block] project (Job Number): ${project} has already submitted score.`);
+            console.log(`[Duplicate survey block] project (Job Number): ${project_name} has already submitted score.`);
             return res.json({ id: 'duplicate', message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
         }
 
         const id = randomUUID();
         const submitted_at = new Date().toISOString();
 
-        await appendRow('survey_results', [
+        // 18 columns array
+        const rowData = [
             id,
             submitted_at,
-            emp_id,
-            emp_name || '',
-            project || '',
+            session_id || '',
+            employee_id || '',
+            employee_name || '',
+            project_name || '',
             customer_name || '',
-            score,
-            suggestions || ''
-        ]);
+            pdpa_consent_1 || '',
+            score_q1,
+            score_q2,
+            score_q3,
+            score_q4,
+            improvements || '',
+            improvements_other || '',
+            contact_name || '',
+            contact_phone || '',
+            contact_email || '',
+            pdpa_consent_2 || ''
+        ];
+
+        await appendRow('survey_results', rowData);
         res.json({ id, submitted_at, message: 'ขอบคุณสำหรับความเห็น' });
     } catch (err) {
         console.error('Sheets append failed:', err);

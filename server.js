@@ -40,9 +40,6 @@ app.use('/api/reports', reportsRouter);
 app.use('/api/events', eventsRouter);
 
 // Config Endpoints
-app.get('/api/config/ms-forms-url', (req, res) => {
-    res.json({ url: process.env.MS_FORMS_URL || '' });
-});
 
 app.get('/api/config/qr-base', (req, res) => {
     res.json({ baseUrl: process.env.QR_REDIRECT_BASE_URL || '/scan.html' });

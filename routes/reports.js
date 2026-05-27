@@ -59,10 +59,50 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
         const response_rate = qr_generated > 0
             ? Math.round((surveys_received / qr_generated) * 1000) / 10
             : 0;
-        const scores = filteredSurveys.map(s => parseInt(s.satisfaction_score)).filter(n => !isNaN(n));
-        const avg_score = scores.length > 0
-            ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 100) / 100
-            : 0;
+
+        // Calculate Average Scores for q1-q4
+        let sumQ1 = 0, sumQ2 = 0, sumQ3 = 0, sumQ4 = 0;
+        let countQ1 = 0, countQ2 = 0, countQ3 = 0, countQ4 = 0;
+        
+        // Improvement frequencies
+        const impFreq = {};
+        
+        filteredSurveys.forEach(s => {
+            const q1 = parseInt(s.score_q1);
+            const q2 = parseInt(s.score_q2);
+            const q3 = parseInt(s.score_q3);
+            const q4 = parseInt(s.score_q4);
+            
+            if (!isNaN(q1)) { sumQ1 += q1; countQ1++; }
+            if (!isNaN(q2)) { sumQ2 += q2; countQ2++; }
+            if (!isNaN(q3)) { sumQ3 += q3; countQ3++; }
+            if (!isNaN(q4)) { sumQ4 += q4; countQ4++; }
+            
+            if (s.improvements) {
+                const arr = s.improvements.split('|');
+                arr.forEach(imp => {
+                    const i = imp.trim();
+                    if (i) {
+                        impFreq[i] = (impFreq[i] || 0) + 1;
+                    }
+                });
+            }
+        });
+
+        const avg_q1 = countQ1 > 0 ? sumQ1 / countQ1 : 0;
+        const avg_q2 = countQ2 > 0 ? sumQ2 / countQ2 : 0;
+        const avg_q3 = countQ3 > 0 ? sumQ3 / countQ3 : 0;
+        const avg_q4 = countQ4 > 0 ? sumQ4 / countQ4 : 0;
+        
+        const totalAvg = (avg_q1 + avg_q2 + avg_q3 + avg_q4) / 4;
+        const avg_score = totalAvg || 0; // overall
+
+        // Prepare Improvement Bars data
+        const improvementBars = Object.keys(impFreq).map(k => ({
+            label: k,
+            count: impFreq[k],
+            percent: surveys_received > 0 ? Math.round((impFreq[k] / surveys_received) * 100) : 0
+        })).sort((a, b) => b.count - a.count);
 
         // By employee
         const empMap = {};
@@ -78,7 +118,11 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                 };
             }
             empMap[key].responses++;
-            empMap[key].total_score += parseInt(s.satisfaction_score) || 0;
+            const avg4 = (!isNaN(s.score_q1) ? parseInt(s.score_q1) : 0) + 
+                         (!isNaN(s.score_q2) ? parseInt(s.score_q2) : 0) + 
+                         (!isNaN(s.score_q3) ? parseInt(s.score_q3) : 0) + 
+                         (!isNaN(s.score_q4) ? parseInt(s.score_q4) : 0);
+            empMap[key].total_score += (avg4 / 4);
         });
         const by_employee = Object.values(empMap)
             .map(e => ({
@@ -92,8 +136,7 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
         // --- Calculate Funnel and Detailed Pending (using events table) ---
         let scanned_count = 0;
         let survey_count = 0;
-        let forms_opened_count = 0;
-        let skipped_count = 0;
+        let declined_count = 0;
         let pending_customers = [];
 
         if (filteredEvents.length > 0) {
@@ -107,8 +150,7 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                         session_id: sid,
                         scanned: false,
                         survey_submitted: false,
-                        ms_forms_opened: false,
-                        skipped_ms_forms: false,
+                        declined_at_step_1: false,
                         employee_id: evt.employee_id || '',
                         employee_name: evt.employee_name || '',
                         customer_name: evt.customer_name || '',
@@ -121,13 +163,11 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                     sessionsMap[sid].scanned = true;
                 } else if (evt.event_type === 'survey_submitted') {
                     sessionsMap[sid].survey_submitted = true;
-                } else if (evt.event_type === 'ms_forms_opened') {
-                    sessionsMap[sid].ms_forms_opened = true;
-                } else if (evt.event_type === 'skipped_ms_forms') {
-                    sessionsMap[sid].skipped_ms_forms = true;
+                } else if (evt.event_type === 'declined_at_step_1') {
+                    sessionsMap[sid].declined_at_step_1 = true;
                 }
                 
-                // Track the earliest timestamp (the scan time) as the main session timestamp
+                // Track the earliest timestamp
                 if (new Date(evt.timestamp) < new Date(sessionsMap[sid].timestamp)) {
                     sessionsMap[sid].timestamp = evt.timestamp;
                 }
@@ -136,23 +176,18 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
             const sessions = Object.values(sessionsMap);
             scanned_count = sessions.filter(s => s.scanned).length;
             survey_count = sessions.filter(s => s.survey_submitted).length;
-            forms_opened_count = sessions.filter(s => s.ms_forms_opened).length;
-            skipped_count = sessions.filter(s => s.skipped_ms_forms).length;
+            declined_count = sessions.filter(s => s.declined_at_step_1).length;
 
             sessions.forEach(s => {
-                // If they completed the entire flow (opened MS Forms or skipped it), they are not pending
-                if (s.ms_forms_opened || s.skipped_ms_forms) return;
+                if (s.survey_submitted || s.declined_at_step_1) return;
 
                 let status = '';
                 let status_code = '';
-                if (s.survey_submitted) {
-                    status = 'ให้ดาวแล้ว (ยังไม่กรอกฟอร์ม)';
-                    status_code = 'survey_done';
-                } else if (s.scanned) {
-                    status = 'สแกนแล้ว (ยังไม่ให้ดาว)';
+                if (s.scanned) {
+                    status = 'สแกนแล้ว (ยังไม่ส่งผล)';
                     status_code = 'scanned_only';
                 } else {
-                    return; // skip if no scan event
+                    return;
                 }
 
                 pending_customers.push({
@@ -164,54 +199,39 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                     status_code
                 });
             });
-        } else {
-            // Legacy/Fallback Logic when no Event tracking data is available yet
-            scanned_count = qr_generated;
-            survey_count = surveys_received;
-            forms_opened_count = surveys_received; // In legacy flow, they went to forms next
-            skipped_count = 0;
-
-            const surveyKeys = new Set(filteredSurveys.map(s => {
-                return `${s.employee_id}_${(s.project_name || '').trim().toLowerCase()}_${(s.customer_name || '').trim().toLowerCase()}`;
-            }));
-
-            const pendingMap = {};
-            filteredQR.forEach(q => {
-                const customerName = (q.customer_name || '').trim();
-                if (!customerName) return; 
-
-                const key = `${q.employee_id}_${(q.project_name || '').trim().toLowerCase()}_${customerName.toLowerCase()}`;
-                if (!surveyKeys.has(key)) {
-                    if (!pendingMap[key] || new Date(q.created_at) > new Date(pendingMap[key].created_at)) {
-                        pendingMap[key] = {
-                            employee_name: q.employee_name,
-                            project_name: q.project_name,
-                            customer_name: q.customer_name,
-                            created_at: q.created_at,
-                            status: 'สแกนแล้ว (ยังไม่ให้ดาว)',
-                            status_code: 'scanned_only'
-                        };
-                    }
-                }
-            });
-            pending_customers = Object.values(pendingMap);
         }
 
         // Sort pending by date descending
         pending_customers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-        // Recent 20 responses
+        // Recent Text Feedback (improvements_other)
+        const textFeedbackList = filteredSurveys
+            .filter(s => s.improvements_other && s.improvements_other.trim().length > 0)
+            .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+            .slice(0, 10)
+            .map(s => ({
+                date: s.submitted_at,
+                text: s.improvements_other
+            }));
+
+        // Recent 20 responses (overall view)
         const recent_responses = filteredSurveys
             .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
             .slice(0, 20)
-            .map(s => ({
-                submitted_at: s.submitted_at,
-                employee_name: s.employee_name,
-                project_name: s.project_name,
-                customer_name: s.customer_name,
-                score: parseInt(s.satisfaction_score),
-                suggestions: s.suggestions
-            }));
+            .map(s => {
+                const avg4 = (!isNaN(s.score_q1) ? parseInt(s.score_q1) : 0) + 
+                             (!isNaN(s.score_q2) ? parseInt(s.score_q2) : 0) + 
+                             (!isNaN(s.score_q3) ? parseInt(s.score_q3) : 0) + 
+                             (!isNaN(s.score_q4) ? parseInt(s.score_q4) : 0);
+                return {
+                    submitted_at: s.submitted_at,
+                    employee_name: s.employee_name,
+                    project_name: s.project_name,
+                    customer_name: s.customer_name,
+                    score: avg4 / 4,
+                    suggestions: s.improvements_other
+                };
+            });
 
         // Recent 20 QR logs
         const recent_qr = filteredQR
@@ -232,11 +252,18 @@ router.get('/summary', basicAuthMiddleware, async (req, res) => {
                 avg_score,
                 pending_count: pending_customers.length 
             },
+            question_stats: {
+                q1: avg_q1,
+                q2: avg_q2,
+                q3: avg_q3,
+                q4: avg_q4
+            },
+            improvement_bars: improvementBars,
+            text_feedback: textFeedbackList,
             funnel: {
                 scanned: scanned_count,
                 survey_submitted: survey_count,
-                ms_forms_opened: forms_opened_count,
-                skipped: skipped_count
+                declined: declined_count
             },
             by_employee,
             recent_responses,

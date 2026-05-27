@@ -9,46 +9,14 @@
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/css/styles.css">
   <script src="/js/webview-helper.js"></script>
-  <style>
-    .scan-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 80vh;
-      width: 100%;
-    }
-    .scan-card {
-      background-color: var(--bg-card);
-      border-radius: var(--radius-card);
-      padding: 32px 24px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-    }
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border-left-color: var(--primary);
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px auto;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .scan-card h2 { margin-bottom: 12px; color: var(--text-primary); }
-    .scan-card p { color: var(--text-secondary); line-height: 1.5; }
-    #scanError { color: var(--danger); font-weight: 500; margin-top: 16px; }
-  </style>
 </head>
 <body>
-  <div class="scan-container">
-    <div class="scan-card">
-      <div class="spinner"></div>
-      <h2>กำลังเปิดแบบฟอร์ม...</h2>
-      <p id="scanStatus">กรุณารอสักครู่</p>
-      <p id="scanError" hidden></p>
+  <div class="loading-screen">
+    <div class="loading-card">
+      <div class="loading-spinner"></div>
+      <p class="loading-title">กำลังเปิดแบบฟอร์ม...</p>
+      <p id="scanStatus" class="loading-subtitle">กรุณารอสักครู่</p>
+      <p id="scanError" class="loading-subtitle" style="color: #DC2626; margin-top: 8px;" hidden></p>
     </div>
   </div>
 
@@ -80,33 +48,23 @@
         return;
       }
 
-      // 1. ตรวจสอบใน localStorage ก่อนเพื่อการตอบสนองที่รวดเร็ว (Instant Check)
-      // ใช้ชื่อโครงการ (ซึ่งคือเลข Job งาน) ในการตรวจสอบ
+      // 1. ตรวจสอบซ้ำ — ถ้าเคยทำแล้ว redirect ไป survey.html step4 (completed)
       const completedKey = 'sst_completed_project_' + project;
-      const finalDoneKey = 'sst_final_done_project_' + project;
-
       if (localStorage.getItem(completedKey) === 'true') {
-        if (localStorage.getItem(finalDoneKey) === 'true') {
-          // หากผู้ใช้ให้ดาวและทำฟอร์มครบหมดแล้ว → ส่งไปหน้าขอบคุณทันที
-          window.location.replace('/thank-you.html?already_completed=1');
-          return;
-        } else {
-          // หากผู้ใช้ให้ดาวแล้วแต่เผลอกดออก/ปิดเว็บก่อนทำฟอร์ม → ฟื้นฟู Session และพาไปหน้า Bridge สเต็ปถัดไปเพื่อกรอกฟอร์มต่อ
-          const sessionId = generateUUID();
-          const session = {
-            session_id: sessionId,
-            emp_id: empId,
-            emp_name: empName,
-            project: project,
-            customer: customer,
-            scanned_at: Date.now(),
-            expires_at: Date.now() + (4 * 60 * 60 * 1000),
-            survey_score: 5
-          };
-          localStorage.setItem('sst_session', JSON.stringify(session));
-          window.location.replace('/next-step.html');
-          return;
-        }
+        // สร้าง session เพื่อให้ survey.html แสดงผลได้ แล้ว redirect ไป step4
+        const session = {
+          session_id: generateUUID(),
+          emp_id: empId,
+          emp_name: empName,
+          project: project,
+          customer: customer,
+          scanned_at: Date.now(),
+          expires_at: Date.now() + (4 * 60 * 60 * 1000),
+          already_completed: true
+        };
+        localStorage.setItem('sst_session', JSON.stringify(session));
+        window.location.replace('/survey.html');
+        return;
       }
 
       // 2. ตรวจสอบที่ฝั่ง Server (Fallback เผื่อลูกค้าล้าง Cache หรือสแกนผ่านอุปกรณ์อื่น)
@@ -114,39 +72,29 @@
         const checkRes = await fetch('/api/survey/check-completed?emp_id=' + encodeURIComponent(empId) + '&customer=' + encodeURIComponent(customer) + '&project=' + encodeURIComponent(project));
         if (checkRes.ok) {
           const checkData = await checkRes.json();
-          if (checkData.completed) {
+          if (checkData.completed || checkData.final_step_done) {
             localStorage.setItem(completedKey, 'true');
-            if (checkData.final_step_done) {
-              localStorage.setItem(finalDoneKey, 'true');
-              window.location.replace('/thank-you.html?already_completed=1');
-              return;
-            } else {
-              // ให้ดาวแล้วแต่ยังทำฟอร์มไม่เสร็จ → สร้าง Session พาไปทำฟอร์มต่อทันที
-              const sessionId = generateUUID();
-              const session = {
-                session_id: sessionId,
-                emp_id: empId,
-                emp_name: empName,
-                project: project,
-                customer: customer,
-                scanned_at: Date.now(),
-                expires_at: Date.now() + (4 * 60 * 60 * 1000),
-                survey_score: 5
-              };
-              localStorage.setItem('sst_session', JSON.stringify(session));
-              window.location.replace('/next-step.html');
-              return;
-            }
+            const session = {
+              session_id: generateUUID(),
+              emp_id: empId,
+              emp_name: empName,
+              project: project,
+              customer: customer,
+              scanned_at: Date.now(),
+              expires_at: Date.now() + (4 * 60 * 60 * 1000),
+              already_completed: true
+            };
+            localStorage.setItem('sst_session', JSON.stringify(session));
+            window.location.replace('/survey.html');
+            return;
           }
         }
       } catch (err) {
         console.warn('Duplicate check failed, letting user proceed:', err);
       }
 
-      // สร้าง session_id สำหรับ tracking ตลอด journey
+      // 3. สร้าง session ใหม่ — ยังไม่เคยทำ
       const sessionId = generateUUID();
-
-      // เก็บใน localStorage (session valid 4 ชม.)
       const session = {
         session_id: sessionId,
         emp_id: empId,
@@ -193,7 +141,7 @@
         console.warn('Event tracking failed (continuing):', err);
       }
 
-      // Redirect ไปยังหน้าประเมินดาว survey.html หลังบันทึกข้อมูลการสแกนเสร็จสิ้น
+      // Redirect ไปยังหน้า survey.html (Multi-Step Wizard ใหม่)
       setTimeout(() => {
         window.location.href = '/survey.html';
       }, 800);

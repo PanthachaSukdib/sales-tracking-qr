@@ -115,6 +115,56 @@
 
         </section>
 
+        <!-- New Section: Question Average Stats -->
+        <section class="card" style="margin-top: 8px;">
+            <div class="card-title">
+                <h2>คะแนนเฉลี่ยแต่ละด้าน</h2>
+            </div>
+            <div class="question-stats-grid" id="question-stats-container">
+                <div class="question-stat">
+                    <div class="qs-title">1. สินค้ามีความคุ้มค่า</div>
+                    <div class="qs-value" id="qs-q1">0.0</div>
+                    <div class="qs-stars">★</div>
+                </div>
+                <div class="question-stat">
+                    <div class="qs-title">2. ข้อมูลการเสนอขาย</div>
+                    <div class="qs-value" id="qs-q2">0.0</div>
+                    <div class="qs-stars">★</div>
+                </div>
+                <div class="question-stat">
+                    <div class="qs-title">3. การบริการติดตั้ง</div>
+                    <div class="qs-value" id="qs-q3">0.0</div>
+                    <div class="qs-stars">★</div>
+                </div>
+                <div class="question-stat">
+                    <div class="qs-title">4. ความสะดวกสั่งซื้อ</div>
+                    <div class="qs-value" id="qs-q4">0.0</div>
+                    <div class="qs-stars">★</div>
+                </div>
+            </div>
+        </section>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 8px;">
+            <!-- New Section: Improvement Bars -->
+            <section class="card">
+                <div class="card-title">
+                    <h2>สรุปสิ่งที่ควรปรับปรุง (จากผู้ตอบประเมิน)</h2>
+                </div>
+                <div id="improvement-bars-container" style="margin-top: 12px;">
+                    <!-- Inserted by JS -->
+                </div>
+            </section>
+
+            <!-- New Section: Text Feedback -->
+            <section class="card">
+                <div class="card-title">
+                    <h2>ข้อเสนอแนะเพิ่มเติมจากลูกค้า</h2>
+                </div>
+                <div id="text-feedback-container" style="margin-top: 12px; max-height: 300px; overflow-y: auto;">
+                    <!-- Inserted by JS -->
+                </div>
+            </section>
+        </div>
 
         <!-- Table 1: Employee Breakdown -->
         <main class="card" style="gap: 16px; margin-top: 8px;">

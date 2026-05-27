@@ -1,225 +1,336 @@
-// public/js/survey.js
+// State management
+const surveyState = {
+    currentStep: 1,
+    session: null,
+    pdpa_consent_1: '',
+    scores: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    improvements: [],
+    improvements_other: '',
+    contact_name: '',
+    contact_phone: '',
+    contact_email: '',
+    pdpa_consent_2: ''
+};
 
-function loadSession() {
-    const raw = localStorage.getItem('sst_session');
-    if (!raw) return null;
+// === Helpers ===
+function getSession() {
     try {
-        const session = JSON.parse(raw);
-        if (Date.now() > session.expires_at) {
-            localStorage.removeItem('sst_session');
-            return null;
-        }
-        return session;
-    } catch {
-        return null;
-    }
+        const raw = localStorage.getItem('sst_session');
+        if (!raw) return null;
+        const s = JSON.parse(raw);
+        if (Date.now() > s.expires_at) return null;
+        return s;
+    } catch { return null; }
 }
 
-// ดักจับและป้องกันการกด Back Button จาก bfcache ของเบราว์เซอร์
-window.addEventListener('pageshow', (event) => {
-    const session = loadSession();
-    if (session) {
-        if (session.survey_score) {
-            window.location.replace('/next-step.html');
-            return;
-        }
-        const completedKey = 'sst_completed_project_' + session.project;
-        if (localStorage.getItem(completedKey) === 'true') {
-            window.location.replace('/thank-you.html?already_completed=1');
-            return;
-        }
-    }
-});
+function showToast(msg, duration = 2500) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.hidden = false;
+    el.classList.add('show');
+    setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.hidden = true, 300);
+    }, duration);
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-    const session = loadSession();
+function showStep(stepNum) {
+    // Hide all steps
+    ['step1', 'step2', 'step3', 'step4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+    });
+
+    if (stepNum === 4) {
+        // Step 4 has its own full screen, hide main card
+        const mainCard = document.getElementById('mainCard');
+        if (mainCard) mainCard.hidden = true;
+    } else {
+        const mainCard = document.getElementById('mainCard');
+        if (mainCard) mainCard.hidden = false;
+    }
+
+    const stepEl = document.getElementById(`step${stepNum}`);
+    if (stepEl) stepEl.hidden = false;
     
-    if (!session) {
-        showNoSessionScreen();
-        return;
-    }
+    surveyState.currentStep = stepNum;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    // ป้องกันการกดย้อนกลับจากหน้า Bridge เพื่อทำประเมินซ้ำใน Session เดิม
-    if (session.survey_score) {
-        window.location.replace('/next-step.html');
-        return;
-    }
-
-    // ป้องกันการประเมินซ้ำถ้าเคยส่งผลประเมินเรียบร้อยแล้ว
-    const completedKey = 'sst_completed_project_' + session.project;
-    if (localStorage.getItem(completedKey) === 'true') {
-        window.location.replace('/thank-you.html?already_completed=1');
-        return;
-    }
-
-    document.getElementById('empName').textContent = session.emp_name;
-    document.getElementById('projectName').textContent = session.project || '-';
-    document.getElementById('customerName').textContent = session.customer || '-';
-
-    setupRating();
-    setupSubmit(session);
-});
-
-function showNoSessionScreen() {
-    const container = document.getElementById('survey-card').parentElement;
-    container.innerHTML = `
-        <div class="card no-session">
-            <div class="warning-icon">⚠️</div>
-            <h2>ไม่พบข้อมูลการเข้าใช้</h2>
-            <p>กรุณาสแกน QR Code จากเจ้าหน้าที่ใหม่อีกครั้ง<br>
-               เพื่อเริ่มต้นกระบวนการประเมิน</p>
+function showDecline() {
+    ['step1', 'step2', 'step3', 'step4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+    });
+    const mainCard = document.getElementById('mainCard');
+    if (mainCard) mainCard.hidden = true;
+    
+    document.body.innerHTML = `
+        <div class="completed-screen">
+            <div class="completed-card">
+                <div class="tick-circle" style="background: #FEE2E2;">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <path d="M12 12 L28 28 M28 12 L12 28" stroke="#DC2626" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1 style="color: #DC2626;">ไม่ยินยอมให้ข้อมูล</h1>
+                <p class="thank-you">ท่านได้ปฏิเสธการให้ข้อมูลส่วนบุคคล</p>
+                <p class="detail">ระบบไม่สามารถดำเนินการต่อได้ ขอบคุณที่ใช้บริการ</p>
+            </div>
         </div>
     `;
 }
 
-function setupRating() {
-    const starsDeck = document.getElementById('stars-deck');
-    const starButtons = document.querySelectorAll('.star-btn');
-    const ratingFeedback = document.getElementById('rating-text-feedback');
-    const btnSubmit = document.getElementById('btn-submit');
+async function logEvent(eventType, metadata = {}) {
+    const s = surveyState.session;
+    if (!s) return;
+    try {
+        await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: s.session_id,
+                event_type: eventType,
+                employee_id: s.emp_id,
+                employee_name: s.emp_name,
+                customer_name: s.customer,
+                project_name: s.project,
+                metadata: JSON.stringify(metadata)
+            })
+        });
+    } catch {}
+}
 
-    let selectedRating = 0;
-    const feedbackMap = {
-        1: 'ควรปรับปรุงอย่างยิ่ง 😞',
-        2: 'ควรปรับปรุง 😐',
-        3: 'ปานกลาง 🙂',
-        4: 'ดีมาก 😊',
-        5: 'ยอดเยี่ยมที่สุด 🏆'
+// === Init ===
+document.addEventListener('DOMContentLoaded', () => {
+    surveyState.session = getSession();
+    if (!surveyState.session) {
+        document.body.innerHTML = `
+            <div class="completed-screen">
+                <div class="completed-card">
+                    <h2 style="color: #DC2626;">ไม่พบข้อมูลการเข้าใช้</h2>
+                    <p style="color: #6B7280; font-size: 14px; margin-top: 12px;">กรุณาสแกน QR Code จากเจ้าหน้าที่อีกครั้ง</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const empNameEl = document.getElementById('empName');
+    const projectEl = document.getElementById('projectName');
+    const customerEl = document.getElementById('customerName');
+
+    if (empNameEl) empNameEl.textContent = surveyState.session.emp_name || '-';
+    if (projectEl) projectEl.textContent = surveyState.session.project || '-';
+    if (customerEl) customerEl.textContent = surveyState.session.customer || '-';
+
+    // ถ้าเคยทำแล้ว ให้ข้ามไปหน้า completed ทันที
+    if (surveyState.session.already_completed) {
+        showStep(4);
+        return;
+    }
+
+    setupStep1();
+    setupStep2();
+    setupStep3();
+});
+
+// === Step 1 logic ===
+function setupStep1() {
+    const submitStep1 = async () => {
+        const checked = document.querySelector('input[name="pdpa1"]:checked');
+        if (!checked) {
+            showToast('กรุณาเลือกคำตอบ');
+            return;
+        }
+        surveyState.pdpa_consent_1 = checked.value;
+
+        await logEvent('pdpa_consent_1_answered', { value: checked.value });
+
+        if (checked.value === 'ไม่ยินยอม') {
+            await logEvent('declined_at_step_1');
+            showDecline();
+            return;
+        }
+        showStep(2);
     };
 
-    function renderStars(ratingValue) {
-        starButtons.forEach(btn => {
-            const val = parseInt(btn.getAttribute('data-value'), 10);
-            if (val <= ratingValue) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
+    const btnInner = document.getElementById('step1BtnInner');
+    const btnOuter = document.getElementById('step1BtnOuter');
+    
+    if (btnInner) btnInner.addEventListener('click', submitStep1);
+    if (btnOuter) btnOuter.addEventListener('click', submitStep1);
+}
+
+// === Step 2 logic ===
+function setupStep2() {
+    // Star rating handlers
+    document.querySelectorAll('.star-rating').forEach(group => {
+        const question = group.dataset.q;
+        group.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.dataset.val);
+                surveyState.scores[question] = value;
+                group.querySelectorAll('.star').forEach(s => {
+                    // add active class if data-val <= value
+                    if (parseInt(s.dataset.val) <= value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+
+    // Checkbox toggles
+    const otherCheckbox = document.getElementById('improveOtherCheckbox');
+    const otherText = document.getElementById('improveOtherText');
+    const noneCheckbox = document.getElementById('improveNone');
+    const allCheckboxes = document.querySelectorAll('input[name="improve"]');
+
+    if (otherCheckbox && otherText) {
+        otherCheckbox.addEventListener('change', (e) => {
+            otherText.hidden = !e.target.checked;
+            if (e.target.checked && noneCheckbox) noneCheckbox.checked = false;
+        });
+    }
+
+    if (noneCheckbox) {
+        noneCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                // uncheck everything else
+                allCheckboxes.forEach(cb => {
+                    if (cb !== noneCheckbox) cb.checked = false;
+                });
+                if (otherText) otherText.hidden = true;
             }
         });
     }
 
-    starButtons.forEach(btn => {
-        const val = parseInt(btn.getAttribute('data-value'), 10);
-        btn.addEventListener('click', () => {
-            selectedRating = val;
-            renderStars(selectedRating);
-            ratingFeedback.textContent = feedbackMap[selectedRating];
-            btnSubmit.disabled = false;
-        });
-        btn.addEventListener('mouseenter', () => {
-            renderStars(val);
-            ratingFeedback.textContent = feedbackMap[val];
-        });
-    });
-
-    starsDeck.addEventListener('mouseleave', () => {
-        renderStars(selectedRating);
-        if (selectedRating > 0) {
-            ratingFeedback.textContent = feedbackMap[selectedRating];
-        } else {
-            ratingFeedback.textContent = 'กรุณาเลือกคะแนนประเมิน';
+    allCheckboxes.forEach(cb => {
+        if (cb !== noneCheckbox) {
+            cb.addEventListener('change', (e) => {
+                if (e.target.checked && noneCheckbox) {
+                    noneCheckbox.checked = false;
+                }
+            });
         }
     });
 
-    window.getCurrentRating = () => selectedRating;
+    const step2Btn = document.getElementById('step2Btn');
+    if (step2Btn) {
+        step2Btn.addEventListener('click', async () => {
+            const { q1, q2, q3, q4 } = surveyState.scores;
+            if (!q1 || !q2 || !q3 || !q4) {
+                showToast('กรุณาให้คะแนนดาวครบทั้ง 4 ข้อ');
+                return;
+            }
+            
+            const selectedImprovements = Array.from(
+                document.querySelectorAll('input[name="improve"]:checked')
+            ).map(cb => cb.value);
+
+            if (selectedImprovements.length === 0) {
+                showToast('กรุณาเลือกสิ่งที่ควรปรับปรุงอย่างน้อย 1 ข้อ (หรือเลือก ไม่มี)');
+                return;
+            }
+
+            surveyState.improvements = selectedImprovements;
+            
+            if (otherCheckbox && otherCheckbox.checked && otherText) {
+                surveyState.improvements_other = otherText.value.trim();
+                if (!surveyState.improvements_other) {
+                    showToast('กรุณาระบุสิ่งที่ควรปรับปรุง');
+                    return;
+                }
+            } else {
+                surveyState.improvements_other = '';
+            }
+
+            await logEvent('ratings_completed', { scores: surveyState.scores });
+            showStep(3);
+        });
+    }
 }
 
-function setupSubmit(session) {
-    const btnSubmit = document.getElementById('btn-submit');
-    const suggestionsInput = document.getElementById('suggestions');
-    const toast = document.getElementById('toast');
-
-    let toastTimeout = null;
-    function showToast(message) {
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toast.textContent = message;
-        toast.classList.add('show');
-        toastTimeout = setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2200);
+// === Step 3 logic ===
+function setupStep3() {
+    const pdpaReadMore = document.getElementById('pdpaReadMore2');
+    const pdpaText = document.getElementById('pdpaText2');
+    
+    if (pdpaReadMore && pdpaText) {
+        pdpaReadMore.addEventListener('click', (e) => {
+            e.preventDefault();
+            pdpaText.hidden = !pdpaText.hidden;
+            pdpaReadMore.textContent = pdpaText.hidden ? '(อ่านเพิ่มเติม)' : '(ย่อหน้าต่าง)';
+        });
     }
 
-    let isSubmitting = false;
-    btnSubmit.addEventListener('click', async () => {
-        if (isSubmitting) return;
+    const step3Btn = document.getElementById('step3SubmitBtn');
+    if (step3Btn) {
+        step3Btn.addEventListener('click', async () => {
+            const consentRadio = document.querySelector('input[name="pdpa2"]:checked');
+            if (!consentRadio) {
+                showToast('กรุณาเลือกการยินยอมข้อมูลส่วนบุคคล');
+                return;
+            }
+            surveyState.pdpa_consent_2 = consentRadio.value;
 
-        const score = window.getCurrentRating ? window.getCurrentRating() : 0;
-        const suggestions = suggestionsInput.value.trim();
-        
-        if (!score) {
-            showToast('กรุณาเลือกระดับความพึงพอใจ');
-            return;
-        }
+            surveyState.contact_name = document.getElementById('contactName')?.value.trim() || '';
+            surveyState.contact_phone = document.getElementById('contactPhone')?.value.trim() || '';
+            surveyState.contact_email = document.getElementById('contactEmail')?.value.trim() || '';
 
-        isSubmitting = true;
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = 'กำลังส่งข้อมูล...';
-        suggestionsInput.disabled = true;
+            // ส่งทุกข้อมูลรวมเป็นก้อนเดียวไป backend
+            step3Btn.disabled = true;
+            step3Btn.textContent = 'กำลังส่ง...';
 
-        // บันทึกคะแนนใน session ชั่วคราวก่อนยิง API เพื่อป้องกันการกดย้อนกลับ/Refresh มาระหว่างบันทึก
-        session.survey_score = score;
-        localStorage.setItem('sst_session', JSON.stringify(session));
-
-        try {
-            // 1. ส่งข้อมูลคะแนนประเมินและข้อเสนอแนะเข้า Google Sheets (พร้อม session_id เพื่อตรวจจับซ้ำที่ฝั่ง Server)
-            const res = await fetch('/api/survey', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: session.session_id,
-                    emp_id: session.emp_id,
-                    emp_name: session.emp_name,
-                    project: session.project,
-                    customer_name: session.customer,
-                    satisfaction_score: score,
-                    suggestions
-                })
-            });
-            
-            if (!res.ok) throw new Error('Submit failed');
-
-            // บันทึกสถานะว่าทำแบบสอบถามการสแกนนี้เรียบร้อยแล้วลงใน localStorage เพื่อใช้ป้องกันการทำซ้ำทันที
-            const completedKey = 'sst_completed_project_' + session.project;
-            localStorage.setItem(completedKey, 'true');
-
-            // 2. ยิง Event "survey_submitted" → event tracking
             try {
-                await fetch('/api/events', {
+                const res = await fetch('/api/survey', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        session_id: session.session_id,
-                        event_type: 'survey_submitted',
-                        employee_id: session.emp_id,
-                        employee_name: session.emp_name,
-                        customer_name: session.customer,
-                        project_name: session.project,
-                        metadata: { score, suggestions: suggestions || null }
+                        session_id: surveyState.session.session_id,
+                        employee_id: surveyState.session.emp_id,
+                        employee_name: surveyState.session.emp_name,
+                        project_name: surveyState.session.project,
+                        customer_name: surveyState.session.customer,
+                        pdpa_consent_1: surveyState.pdpa_consent_1,
+                        score_q1: surveyState.scores.q1,
+                        score_q2: surveyState.scores.q2,
+                        score_q3: surveyState.scores.q3,
+                        score_q4: surveyState.scores.q4,
+                        improvements: surveyState.improvements.join('|'),
+                        improvements_other: surveyState.improvements_other,
+                        contact_name: surveyState.contact_name,
+                        contact_phone: surveyState.contact_phone,
+                        contact_email: surveyState.contact_email,
+                        pdpa_consent_2: surveyState.pdpa_consent_2
                     })
                 });
-            } catch (evtErr) {
-                console.warn('Event tracking failed (continuing):', evtErr);
+                
+                if (!res.ok) throw new Error('submit failed');
+                
+                await logEvent('survey_submitted', {
+                    avg_score: (surveyState.scores.q1 + surveyState.scores.q2 + surveyState.scores.q3 + surveyState.scores.q4) / 4,
+                    gave_contact: consentRadio.value === 'ยินยอม'
+                });
+                
+                // Mark completed so re-scans go straight to completed screen
+                const project = surveyState.session.project;
+                if (project) {
+                    localStorage.setItem('sst_completed_project_' + project, 'true');
+                }
+                localStorage.removeItem('sst_session');
+                
+                showStep(4);
+            } catch (err) {
+                console.error(err);
+                showToast('ส่งไม่สำเร็จ กรุณาลองอีกครั้ง');
+                step3Btn.disabled = false;
+                step3Btn.textContent = 'ส่งข้อมูล';
             }
-
-            // 4. แสดง Toast แจ้งสำเร็จ
-            showToast('บันทึกดาวสำเร็จ! กำลังนำคุณไปยังขั้นตอนถัดไป...');
-
-            // 5. Redirect ไปหน้า Bridge (next-step.html) แทน MS Forms โดยตรง
-            setTimeout(() => {
-                window.location.href = '/next-step.html';
-            }, 1200);
-
-        } catch (err) {
-            console.error(err);
-            // คืนค่าระดับคะแนนใน local storage หากเกิดข้อผิดพลาดในการส่งข้อมูล
-            delete session.survey_score;
-            localStorage.setItem('sst_session', JSON.stringify(session));
-
-            showToast('ส่งไม่สำเร็จ กรุณาลองอีกครั้ง');
-            isSubmitting = false;
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'ส่งคะแนน';
-            suggestionsInput.disabled = false;
-        }
-    });
+        });
+    }
 }

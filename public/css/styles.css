@@ -1,948 +1,458 @@
-/* public/css/styles.css */
-
-/* --- Design Tokens --- */
-:root {
-    --primary: #0F6E56;
-    --primary-hover: #0B5A47;
-    --primary-light: #E1F5EE;
-    --bg-app: #F3F4F6;
-    --bg-card: #FFFFFF;
-    --bg-surface: #F9FAFB;
-    
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    
-    --border: #E5E7EB;
-    
-    --success: #16A34A;
-    --danger: #DC2626;
-    --warning: #F59E0B;
-    
-    --radius-input: 10px;
-    --radius-card: 16px;
-    --radius-pill: 999px;
-    
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-    
-    --font-stack: 'Noto Sans Thai', 'Sukhumvit Set', 'Thonburi', 'Sarabun', 'IBM Plex Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* --- Global Reset & Base --- */
-* {
-    box-sizing: border-box;
+/* ============================
+   Page wrap + background
+   ============================ */
+body {
+    background: #F3F4F6;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    font-family: var(--font-stack);
+    font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    background-color: var(--bg-app);
-    color: var(--text-primary);
-    line-height: 1.5;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+}
+
+.page-wrap {
     min-height: 100vh;
-}
-
-/* Container for Mobile-First Pages (Sales / Customer Facing) */
-.container-mobile {
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
+    padding: 24px 16px;
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    animation: fadeIn 0.4s ease-out;
-}
-
-/* Container for Large Dashboard View */
-.container-dashboard {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    animation: fadeIn 0.4s ease-out;
-}
-
-/* --- Typography --- */
-h1 {
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.3;
-}
-
-h2 {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-h3 {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-p {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.caption {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-/* --- Layout Components --- */
-
-/* Header styled like a modern banking application */
-.bank-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 4px;
-    margin-bottom: 8px;
-}
-
-.logo-box {
-    width: 56px;
-    height: 56px;
-    background-color: var(--primary);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    color: #FFFFFF;
-    font-size: 26px;
-    font-weight: 700;
-    box-shadow: 0 4px 10px rgba(15, 110, 86, 0.2);
+    align-items: flex-start;
+}
+
+/* ============================
+   Card หลัก
+   ============================ */
+.qr-card {
+    background: #FFFFFF;
+    border-radius: 28px;
+    padding: 28px 24px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #F3F4F6;
+    box-sizing: border-box;
+}
+
+/* ============================
+   Header (Logo + Title)
+   ============================ */
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.company-logo {
+    width: 64px;
+    height: auto;
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
 .header-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.header-text h1 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.header-text p {
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-/* Cards */
-.card {
-    background-color: var(--bg-card);
-    border-radius: var(--radius-card);
-    padding: 24px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    transition: var(--transition);
-}
-
-.card:hover {
-    box-shadow: var(--shadow-large);
-}
-
-.card-title {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
-    margin-bottom: 4px;
-}
-
-/* Form Controls */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.form-group label span {
-    color: var(--danger);
-}
-
-.form-control {
-    width: 100%;
-    padding: 13px 14px;
-    font-size: 16px; /* 16px is required to avoid iOS auto-zoom on focus */
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-input);
-    background-color: var(--bg-surface);
-    color: var(--text-primary);
-    outline: none;
-    transition: var(--transition);
-}
-
-.form-control::placeholder {
-    color: #9CA3AF;
-}
-
-.form-control:focus {
-    border-color: var(--primary);
-    background-color: #FFFFFF;
-    box-shadow: 0 0 0 4px rgba(15, 110, 86, 0.1);
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--radius-input);
-    cursor: pointer;
-    transition: var(--transition);
-    height: 48px; /* Safe mobile tap target height */
-    text-decoration: none;
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: #FFFFFF;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-}
-
-.btn-primary:disabled {
-    background-color: #9CA3AF;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: var(--text-primary);
-    border: 1.5px solid var(--border);
-}
-
-.btn-outline:hover {
-    background-color: var(--bg-surface);
-    border-color: var(--text-secondary);
-}
-
-.btn-danger {
-    background-color: var(--danger);
-    color: #FFFFFF;
-}
-
-.btn-danger:hover {
-    background-color: #B91C1C;
-}
-
-.btn-success {
-    background-color: var(--success);
-    color: #FFFFFF;
-}
-
-.btn-success:hover {
-    background-color: #11843b;
-}
-
-/* Action button rows */
-.btn-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-}
-
-@media (max-width: 480px) {
-    .btn-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    .btn-grid button:last-child {
-        grid-column: span 2;
-    }
-    .btn {
-        font-size: 14px;
-        padding: 12px 8px;
-        white-space: nowrap;
-    }
-}
-
-.btn-subtle-text {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 12px 8px 4px 8px;
-    text-align: center;
-    width: 100%;
-    transition: var(--transition);
-    opacity: 0.8;
-}
-
-.btn-subtle-text:hover {
-    color: var(--danger);
-    opacity: 1;
-}
-
-/* --- QR Code Display Section --- */
-.qr-section {
-    background-color: var(--bg-surface);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    border: 1.5px dashed var(--border);
-    animation: slideUp 0.3s ease-out;
-}
-
-.qr-canvas-container {
-    background-color: #FFFFFF;
-    padding: 12px;
-    border-radius: 16px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-}
-
-.qr-summary {
-    width: 100%;
-    border-top: 1px solid var(--border);
-    padding-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.qr-summary-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
-
-.qr-summary-row span:first-child {
-    color: var(--text-secondary);
-}
-
-.qr-summary-row span:last-child {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-/* --- Star Rating System --- */
-.stars-container {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 8px 0;
-}
-
-.star-btn {
-    background: none;
-    border: none;
-    font-size: 40px;
-    color: var(--border);
-    cursor: pointer;
-    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.star-btn:hover {
-    transform: scale(1.2);
-}
-
-.star-btn.active {
-    color: var(--warning);
-}
-
-.rating-text-feedback {
-    text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--warning);
-    height: 24px;
-}
-
-/* --- Toast Notification Box --- */
-.toast-container {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background-color: rgba(17, 24, 39, 0.95);
-    color: #FFFFFF;
-    padding: 12px 24px;
-    border-radius: var(--radius-pill);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-    white-space: nowrap;
-    z-index: 9999;
-    opacity: 0;
-    transition: transform 0.30s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
-}
-
-.toast-container.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-}
-
-/* --- Helper Classes --- */
-.text-center { text-align: center; }
-.hidden { display: none !important; }
-
-/* --- Dashboard Elements --- */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.filter-bar {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.filter-btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background-color: var(--bg-card);
-    transition: var(--transition);
-}
-
-.filter-btn:hover {
-    background-color: var(--bg-surface);
-}
-
-.filter-btn.active {
-    background-color: var(--primary);
-    color: #FFFFFF;
-    border-color: var(--primary);
-}
-
-.date-range-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    background-color: var(--bg-card);
-    padding: 4px 12px;
-    border-radius: var(--radius-input);
-    border: 1px solid var(--border);
-}
-
-.date-input {
-    border: none;
-    outline: none;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-/* Stats Cards Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-}
-
-.stat-card {
-    background-color: var(--bg-card);
-    border-radius: var(--radius-card);
-    padding: 20px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.stat-title {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.stat-desc {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-/* Responsive Tables */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 14px;
-}
-
-th {
-    background-color: var(--bg-surface);
-    color: var(--text-secondary);
-    font-weight: 600;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    user-select: none;
-}
-
-th.sortable {
-    cursor: pointer;
-}
-
-th.sortable:hover {
-    color: var(--primary);
-    background-color: var(--primary-light);
-}
-
-td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-primary);
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tr:hover td {
-    background-color: var(--bg-surface);
-}
-
-/* Custom table highlighting for low scores */
-.tr-alert-low-score td {
-    background-color: #FEF2F2 !important; /* soft red background */
-}
-
-.tr-alert-low-score:hover td {
-    background-color: #FEE2E2 !important;
-}
-
-.score-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 12px;
-    color: #FFFFFF;
-}
-
-.score-5 { background-color: var(--success); }
-.score-4 { background-color: #4ADE80; }
-.score-3 { background-color: var(--warning); }
-.score-2 { background-color: #F87171; }
-.score-1 { background-color: var(--danger); }
-
-/* --- Animations --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-}
-
-.circle-success {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: var(--primary-light);
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    margin: 16px auto;
-    animation: pulse 2s infinite;
-}
-
-/* --- Mobile View Adjustments for Dashboard --- */
-@media (max-width: 768px) {
-    .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .filter-bar {
-        width: 100%;
-    }
-}
-
-/* --- No Session State --- */
-.no-session {
-    text-align: center;
-    padding: 48px 24px;
-}
-.warning-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-}
-.no-session h2 {
-    color: var(--danger);
-    margin-bottom: 12px;
-}
-.no-session p {
-    color: var(--text-secondary);
-    line-height: 1.7;
-}
-
-/* --- Bridge Page (next-step.html) --- */
-.bridge-progress {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    padding: 8px 0;
-}
-
-.progress-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.progress-step span {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.progress-step.completed span,
-.progress-step.active span {
-    color: var(--primary);
-    font-weight: 600;
-}
-
-.step-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    background-color: var(--bg-surface);
-    color: var(--text-secondary);
-    border: 2px solid var(--border);
-    transition: var(--transition);
-}
-
-.progress-step.completed .step-circle {
-    background-color: var(--primary);
-    color: #FFFFFF;
-    border-color: var(--primary);
-}
-
-.progress-step.active .step-circle {
-    background-color: var(--primary-light);
-    color: var(--primary);
-    border-color: var(--primary);
-    animation: pulse 2s infinite;
-}
-
-.progress-line {
-    width: 40px;
-    height: 3px;
-    background-color: var(--border);
-    border-radius: 2px;
-    margin: 0 4px;
-    margin-bottom: 22px;
-}
-
-.progress-line.completed {
-    background-color: var(--primary);
-}
-
-.bridge-info-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background-color: var(--primary-light);
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(15, 110, 86, 0.15);
-}
-
-.bridge-info-icon {
-    font-size: 28px;
-    flex-shrink: 0;
-    line-height: 1;
-}
-
-.bridge-info-box strong {
-    color: var(--primary);
-    font-size: 15px;
-}
-
-.bridge-info-box p {
-    color: var(--text-secondary);
-}
-
-.btn-lg {
-    padding: 16px;
-    font-size: 17px;
-    height: 56px;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(15, 110, 86, 0.25);
-}
-
-.btn-lg:hover {
-    box-shadow: 0 6px 20px rgba(15, 110, 86, 0.35);
-    transform: translateY(-1px);
-}
-
-/* --- Dashboard Funnel Cards --- */
-.funnel-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-@media (max-width: 640px) {
-    .funnel-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.funnel-card {
-    background-color: var(--bg-card);
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    position: relative;
-    overflow: hidden;
-}
-
-.funnel-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-}
-
-.funnel-card.step-1::before { background-color: var(--primary); }
-.funnel-card.step-2::before { background-color: var(--warning); }
-.funnel-card.step-3::before { background-color: #8B5CF6; }
-
-.funnel-card .funnel-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.funnel-card .funnel-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.funnel-card .funnel-rate {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 12px;
-    display: inline-block;
-    margin-top: 4px;
-}
-
-.funnel-rate.good { background-color: var(--primary-light); color: var(--primary); }
-.funnel-rate.warn { background-color: #FEF3C7; color: #D97706; }
-.funnel-rate.bad { background-color: #FEE2E2; color: #DC2626; }
-
-/* Pending customers table */
-.pending-table-container {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.status-badge.scanned-only {
-    background-color: #FEE2E2;
-    color: #DC2626;
-}
-
-.status-badge.survey-done {
-    background-color: #FEF3C7;
-    color: #D97706;
-}
-
-.status-badge.completed {
-    background-color: var(--primary-light);
-    color: var(--primary);
-}
-
-.webview-banner {
-    position: sticky;
-    top: -16px;
-    left: 0;
-    right: 0;
-    width: calc(100% + 32px);
-    margin: -16px -16px 16px -16px;
-    background: #FEF3C7;
-    border-bottom: 1px solid #FDE68A;
-    z-index: 1000;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-100%); }
-    to   { transform: translateY(0); }
-}
-
-.webview-banner-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    max-width: 480px;
-    margin: 0 auto;
-}
-
-.webview-icon {
-    flex-shrink: 0;
-    color: #92400E;
-}
-
-.webview-text {
     flex: 1;
     min-width: 0;
 }
 
-.webview-title {
-    color: #92400E;
-    font-size: 13px;
-    font-weight: 600;
-    margin: 0 0 2px;
-    line-height: 1.4;
-}
-
-.webview-detail {
-    color: #78350F;
-    font-size: 11px;
-    margin: 0;
-    line-height: 1.4;
-}
-
-.webview-btn {
-    flex-shrink: 0;
-    background: #0F6E56;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
+.header-text h1 {
     font-size: 13px;
     font-weight: 500;
+    color: #1F2937;
+    margin: 0 0 4px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.header-text .company-name {
+    font-size: 11px;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* ============================
+   Form
+   ============================ */
+.qr-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1F2937;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #DC2626;
+    margin-left: 2px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
     font-family: inherit;
+    color: #111827;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.4s;
+    min-height: 50px;
+}
+
+.form-input::placeholder {
+    color: #9CA3AF;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #0F6E56;
+    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.08);
+}
+
+/* Auto-fill flash animation */
+.form-input.autofilled {
+    background: #F0FDF4;
+    border-color: #86EFAC;
+    animation: autofillFlash 0.6s ease;
+}
+
+@keyframes autofillFlash {
+    0% { background: #FFFFFF; }
+    50% { background: #DCFCE7; }
+    100% { background: #F0FDF4; }
+}
+
+/* Select dropdown chevron */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 42px;
     cursor: pointer;
 }
 
-.webview-btn:active {
-    transform: scale(0.96);
+/* JOB input ตัวเปล่า (default mode) ใส่ chevron icon ด้วย เพื่อให้ดูเหมือนภาพ */
+#jobNumberInput {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 42px;
 }
 
-/* Long-press hint บน QR สำหรับ WebView users */
-.qr-longpress-hint {
-    display: none;
-    background: #EFF6FF;
-    border: 1px dashed #93C5FD;
-    color: #1E40AF;
-    padding: 10px 14px;
+/* ============================
+   Customer info display (read-only)
+   ============================ */
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
     border-radius: 10px;
+    margin-bottom: 20px;
     font-size: 13px;
+    color: #166534;
+    animation: fadeInUp 0.25s ease;
+}
+
+.customer-info svg {
+    flex-shrink: 0;
+    color: #16A34A;
+}
+
+.customer-info strong {
+    color: #14532D;
+    font-weight: 600;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================
+   ปุ่มสร้าง QR (เขียวอ่อนตามภาพ)
+   ============================ */
+.btn-create-qr {
+    width: 100%;
+    padding: 15px;
+    background: #6FBA8A;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.05s, box-shadow 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(111, 186, 138, 0.25);
+}
+
+.btn-create-qr:hover {
+    background: #5FA77A;
+    box-shadow: 0 4px 12px rgba(111, 186, 138, 0.35);
+}
+
+.btn-create-qr:active {
+    transform: scale(0.98);
+}
+
+.btn-create-qr:disabled {
+    background: #D1D5DB;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ============================
+   Mobile small (< 360px)
+   ============================ */
+@media (max-width: 360px) {
+    .qr-card {
+        padding: 24px 18px;
+        border-radius: 22px;
+    }
+    
+    .company-logo {
+        width: 56px;
+    }
+    
+    .header-text h1 {
+        font-size: 12px;
+    }
+}
+
+/* ==========================================
+   QR Display Card
+   ========================================== */
+.qr-display-card {
+    background: #FFFFFF;
+    border-radius: 28px;
+    padding: 20px;
+    max-width: 380px;
+    width: 100%;
+    margin: 16px auto 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #F3F4F6;
+    box-sizing: border-box;
+    animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================
+   กรอบเส้นประ — ครอบ Header + QR + Info
+   ========================================== */
+.qr-dashed-frame {
+    border: 1.5px dashed #D1D5DB;
+    border-radius: 20px;
+    padding: 16px 14px 18px;
+    background: #FFFFFF;
+}
+
+/* Header เล็กใน frame */
+.qr-frame-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px 12px;
+}
+
+.qr-frame-logo {
+    width: 32px;
+    height: auto;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.qr-frame-title {
+    font-size: 11px;
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+/* เส้นคั่น */
+.qr-frame-divider {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin: 0;
+}
+
+.qr-frame-divider.top {
+    margin-bottom: 16px;
+}
+
+.qr-frame-divider.bottom {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+/* QR Canvas Area */
+.qr-canvas-container {
     text-align: center;
-    margin-top: 12px;
-    line-height: 1.5;
+    padding: 4px 0;
+    position: relative;
 }
 
-.is-in-app-browser .qr-longpress-hint {
+#qr-canvas {
     display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
 }
 
-.is-in-app-browser #btn-save .normal-label {
-    display: none;
+/* Info section */
+.qr-info {
+    padding: 0 4px;
 }
 
-.is-in-app-browser #btn-save .webview-label {
-    display: inline;
+.qr-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 6px 0;
+    gap: 12px;
+    font-size: 12px;
 }
 
-#btn-save .webview-label {
-    display: none;
+.qr-info-row .info-label {
+    color: #6B7280;
+    font-weight: 400;
+    flex-shrink: 0;
 }
 
+.qr-info-row .info-value {
+    color: #111827;
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* ==========================================
+   ปุ่ม Actions (Outline style)
+   ========================================== */
+.qr-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.btn-outline {
+    background: #FFFFFF;
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s;
+    min-height: 50px;
+}
+
+.btn-outline svg {
+    flex-shrink: 0;
+    stroke: #1F2937;
+}
+
+.btn-outline:hover {
+    border-color: #0F6E56;
+    color: #0F6E56;
+    background: #F0FDF4;
+}
+
+.btn-outline:hover svg {
+    stroke: #0F6E56;
+}
+
+.btn-outline:active {
+    transform: scale(0.98);
+}
+
+.btn-outline.btn-full {
+    width: 100%;
+}
+
+/* ==========================================
+   ปุ่ม Reset text เล็กข้างล่าง
+   ========================================== */
+.btn-reset-text {
+    background: transparent;
+    border: none;
+    color: #6B7280;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    padding: 14px 8px;
+    margin-top: 4px;
+    transition: color 0.15s;
+}
+
+.btn-reset-text:hover {
+    color: #0F6E56;
+    text-decoration: underline;
+}
+
+/* ==========================================
+   Mobile small (< 360px)
+   ========================================== */
+@media (max-width: 360px) {
+    .qr-display-card {
+        padding: 16px;
+        border-radius: 22px;
+    }
+    
+    .qr-dashed-frame {
+        padding: 14px 12px 16px;
+        border-radius: 16px;
+    }
+    
+    .qr-frame-title {
+        font-size: 10px;
+    }
+    
+    #qr-canvas {
+        width: 200px !important;
+        height: 200px !important;
+    }
+    
+    .btn-outline {
+        font-size: 13px;
+        padding: 12px 10px;
+    }
+}

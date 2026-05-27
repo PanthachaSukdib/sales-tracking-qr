@@ -180,6 +180,56 @@ document.addEventListener('DOMContentLoaded', () => {
             statResponseRate.textContent = `${data.totals.response_rate}%`;
             statAvgScore.textContent = data.totals.avg_score.toFixed(1);
 
+            // Update Question Averages
+            if (data.question_stats) {
+                document.getElementById('qs-q1').textContent = data.question_stats.q1.toFixed(1);
+                document.getElementById('qs-q2').textContent = data.question_stats.q2.toFixed(1);
+                document.getElementById('qs-q3').textContent = data.question_stats.q3.toFixed(1);
+                document.getElementById('qs-q4').textContent = data.question_stats.q4.toFixed(1);
+            }
+
+            // Render Improvement Bars
+            const barsContainer = document.getElementById('improvement-bars-container');
+            if (barsContainer && data.improvement_bars) {
+                barsContainer.innerHTML = '';
+                if (data.improvement_bars.length === 0) {
+                    barsContainer.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding: 12px 0;">ไม่มีข้อมูลสิ่งที่ต้องปรับปรุง</p>';
+                } else {
+                    data.improvement_bars.forEach(bar => {
+                        barsContainer.innerHTML += `
+                            <div class="bar-row">
+                                <div class="bar-label">${escapeHTML(bar.label)}</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: ${bar.percent}%; background-color: var(--primary);"></div>
+                                </div>
+                                <div class="bar-percent">${bar.count}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            // Render Text Feedback
+            const textFeedbackContainer = document.getElementById('text-feedback-container');
+            if (textFeedbackContainer && data.text_feedback) {
+                textFeedbackContainer.innerHTML = '';
+                if (data.text_feedback.length === 0) {
+                    textFeedbackContainer.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding: 12px 0;">ไม่มีข้อเสนอแนะ</p>';
+                } else {
+                    data.text_feedback.forEach(fb => {
+                        const dateStr = formatThaiDateTime(fb.date);
+                        textFeedbackContainer.innerHTML += `
+                            <div class="feedback-card">
+                                <div class="feedback-header">
+                                    <span class="feedback-date">${dateStr}</span>
+                                </div>
+                                <div class="feedback-text">"${escapeHTML(fb.text)}"</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
 
 
             // Tooltip 1: QR Created
