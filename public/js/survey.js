@@ -116,16 +116,45 @@ document.addEventListener('DOMContentLoaded', () => {
         pdpaToggleBtn.style.display = 'inline';
     });
 
+    // 4.5 Step Navigation
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const btnNext = document.getElementById('btn-next');
+    const btnBack = document.getElementById('btn-back');
+    const dot1 = document.getElementById('dot1');
+    const dot2 = document.getElementById('dot2');
+    const stepText = document.getElementById('step-text');
+    const stepProgress = document.getElementById('step-progress');
+
+    if (btnNext && btnBack) {
+        btnNext.addEventListener('click', () => {
+            // Validate ratings before going to step 2
+            if (ratings.q1 === 0 || ratings.q2 === 0 || ratings.q3 === 0 || ratings.q4 === 0) {
+                showToast('กรุณาให้คะแนนความพึงพอใจให้ครบทุกข้อ', 'error');
+                return;
+            }
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            dot1.classList.remove('active');
+            dot2.classList.add('active');
+            stepText.textContent = 'ขั้นตอนที่ 2 จาก 2: ข้อมูลติดต่อ';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        btnBack.addEventListener('click', () => {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            dot2.classList.remove('active');
+            dot1.classList.add('active');
+            stepText.textContent = 'ขั้นตอนที่ 1 จาก 2: การประเมิน';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
     // 5. Submit Form
     const btnSubmit = document.getElementById('btn-submit');
     
     btnSubmit.addEventListener('click', async () => {
-        // Validate ratings
-        if (ratings.q1 === 0 || ratings.q2 === 0 || ratings.q3 === 0 || ratings.q4 === 0) {
-            showToast('กรุณาให้คะแนนความพึงพอใจให้ครบทุกข้อ', 'error');
-            return;
-        }
-
         // Validate PDPA
         const pdpaRadio = document.querySelector('input[name="pdpa"]:checked');
         if (!pdpaRadio) {

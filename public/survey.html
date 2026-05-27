@@ -26,6 +26,15 @@
         <!-- Main Survey Form -->
         <main class="survey-card" id="survey-card">
             
+            <!-- Step Indicator -->
+            <div class="step-progress" id="step-progress">
+                <div class="step-dots">
+                    <span class="step-dot active" id="dot1"></span>
+                    <span class="step-dot" id="dot2"></span>
+                </div>
+                <div class="step-text" id="step-text">ขั้นตอนที่ 1 จาก 2: การประเมิน</div>
+            </div>
+
             <!-- Employee / Project Info Badge -->
             <div class="info-badge">
                 <div class="info-row">
@@ -42,152 +51,166 @@
                 </div>
             </div>
 
-            <!-- Title -->
-            <h2 class="survey-title">ความพึงพอใจต่อด้านการขายและบริการ</h2>
+            <!-- STEP 1: Evaluation -->
+            <div id="step1" class="form-step">
+                <!-- Title -->
+                <h2 class="survey-title">ความพึงพอใจต่อด้านการขายและบริการ</h2>
 
-            <!-- Question 1 -->
-            <div class="question-block">
-                <div class="question-title">1. สินค้ามีความคุ้มค่าเมื่อเทียบกับราคา</div>
-                <div class="stars-container" data-q="q1">
-                    <button type="button" class="star-btn" data-val="1">★</button>
-                    <button type="button" class="star-btn" data-val="2">★</button>
-                    <button type="button" class="star-btn" data-val="3">★</button>
-                    <button type="button" class="star-btn" data-val="4">★</button>
-                    <button type="button" class="star-btn" data-val="5">★</button>
+                <!-- Question 1 -->
+                <div class="question-block">
+                    <div class="question-title">1. สินค้ามีความคุ้มค่าเมื่อเทียบกับราคา</div>
+                    <div class="stars-container" data-q="q1">
+                        <button type="button" class="star-btn" data-val="1">★</button>
+                        <button type="button" class="star-btn" data-val="2">★</button>
+                        <button type="button" class="star-btn" data-val="3">★</button>
+                        <button type="button" class="star-btn" data-val="4">★</button>
+                        <button type="button" class="star-btn" data-val="5">★</button>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question-block">
+                    <div class="question-title">2. ข้อมูลในการนำเสนอขายถูกต้อง ครบถ้วน</div>
+                    <div class="stars-container" data-q="q2">
+                        <button type="button" class="star-btn" data-val="1">★</button>
+                        <button type="button" class="star-btn" data-val="2">★</button>
+                        <button type="button" class="star-btn" data-val="3">★</button>
+                        <button type="button" class="star-btn" data-val="4">★</button>
+                        <button type="button" class="star-btn" data-val="5">★</button>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question-block">
+                    <div class="question-title">3. การให้บริการติดตั้ง บำรุงรักษา มีคุณภาพ</div>
+                    <div class="stars-container" data-q="q3">
+                        <button type="button" class="star-btn" data-val="1">★</button>
+                        <button type="button" class="star-btn" data-val="2">★</button>
+                        <button type="button" class="star-btn" data-val="3">★</button>
+                        <button type="button" class="star-btn" data-val="4">★</button>
+                        <button type="button" class="star-btn" data-val="5">★</button>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question-block">
+                    <div class="question-title">4. กระบวนการสั่งซื้อมีความสะดวก ไม่ซับซ้อน</div>
+                    <div class="stars-container" data-q="q4">
+                        <button type="button" class="star-btn" data-val="1">★</button>
+                        <button type="button" class="star-btn" data-val="2">★</button>
+                        <button type="button" class="star-btn" data-val="3">★</button>
+                        <button type="button" class="star-btn" data-val="4">★</button>
+                        <button type="button" class="star-btn" data-val="5">★</button>
+                    </div>
+                </div>
+
+                <!-- Question 5: Improvements -->
+                <div class="question-block">
+                    <div class="question-title">5. สิ่งที่ควรปรับปรุงทันที (ตอบได้มากกว่า 1 ข้อ))</div>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="improve" value="ไม่มีสิ่งที่ควรปรับปรุง" id="improveNone">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">ไม่มีสิ่งที่ควรปรับปรุง</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="improve" value="คุณภาพราคา">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">คุณภาพราคา</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="improve" value="ราคาสินค้า">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">ราคาสินค้า</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="improve" value="การประชาสัมพันธ์">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">การประชาสัมพันธ์</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="improve" value="ความรวดเร็วในการประสานงานขาย">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">ความรวดเร็วในการประสานงานขาย</span>
+                        </label>
+                        <label class="checkbox-label inline-input-wrapper">
+                            <input type="checkbox" name="improve" value="อื่นๆ" id="improveOtherCheckbox">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">อื่น ๆ <input type="text" id="improveOtherText" class="inline-text-input" placeholder="โปรดระบุ" disabled></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-buttons single-btn">
+                    <button type="button" id="btn-next" class="btn-submit-survey">
+                        ถัดไป
+                    </button>
                 </div>
             </div>
 
-            <!-- Question 2 -->
-            <div class="question-block">
-                <div class="question-title">2. ข้อมูลในการนำเสนอขายถูกต้อง ครบถ้วน</div>
-                <div class="stars-container" data-q="q2">
-                    <button type="button" class="star-btn" data-val="1">★</button>
-                    <button type="button" class="star-btn" data-val="2">★</button>
-                    <button type="button" class="star-btn" data-val="3">★</button>
-                    <button type="button" class="star-btn" data-val="4">★</button>
-                    <button type="button" class="star-btn" data-val="5">★</button>
-                </div>
-            </div>
-
-            <!-- Question 3 -->
-            <div class="question-block">
-                <div class="question-title">3. การให้บริการติดตั้ง บำรุงรักษา มีคุณภาพ</div>
-                <div class="stars-container" data-q="q3">
-                    <button type="button" class="star-btn" data-val="1">★</button>
-                    <button type="button" class="star-btn" data-val="2">★</button>
-                    <button type="button" class="star-btn" data-val="3">★</button>
-                    <button type="button" class="star-btn" data-val="4">★</button>
-                    <button type="button" class="star-btn" data-val="5">★</button>
-                </div>
-            </div>
-
-            <!-- Question 4 -->
-            <div class="question-block">
-                <div class="question-title">4. กระบวนการสั่งซื้อมีความสะดวก ไม่ซับซ้อน</div>
-                <div class="stars-container" data-q="q4">
-                    <button type="button" class="star-btn" data-val="1">★</button>
-                    <button type="button" class="star-btn" data-val="2">★</button>
-                    <button type="button" class="star-btn" data-val="3">★</button>
-                    <button type="button" class="star-btn" data-val="4">★</button>
-                    <button type="button" class="star-btn" data-val="5">★</button>
-                </div>
-            </div>
-
-            <!-- Question 5: Improvements -->
-            <div class="question-block">
-                <div class="question-title">5. สิ่งที่ควรปรับปรุงทันที (ตอบได้มากกว่า 1 ข้อ))</div>
+            <!-- STEP 2: Contact & PDPA -->
+            <div id="step2" class="form-step hidden">
                 
-                <div class="checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="improve" value="ไม่มีสิ่งที่ควรปรับปรุง" id="improveNone">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">ไม่มีสิ่งที่ควรปรับปรุง</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="improve" value="คุณภาพราคา">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">คุณภาพราคา</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="improve" value="ราคาสินค้า">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">ราคาสินค้า</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="improve" value="การประชาสัมพันธ์">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">การประชาสัมพันธ์</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="improve" value="ความรวดเร็วในการประสานงานขาย">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">ความรวดเร็วในการประสานงานขาย</span>
-                    </label>
-                    <label class="checkbox-label inline-input-wrapper">
-                        <input type="checkbox" name="improve" value="อื่นๆ" id="improveOtherCheckbox">
-                        <span class="custom-checkbox"></span>
-                        <span class="checkbox-text">อื่น ๆ <input type="text" id="improveOtherText" class="inline-text-input" placeholder="โปรดระบุ" disabled></span>
-                    </label>
-                </div>
-            </div>
-
-            <hr class="survey-divider">
-
-            <!-- Contact Info -->
-            <div class="contact-section">
-                <h3 class="section-subtitle">เพื่อให้การบริการที่ดียิ่งขึ้น ขอความร่วมมือท่านระบุข้อมูลติดต่อสำหรับการติดต่อกลับ</h3>
-                
-                <div class="form-group-contact">
-                    <label for="contactName">ชื่อ - นามสกุล</label>
-                    <input type="text" id="contactName" class="form-input-contact" autocomplete="name">
-                </div>
-                
-                <div class="form-group-contact">
-                    <label for="contactPhone">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="contactPhone" class="form-input-contact" autocomplete="tel">
-                </div>
-                
-                <div class="form-group-contact">
-                    <label for="contactEmail">E-mail</label>
-                    <input type="email" id="contactEmail" class="form-input-contact" autocomplete="email">
-                </div>
-            </div>
-
-            <!-- PDPA -->
-            <div class="pdpa-section">
-                <h3 class="section-subtitle bold">ขอการยินยอมในข้อมูลส่วนบุคคล</h3>
-                <p class="pdpa-intro">
-                    เพื่อการติดต่อและการบริการของทางบริษัท <a href="#" id="pdpaToggleBtn" class="pdpa-toggle">(อ่านเพิ่มเติม)</a>
-                </p>
-                
-                <div id="pdpaFullText" class="pdpa-full-text" hidden>
-                    <p class="pdpa-red-text">ท่านยินยอมให้บริษัทเก็บรวบรวมและใช้ข้อมูลส่วนบุคคล ได้แก่ ชื่อ นามสกุล เบอร์โทร และ email เพื่อการติดต่อ ธุรกิจ ประชาสัมพันธ์ การตลาด และ/หรือ การบริการของบริษัทฯ โดยท่านรับทราบว่าหากไม่ให้ความยินยอมในครั้งนี้ ท่านจะไม่ได้รับสิทธิประโยชน์อื่น ๆ ที่บริษัทอาจมอบให้ในอนาคต</p>
-                    <br>
-                    <p class="pdpa-red-text">รายละเอียดในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของบริษัทและสิทธิต่าง ๆ ของท่านในฐานะผู้เป็นเจ้าของข้อมูลส่วนบุคคล รวมถึงสิทธิในการถอนความยินยอม จะเป็นไปตามประกาศความเป็นส่วนตัว (Privacy Policy) ของบริษัท ท่านสามารถศึกษารายละเอียดได้ที่ <a href="https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf" target="_blank" rel="noopener">https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf</a> หากท่านมีความประสงค์ที่จะถอนความยินยอมของท่านทั้งหมดหรือบางส่วน ท่านสามารถดำเนินการได้โดย ติดต่อมาที่ โทรศัพท์: +662 733 6080 - 88 หรืออีเมล: contact@sst.co.th , info@sst.co.th <a href="#" id="pdpaToggleLessBtn" class="pdpa-toggle">(อ่านน้อยลง)</a></p>
+                <!-- Contact Info -->
+                <div class="contact-section">
+                    <h3 class="section-subtitle">เพื่อให้การบริการที่ดียิ่งขึ้น ขอความร่วมมือท่านระบุข้อมูลติดต่อสำหรับการติดต่อกลับ</h3>
+                    
+                    <div class="form-group-contact">
+                        <label for="contactName">ชื่อ - นามสกุล</label>
+                        <input type="text" id="contactName" class="form-input-contact" autocomplete="name">
+                    </div>
+                    
+                    <div class="form-group-contact">
+                        <label for="contactPhone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="contactPhone" class="form-input-contact" autocomplete="tel">
+                    </div>
+                    
+                    <div class="form-group-contact">
+                        <label for="contactEmail">E-mail</label>
+                        <input type="email" id="contactEmail" class="form-input-contact" autocomplete="email">
+                    </div>
                 </div>
 
-                <div class="pdpa-question">
-                    1. ท่านรับทราบและให้ความยินยอมในข้อมูลส่วนบุคคล<span class="required">*</span>
-                </div>
-                
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="pdpa" value="ยินยอม">
-                        <span class="custom-radio"></span>
-                        <span class="radio-text">ยินยอม</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="pdpa" value="ไม่ยินยอม">
-                        <span class="custom-radio"></span>
-                        <span class="radio-text">ไม่ยินยอม</span>
-                    </label>
-                </div>
-            </div>
+                <!-- PDPA -->
+                <div class="pdpa-section">
+                    <h3 class="section-subtitle bold">ขอการยินยอมในข้อมูลส่วนบุคคล</h3>
+                    <p class="pdpa-intro">
+                        เพื่อการติดต่อและการบริการของทางบริษัท <a href="#" id="pdpaToggleBtn" class="pdpa-toggle">(อ่านเพิ่มเติม)</a>
+                    </p>
+                    
+                    <div id="pdpaFullText" class="pdpa-full-text" hidden>
+                        <p class="pdpa-red-text">ท่านยินยอมให้บริษัทเก็บรวบรวมและใช้ข้อมูลส่วนบุคคล ได้แก่ ชื่อ นามสกุล เบอร์โทร และ email เพื่อการติดต่อ ธุรกิจ ประชาสัมพันธ์ การตลาด และ/หรือ การบริการของบริษัทฯ โดยท่านรับทราบว่าหากไม่ให้ความยินยอมในครั้งนี้ ท่านจะไม่ได้รับสิทธิประโยชน์อื่น ๆ ที่บริษัทอาจมอบให้ในอนาคต</p>
+                        <br>
+                        <p class="pdpa-red-text">รายละเอียดในการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของบริษัทและสิทธิต่าง ๆ ของท่านในฐานะผู้เป็นเจ้าของข้อมูลส่วนบุคคล รวมถึงสิทธิในการถอนความยินยอม จะเป็นไปตามประกาศความเป็นส่วนตัว (Privacy Policy) ของบริษัท ท่านสามารถศึกษารายละเอียดได้ที่ <a href="https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf" target="_blank" rel="noopener">https://sst.co.th/uploads/investor_relation/file/20250725/abgkmrs13467.pdf</a> หากท่านมีความประสงค์ที่จะถอนความยินยอมของท่านทั้งหมดหรือบางส่วน ท่านสามารถดำเนินการได้โดย ติดต่อมาที่ โทรศัพท์: +662 733 6080 - 88 หรืออีเมล: contact@sst.co.th , info@sst.co.th <a href="#" id="pdpaToggleLessBtn" class="pdpa-toggle">(อ่านน้อยลง)</a></p>
+                    </div>
 
-            <div style="text-align: center; margin-top: 24px;">
-                <button type="button" id="btn-submit" class="btn-submit-survey">
-                    ส่งข้อมูล
-                </button>
+                    <div class="pdpa-question">
+                        1. ท่านรับทราบและให้ความยินยอมในข้อมูลส่วนบุคคล<span class="required">*</span>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="pdpa" value="ยินยอม">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">ยินยอม</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="pdpa" value="ไม่ยินยอม">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">ไม่ยินยอม</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-buttons dual-btn">
+                    <button type="button" id="btn-back" class="btn-outline-survey">
+                        ย้อนกลับ
+                    </button>
+                    <button type="button" id="btn-submit" class="btn-submit-survey">
+                        ส่งข้อมูล
+                    </button>
+                </div>
             </div>
         </main>
 
