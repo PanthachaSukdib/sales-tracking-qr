@@ -587,8 +587,8 @@ body {
 /* Stars */
 .stars-container {
     display: flex;
-    gap: 12px;
-    font-size: 48px;
+    gap: 14px;
+    font-size: 56px;
     line-height: 1;
     justify-content: center;
     margin-bottom: 8px;
