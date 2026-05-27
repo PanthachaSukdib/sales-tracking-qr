@@ -9,6 +9,10 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .page-wrap {
     min-height: 100vh;
     padding: 24px 16px;
