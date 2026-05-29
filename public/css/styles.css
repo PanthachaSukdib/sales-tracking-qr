@@ -1188,6 +1188,41 @@ th.sortable:hover {
     background: #E5E7EB;
 }
 
+/* Toast Notification */
+.toast-container {
+    visibility: hidden;
+    min-width: 280px;
+    max-width: 90%;
+    background-color: #374151; /* Dark Gray */
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: opacity 0.3s ease, bottom 0.3s ease, visibility 0.3s ease;
+}
+
+.toast-container.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 40px;
+}
+
+.toast-container.error {
+    background-color: #DC2626; /* Red */
+}
+
+.toast-container.success {
+    background-color: #10B981; /* Green */
+}
+
 /* Utilities */
 .text-center { text-align: center; }
 
