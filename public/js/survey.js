@@ -190,35 +190,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Collect Improvement Data
-        const improvements = [];
+        const improvementsList = [];
+        let improvementsOtherText = '';
+        
         allImproveCheckboxes.forEach(cb => {
             if (cb.checked) {
                 if (cb.value === 'อื่นๆ') {
-                    if (improveOtherText.value.trim()) {
-                        improvements.push(`อื่นๆ: ${improveOtherText.value.trim()}`);
-                    }
+                    improvementsOtherText = improveOtherText.value.trim();
                 } else {
-                    improvements.push(cb.value);
+                    improvementsList.push(cb.value);
                 }
             }
         });
 
-        // Collect Contact Info
-        const contactData = {
-            name: document.getElementById('contactName').value.trim(),
-            phone: document.getElementById('contactPhone').value.trim(),
-            email: document.getElementById('contactEmail').value.trim()
-        };
-
+        // Backend expects specific field names
         const payload = {
-            empId,
-            empName,
-            project,
-            customer,
-            ratings,
-            improvements,
-            contactData,
-            pdpaConsent: pdpaRadio.value
+            session_id: '', // Not strictly needed, or we could pass local storage session id
+            employee_id: empId,
+            employee_name: empName,
+            project_name: project || '-',
+            customer_name: customer || '-',
+            pdpa_consent_1: pdpaRadio.value,
+            score_q1: ratings.q1,
+            score_q2: ratings.q2,
+            score_q3: ratings.q3,
+            score_q4: ratings.q4,
+            improvements: improvementsList.join(', '),
+            improvements_other: improvementsOtherText,
+            contact_name: document.getElementById('contactName').value.trim(),
+            contact_phone: document.getElementById('contactPhone').value.trim(),
+            contact_email: document.getElementById('contactEmail').value.trim(),
+            pdpa_consent_2: pdpaRadio.value
         };
 
         // Submit logic
