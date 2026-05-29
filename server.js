@@ -20,6 +20,14 @@ app.use((req, res, next) => {
     next();
 });
 
+// Protect dashboard.html
+const basicAuth = require('express-basic-auth');
+app.use('/dashboard.html', basicAuth({
+    users: { [process.env.DASHBOARD_USER || 'admin']: process.env.DASHBOARD_PASS || 'sstadmin2026' },
+    challenge: true,
+    realm: 'SST Dashboard'
+}));
+
 // Serve Static Files
 // Cache fonts for 1 year
 app.use('/fonts', express.static(path.join(__dirname, 'public/fonts'), {
