@@ -176,6 +176,19 @@
     <!-- Reusable Black Toast Message Box -->
     <div id="toast" class="toast-container">ข้อความแจ้งเตือน</div>
 
+    <!-- Custom Prompt Modal -->
+    <div id="custom-prompt-modal" class="modal-overlay" hidden>
+        <div class="modal-card">
+            <h3 class="modal-title">ข้อมูลเพิ่มเติม</h3>
+            <p class="modal-desc">กรุณากรอกชื่อลูกค้า / โครงการ สำหรับ Job Number นี้:</p>
+            <input type="text" id="custom-prompt-input" class="modal-input" placeholder="เช่น ลูกค้าบริษัท XYZ..." autocomplete="off">
+            <div class="modal-actions">
+                <button type="button" id="custom-prompt-cancel" class="btn-cancel">ยกเลิก</button>
+                <button type="button" id="custom-prompt-ok" class="btn-ok">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/qr-generator.js"></script>
 </body>
 </html>

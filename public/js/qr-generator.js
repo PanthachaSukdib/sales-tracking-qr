@@ -8,7 +8,12 @@ async function loadEmployeeData() {
     try {
         const res = await fetch('/data/employees.json');
         employeeData = await res.json();
-        console.log('Loaded', Object.keys(employeeData).length, 'employees');
+        
+        // Merge with custom saved employees from LocalStorage
+        const saved = JSON.parse(localStorage.getItem('customEmployees') || '{}');
+        employeeData = { ...employeeData, ...saved };
+        
+        console.log('Loaded', Object.keys(employeeData).length, 'employees (including custom)');
     } catch (err) {
         console.warn('Could not load employee data:', err);
         employeeData = {};
@@ -78,6 +83,40 @@ function setupAutoFill() {
     });
 }
 
+function showCustomPrompt() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-prompt-modal');
+        const input = document.getElementById('custom-prompt-input');
+        const btnOk = document.getElementById('custom-prompt-ok');
+        const btnCancel = document.getElementById('custom-prompt-cancel');
+
+        if (!modal) {
+            // fallback if modal not found
+            resolve(prompt('กรุณากรอกชื่อลูกค้า/โครงการ:'));
+            return;
+        }
+
+        input.value = '';
+        modal.hidden = false;
+        input.focus();
+
+        const cleanup = () => {
+            modal.hidden = true;
+            btnOk.removeEventListener('click', onOk);
+            btnCancel.removeEventListener('click', onCancel);
+            input.removeEventListener('keydown', onEnter);
+        };
+
+        const onOk = () => { cleanup(); resolve(input.value); };
+        const onCancel = () => { cleanup(); resolve(null); };
+        const onEnter = (e) => { if (e.key === 'Enter') onOk(); };
+
+        btnOk.addEventListener('click', onOk);
+        btnCancel.addEventListener('click', onCancel);
+        input.addEventListener('keydown', onEnter);
+    });
+}
+
 function setupFormSubmit() {
     const form = document.getElementById('qrForm');
     if (!form) return;
@@ -90,7 +129,7 @@ function setupFormSubmit() {
         const jobValue = !jobSelect.hidden ? jobSelect.value : jobInput.value.trim();
 
         const data = {
-            empId: document.getElementById('empId').value.trim(),
+            empId: document.getElementById('empId').value.trim().toUpperCase(),
             empName: document.getElementById('empName').value.trim(),
             projectName: jobValue,
             customerName: selectedCustomer || ''
@@ -102,7 +141,7 @@ function setupFormSubmit() {
         }
 
         if (!data.customerName) {
-            const manual = prompt('กรุณากรอกชื่อลูกค้า/โครงการ:');
+            const manual = await showCustomPrompt();
             if (!manual || !manual.trim()) {
                 showToast('ต้องกรอกชื่อลูกค้า/โครงการ');
                 return;
@@ -111,6 +150,14 @@ function setupFormSubmit() {
         }
 
         await createAndDisplayQR(data);
+        
+        // Save new employee to localStorage memory so it remembers next time
+        if (!employeeData[data.empId]) {
+            const customEmployees = JSON.parse(localStorage.getItem('customEmployees') || '{}');
+            customEmployees[data.empId] = { name: data.empName, jobs: [] };
+            localStorage.setItem('customEmployees', JSON.stringify(customEmployees));
+            employeeData[data.empId] = customEmployees[data.empId]; // update memory
+        }
     });
 }
 
