@@ -1,266 +1,155 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ดสรุปความพึงพอใจลูกค้า - Sales Tracking</title>
-    <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/css/fonts.css">
-    <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        .tooltip-parent:hover .custom-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .custom-tooltip {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 280px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.2s ease-in-out;
-            z-index: 100;
-            margin-top: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SST</title>
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
-<body>
+<body class="dashboard-body">
 
-    <div class="container-dashboard">
-        
-        <!-- Dashboard Header -->
-        <header class="dashboard-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div class="logo-box" style="background-color: var(--primary); box-shadow: 0 4px 10px rgba(15,110,86,0.15);">📊</div>
-                <div class="header-text">
-                    <h1 style="font-size: 24px;">ระบบแดชบอร์ดวิเคราะห์ผล</h1>
-                    <p>สรุปคะแนนความพึงพอใจลูกค้าและการสร้าง QR Code</p>
-                </div>
-            </div>
-
-            <!-- Date Filters -->
-            <div class="filter-bar">
-                <button type="button" class="filter-btn" id="filter-today">วันนี้</button>
-                <button type="button" class="filter-btn" id="filter-7d">7 วันที่ผ่านมา</button>
-                <button type="button" class="filter-btn active" id="filter-30d">30 วันที่ผ่านมา</button>
-                <button type="button" class="filter-btn" id="filter-month">เดือนนี้</button>
-                
-                <div class="date-range-container">
-                    <input type="date" id="date-from" class="date-input" title="เริ่มจากวันที่">
-                    <span style="color: var(--text-secondary);">ถึง</span>
-                    <input type="date" id="date-to" class="date-input" title="สิ้นสุดวันที่">
-                </div>
-            </div>
-        </header>
-        <section class="stats-grid">
-            
-            <!-- Card 1: QR Created -->
-            <div class="stat-card tooltip-parent" style="position: relative;">
-                <span class="stat-title">การสร้าง QR Code</span>
-                <span class="stat-value" id="stat-qr-created">0</span>
-                <span class="stat-desc">จำนวนการทำสแกนที่พนักงานสร้างขึ้น</span>
-                <div class="custom-tooltip" id="qr-tooltip">
-                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อที่สร้าง QR ล่าสุด</div>
-                    <ul id="qr-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
-                </div>
-            </div>
-
-            <!-- Card 2: Surveys Received -->
-            <div class="stat-card tooltip-parent" style="position: relative;">
-                <span class="stat-title">การตอบประเมิน</span>
-                <span class="stat-value" id="stat-surveys">0</span>
-                <span class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</span>
-                <div class="custom-tooltip" id="survey-tooltip">
-                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อผู้ตอบประเมินล่าสุด</div>
-                    <ul id="survey-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
-                </div>
-            </div>
-
-            <!-- Card 3: Response Rate -->
-            <div class="stat-card tooltip-parent" style="position: relative;">
-                <span class="stat-title">อัตราการประเมิน (Response Rate)</span>
-                <div style="display: flex; align-items: baseline; gap: 8px;">
-                    <span class="stat-value" id="stat-response-rate">0%</span>
-                    <span id="stat-pending-badge" style="font-size: 13px; font-weight: 500; color: #DC2626; background: #FEE2E2; padding: 2px 8px; border-radius: 12px; cursor: help; display: none;">รอตอบ: 0</span>
-                </div>
-                <div class="stat-desc">สัดส่วนลูกค้าที่ตอบกลับแบบสอบถาม</div>
-                <div class="custom-tooltip" id="pending-tooltip">
-                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">รายชื่อลูกค้ารอตอบกลับ</div>
-                    <ul id="pending-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
-                </div>
-            </div>
-
-            <!-- Card 4: Avg Score -->
-            <div class="stat-card tooltip-parent" style="position: relative; border-left: 4px solid var(--warning);">
-                <span class="stat-title">คะแนนพึงพอใจเฉลี่ย</span>
-                <span class="stat-value" style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
-                    <span id="stat-avg-score">0.0</span>
-                    <span style="color: var(--warning); font-size: 24px;">★</span>
-                </span>
-                <span class="stat-desc">จากคะแนนประเมินความพึงพอใจ 1-5 ดาว</span>
-                <div class="custom-tooltip" id="score-tooltip">
-                    <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--text-primary);">คะแนนประเมินล่าสุด</div>
-                    <ul id="score-list" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;"></ul>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- New Section: Question Average Stats -->
-        <section class="card" style="margin-top: 8px;">
-            <div class="card-title">
-                <h2>คะแนนเฉลี่ยแต่ละด้าน</h2>
-            </div>
-            <div class="question-stats-grid" id="question-stats-container">
-                <div class="question-stat">
-                    <div class="qs-title">1. สินค้ามีความคุ้มค่า</div>
-                    <div class="qs-value" id="qs-q1">0.0</div>
-                    <div class="qs-stars">★</div>
-                </div>
-                <div class="question-stat">
-                    <div class="qs-title">2. ข้อมูลการเสนอขาย</div>
-                    <div class="qs-value" id="qs-q2">0.0</div>
-                    <div class="qs-stars">★</div>
-                </div>
-                <div class="question-stat">
-                    <div class="qs-title">3. การบริการติดตั้ง</div>
-                    <div class="qs-value" id="qs-q3">0.0</div>
-                    <div class="qs-stars">★</div>
-                </div>
-                <div class="question-stat">
-                    <div class="qs-title">4. ความสะดวกสั่งซื้อ</div>
-                    <div class="qs-value" id="qs-q4">0.0</div>
-                    <div class="qs-stars">★</div>
-                </div>
-            </div>
-        </section>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 8px;">
-            <!-- New Section: Improvement Bars -->
-            <section class="card">
-                <div class="card-title">
-                    <h2>สรุปสิ่งที่ควรปรับปรุง (จากผู้ตอบประเมิน)</h2>
-                </div>
-                <div id="improvement-bars-container" style="margin-top: 12px;">
-                    <!-- Inserted by JS -->
-                </div>
-            </section>
-
-            <!-- New Section: Text Feedback -->
-            <section class="card">
-                <div class="card-title">
-                    <h2>ข้อเสนอแนะเพิ่มเติมจากลูกค้า</h2>
-                </div>
-                <div id="text-feedback-container" style="margin-top: 12px; max-height: 300px; overflow-y: auto;">
-                    <!-- Inserted by JS -->
-                </div>
-            </section>
-        </div>
-
-        <!-- Table 1: Employee Breakdown -->
-        <main class="card" style="gap: 16px; margin-top: 8px;">
-            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
-                <h2>สรุปคะแนนประเมินรายบุคคล</h2>
-                <button type="button" id="btn-export" class="btn btn-outline" style="height: 34px; padding: 0 12px; font-size: 13px; font-weight: 500; width: auto; gap: 4px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    ส่งออกไฟล์ CSV
-                </button>
-            </div>
-
-            <div class="table-responsive">
-                <table id="employee-table">
-                    <thead>
-                        <tr>
-                            <th class="sortable" id="th-emp-id">รหัสพนักงาน ▲▼</th>
-                            <th class="sortable" id="th-emp-name">ชื่อพนักงาน ▲▼</th>
-                            <th class="sortable" id="th-responses" style="text-align: center;">จำนวนการประเมิน ▲▼</th>
-                            <th class="sortable" id="th-avg-score" style="text-align: center;">คะแนนเฉลี่ย ▲▼</th>
-                        </tr>
-                    </thead>
-                    <tbody id="employee-tbody">
-                        <tr>
-                            <td colspan="4" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
-                                กำลังโหลดข้อมูลสรุปพนักงาน...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
-
-        <!-- Table 2: Pending Customers -->
-        <section class="card" style="gap: 16px;">
-            <div class="card-title" style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
-                <h2>ลูกค้าที่ยังไม่ครบขั้นตอน (ลูกค้าค้าง)</h2>
-                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">รายชื่อลูกค้าที่สแกนแล้วแต่ยังไม่เสร็จสิ้นกระบวนการทั้งหมด</p>
-            </div>
-
-            <div class="table-responsive pending-table-container">
-                <table id="pending-table">
-                    <thead>
-                        <tr>
-                            <th>เวลาสแกน</th>
-                            <th>ชื่อลูกค้า</th>
-                            <th>โครงการ</th>
-                            <th>พนักงานดูแล</th>
-                            <th style="text-align: center;">สถานะล่าสุด</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pending-tbody">
-                        <tr>
-                            <td colspan="5" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
-                                กำลังโหลดข้อมูลลูกค้ารอบริการ...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Table 2: Recent Submissions -->
-        <section class="card" style="gap: 16px;">
-            <div class="card-title">
-                <h2>ผลการประเมินล่าสุด 20 รายการ</h2>
-                <p>รายการประเมินที่ลูกค้ายื่นล่าสุด (คะแนนต่ำกว่า 3 ดาวจะแสดงด้วย แถบสีแดง ⚠️ เพื่อการปรับปรุงอย่างรวดเร็ว)</p>
-            </div>
-
-            <div class="table-responsive">
-                <table id="recent-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 140px;">เวลาประเมิน</th>
-                            <th>พนักงานที่ให้บริการ</th>
-                            <th>โครงการ</th>
-                            <th>ลูกค้า</th>
-                            <th style="width: 80px; text-align: center;">คะแนน</th>
-                            <th>ข้อเสนอแนะเพิ่มเติม</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-tbody">
-                        <tr>
-                            <td colspan="6" class="text-center" style="color: var(--text-secondary); padding: 32px 0;">
-                                กำลังโหลดข้อมูลผลการประเมินล่าสุด...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
+  <!-- Header -->
+  <header class="dashboard-header">
+    <img src="/img/company_logo.png" alt="SST" class="dashboard-logo">
+    <div class="dashboard-header-text">
+      <h1>Dashboard วิเคราะห์คะแนนความพึงพอใจลูกค้า</h1>
+      <p>สรุปคะแนนความพึงพอใจลูกค้า</p>
     </div>
+  </header>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast-container">ข้อความ</div>
+  <main class="dashboard-main">
 
-    <script src="js/dashboard.js"></script>
+    <!-- ===== Section 1: Top Stats Cards (4 cards) ===== -->
+    <section class="stats-grid">
+      <div class="stat-card border-green">
+        <p class="stat-title">การสร้าง QR CODE</p>
+        <p class="stat-value" id="qrCreated">0</p>
+        <p class="stat-desc">จำนวนการสร้าง QR จากพนักงาน</p>
+      </div>
+      <div class="stat-card border-yellow">
+        <p class="stat-title">การตอบประเมิน</p>
+        <p class="stat-value" id="surveyCompleted">0</p>
+        <p class="stat-desc">จำนวนฟอร์มที่ลูกค้าส่งคำตอบกลับ</p>
+      </div>
+      <div class="stat-card border-red">
+        <p class="stat-title">อัตราการประเมิน</p>
+        <p class="stat-value"><span id="responseRate">0</span>%</p>
+        <p class="stat-desc">สัดส่วนลูกค้าที่ตอบกลับแบบสอบถาม</p>
+      </div>
+      <div class="stat-card border-blue">
+        <p class="stat-title">คะแนนความพึงพอใจ</p>
+        <p class="stat-value"><span id="avgScore">0.0</span> <span class="star-icon">★</span></p>
+        <p class="stat-desc">คะแนนความพึงพอใจ 1-5 ดาว</p>
+      </div>
+    </section>
+
+    <!-- ===== Section 2: Per-employee summary table ===== -->
+    <section class="card-section">
+      <div class="section-header">
+        <h2>สรุปคะแนนประเมินรายบุคคล</h2>
+        <a href="/api/reports/export-csv" class="btn-csv" id="btnExportCsv">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          ส่งออกไฟล์ CSV
+        </a>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>รหัสพนักงาน</th>
+            <th>ชื่อพนักงาน</th>
+            <th>จำนวนการประเมิน</th>
+            <th>คะแนนเฉลี่ย</th>
+          </tr>
+        </thead>
+        <tbody id="employeeTableBody">
+          <tr><td colspan="4" class="loading">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== Section 3: Pending customers table ===== -->
+    <section class="card-section">
+      <div class="section-header">
+        <h2>รายชื่อลูกค้าที่ค้างลงทะเบียน</h2>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>เวลาสแกน</th>
+            <th>ชื่อลูกค้า</th>
+            <th>โครงการ</th>
+            <th>พนักงานดูแล</th>
+            <th>สถานะล่าสุด</th>
+          </tr>
+        </thead>
+        <tbody id="pendingTableBody">
+          <tr><td colspan="5" class="loading">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== Section 4: Subsection header ===== -->
+    <section class="subsection-header">
+      <h2>สรุปคะแนนความพึงพอใจ</h2>
+      <p>ความพึงพอใจต่อด้านการขายและบริการ</p>
+    </section>
+
+    <!-- ===== Section 5: Per-question average (4 cards) ===== -->
+    <section class="question-stats-grid">
+      <div class="q-stat-card border-green">
+        <p class="q-title">1. สินค้ามีความคุ้มค่าเมื่อเทียบกับราคา</p>
+        <div class="q-score-row">
+          <span class="q-value" id="avgQ1">0</span>
+          <div class="q-stars" id="starsQ1"></div>
+        </div>
+      </div>
+      <div class="q-stat-card border-orange">
+        <p class="q-title">2. ข้อมูลในการนำเสนอขายถูกต้อง ครบถ้วน</p>
+        <div class="q-score-row">
+          <span class="q-value" id="avgQ2">0</span>
+          <div class="q-stars" id="starsQ2"></div>
+        </div>
+      </div>
+      <div class="q-stat-card border-cyan">
+        <p class="q-title">3. การให้บริการติดตั้ง บำรุงรักษา มีคุณภาพ</p>
+        <div class="q-score-row">
+          <span class="q-value" id="avgQ3">0</span>
+          <div class="q-stars" id="starsQ3"></div>
+        </div>
+      </div>
+      <div class="q-stat-card border-orange-deep">
+        <p class="q-title">4. กระบวนการสั่งซื้อมีความสะดวก ไม่ซับซ้อน</p>
+        <div class="q-score-row">
+          <span class="q-value" id="avgQ4">0</span>
+          <div class="q-stars" id="starsQ4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Section 6: Progress bars + Feedback cards ===== -->
+    <section class="bottom-grid">
+      <div class="card-section">
+        <h2>สิ่งที่ลูกค้าต้องการให้มีการปรับปรุง</h2>
+        <div id="improvementBars">
+          <div class="loading">กำลังโหลด...</div>
+        </div>
+      </div>
+      <div class="card-section">
+        <h2>อื่นๆ ระบุเพิ่มเติม</h2>
+        <div id="feedbackList">
+          <div class="loading">กำลังโหลด...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>
