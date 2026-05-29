@@ -41,19 +41,25 @@ function setupAutoFill() {
             empNameInput.value = employee.name;
             empNameInput.classList.add('autofilled');
 
-            jobInput.hidden = true;
-            jobInput.value = '';
-            jobSelect.hidden = false;
-            jobSelect.value = '';
-            jobSelect.innerHTML = '<option value="">-- เลือก JOB --</option>';
+            if (employee.jobs && employee.jobs.length > 0) {
+                jobInput.hidden = true;
+                jobInput.value = '';
+                jobSelect.hidden = false;
+                jobSelect.value = '';
+                jobSelect.innerHTML = '<option value="">-- เลือก JOB --</option>';
 
-            employee.jobs.forEach(job => {
-                const opt = document.createElement('option');
-                opt.value = job.jobNumber;
-                opt.textContent = job.jobNumber;
-                opt.dataset.customer = job.customer;
-                jobSelect.appendChild(opt);
-            });
+                employee.jobs.forEach(job => {
+                    const opt = document.createElement('option');
+                    opt.value = job.jobNumber;
+                    opt.textContent = job.jobNumber;
+                    opt.dataset.customer = job.customer;
+                    jobSelect.appendChild(opt);
+                });
+            } else {
+                // Keep input as text if no jobs remembered yet
+                jobSelect.hidden = true;
+                jobInput.hidden = false;
+            }
 
             showToast(`พบข้อมูล: ${employee.name}`, 1800);
         } else {
@@ -151,12 +157,31 @@ function setupFormSubmit() {
 
         await createAndDisplayQR(data);
         
-        // Save new employee to localStorage memory so it remembers next time
+        // Save new employee and job to localStorage memory
+        const customEmployees = JSON.parse(localStorage.getItem('customEmployees') || '{}');
+        const emp = customEmployees[data.empId] || { name: data.empName, jobs: [] };
+        
+        // Ensure name is up to date
+        emp.name = data.empName;
+
+        // Add job if it doesn't exist in memory
+        const jobExists = emp.jobs.find(j => j.jobNumber === data.projectName);
+        if (!jobExists) {
+            emp.jobs.push({ jobNumber: data.projectName, customer: data.customerName });
+        }
+        
+        customEmployees[data.empId] = emp;
+        localStorage.setItem('customEmployees', JSON.stringify(customEmployees));
+        
+        // Update current session memory
         if (!employeeData[data.empId]) {
-            const customEmployees = JSON.parse(localStorage.getItem('customEmployees') || '{}');
-            customEmployees[data.empId] = { name: data.empName, jobs: [] };
-            localStorage.setItem('customEmployees', JSON.stringify(customEmployees));
-            employeeData[data.empId] = customEmployees[data.empId]; // update memory
+            employeeData[data.empId] = { ...emp };
+        } else {
+            // Also push to standard memory so they don't have to refresh if they generate another one right away
+            if (!employeeData[data.empId].jobs) employeeData[data.empId].jobs = [];
+            if (!employeeData[data.empId].jobs.find(j => j.jobNumber === data.projectName)) {
+                employeeData[data.empId].jobs.push({ jobNumber: data.projectName, customer: data.customerName });
+            }
         }
     });
 }
