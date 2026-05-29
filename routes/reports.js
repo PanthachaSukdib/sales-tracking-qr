@@ -103,16 +103,27 @@ router.get('/summary', async (req, res) => {
             .slice(0, 20);
 
         // ====================================
-        // 4. Average score per question (q1-q4)
+        // 4. Average score per question (q1-q4) + Distribution for hover
         // ====================================
         const avgPerQuestion = {};
         ['q1','q2','q3','q4'].forEach(q => {
             const scores = surveys
                 .map(s => parseFloat(s[`score_${q}`]))
                 .filter(n => !isNaN(n) && n > 0);
-            avgPerQuestion[q] = scores.length > 0
-                ? Math.round((scores.reduce((a,b) => a+b, 0) / scores.length) * 10) / 10
-                : 0;
+                
+            const distribution = {5:0, 4:0, 3:0, 2:0, 1:0};
+            scores.forEach(s => {
+                const rounded = Math.round(s);
+                if (distribution[rounded] !== undefined) distribution[rounded]++;
+            });
+            
+            avgPerQuestion[q] = {
+                avg: scores.length > 0
+                    ? Math.round((scores.reduce((a,b) => a+b, 0) / scores.length) * 10) / 10
+                    : 0,
+                distribution: distribution,
+                total: scores.length
+            };
         });
 
         // ====================================

@@ -284,6 +284,94 @@
     color: #E5E7EB;
 }
 
+/* Question Hover Tooltip (Distribution) */
+.q-stat-card {
+    position: relative;
+    /* other styles are above */
+}
+
+.q-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #111827;
+    color: #FFFFFF;
+    padding: 14px;
+    border-radius: 8px;
+    width: 220px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
+.q-stat-card:hover .q-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(5px);
+}
+
+.q-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #111827 transparent;
+}
+
+.q-tooltip-title {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.q-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.q-tooltip-row:last-child {
+    margin-bottom: 0;
+}
+
+.q-tooltip-star {
+    font-size: 11px;
+    color: #F59E0B;
+    width: 24px;
+    text-align: right;
+}
+
+.q-tooltip-bar-bg {
+    flex-grow: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.q-tooltip-bar-fill {
+    height: 100%;
+    background: #F59E0B;
+    border-radius: 3px;
+}
+
+.q-tooltip-count {
+    font-size: 11px;
+    width: 20px;
+    text-align: right;
+    color: #D1D5DB;
+}
+
 /* ===== Bottom Grid (Progress Bars + Feedback) ===== */
 .bottom-grid {
     display: grid;

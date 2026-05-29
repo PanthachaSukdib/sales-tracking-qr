@@ -73,10 +73,39 @@ async function loadDashboard() {
 
         // 4. Per-question average cards
         ['q1','q2','q3','q4'].forEach((q, i) => {
-            const v = data.avg_per_question[q] || 0;
             const num = i + 1;
-            document.getElementById(`avgQ${num}`).textContent = v.toFixed(1);
-            document.getElementById(`starsQ${num}`).innerHTML = renderStars(v);
+            // Support both old API (number) and new API (object)
+            const rawItem = data.avg_per_question[q];
+            const item = typeof rawItem === 'number' 
+                ? { avg: rawItem, distribution: {5:0,4:0,3:0,2:0,1:0}, total: 0 }
+                : (rawItem || { avg: 0, distribution: {5:0,4:0,3:0,2:0,1:0}, total: 0 });
+
+            document.getElementById(`avgQ${num}`).textContent = item.avg.toFixed(1);
+            document.getElementById(`starsQ${num}`).innerHTML = renderStars(item.avg);
+            
+            // Render tooltip distribution
+            const distDiv = document.getElementById(`distQ${num}`);
+            if (distDiv) {
+                if (item.total === 0) {
+                    distDiv.innerHTML = '<div style="text-align:center;font-size:11px;color:#6B7280;">ไม่มีข้อมูล</div>';
+                } else {
+                    let distHtml = '';
+                    [5, 4, 3, 2, 1].forEach(star => {
+                        const count = item.distribution[star] || 0;
+                        const pct = item.total > 0 ? (count / item.total) * 100 : 0;
+                        distHtml += `
+                            <div class="q-tooltip-row">
+                                <div class="q-tooltip-star">${star}★</div>
+                                <div class="q-tooltip-bar-bg">
+                                    <div class="q-tooltip-bar-fill" style="width: ${pct}%"></div>
+                                </div>
+                                <div class="q-tooltip-count">${count}</div>
+                            </div>
+                        `;
+                    });
+                    distDiv.innerHTML = distHtml;
+                }
+            }
         });
 
         // 5. Progress bars
