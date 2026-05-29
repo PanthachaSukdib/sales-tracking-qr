@@ -216,8 +216,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Submit logic
-        const originalText = btnSubmit.textContent;
-        btnSubmit.textContent = 'กำลังส่งข้อมูล...';
+        const originalText = btnSubmit.innerHTML;
+        btnSubmit.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 50 50" style="width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 8px;">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" style="opacity: 0.25;"></circle>
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 125.6" style="opacity: 1;"></circle>
+                </svg>
+                กำลังส่งข้อมูล...
+            </div>
+        `;
         btnSubmit.disabled = true;
 
         try {
@@ -231,6 +239,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Network response was not ok');
             }
 
+            // Show Success button state first
+            btnSubmit.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    เสร็จสิ้น
+                </div>
+            `;
+            const originalBg = btnSubmit.style.background;
+            btnSubmit.style.background = '#10B981'; // Success Green
+            
+            // Wait a moment for the user to see the "Done" state on the button
+            await new Promise(resolve => setTimeout(resolve, 800));
+
             // Show Success Screen
             surveyCard.classList.add('hidden');
             successCard.classList.remove('hidden');
@@ -238,8 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error submitting survey:', error);
-            showToast('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง', 'error');
-            btnSubmit.textContent = originalText;
+            showToast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+            btnSubmit.innerHTML = originalText;
+            btnSubmit.style.background = '';
             btnSubmit.disabled = false;
         }
     });
