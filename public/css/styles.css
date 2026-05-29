@@ -1191,6 +1191,38 @@ th.sortable:hover {
 /* Utilities */
 .text-center { text-align: center; }
 
+/* Loading Card */
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #10B981 0%, rgba(16, 185, 129, 0.1) 80%);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), black calc(100% - 5px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), black calc(100% - 5px));
+    animation: spin 1s linear infinite;
+    margin-bottom: 24px;
+}
+
+.loading-title {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.loading-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
 /* Success Card */
 .success-card {
     text-align: center;
@@ -1198,15 +1230,14 @@ th.sortable:hover {
 }
 
 .success-icon-wrapper {
-    background: var(--primary-bg);
-    width: 80px;
-    height: 80px;
+    background: #E8F5E9;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 24px;
-    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0.1);
     animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -1216,21 +1247,21 @@ th.sortable:hover {
 }
 
 .success-title {
-    font-size: 22px;
+    font-size: 20px;
     color: var(--primary);
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 12px;
 }
 
 .success-subtitle {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--text-primary);
     font-weight: 600;
     margin-bottom: 16px;
 }
 
 .success-desc {
-    font-size: 14.5px;
+    font-size: 13px;
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 40px;

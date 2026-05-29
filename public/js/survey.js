@@ -25,9 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorCard = document.getElementById('error-card');
     const surveyCard = document.getElementById('survey-card');
     const successCard = document.getElementById('success-card');
+    const loadingCard = document.getElementById('loading-card');
 
     if (!empId || !empName) {
         // Show error if essential params are missing
+        if (loadingCard) loadingCard.classList.add('hidden');
         if (errorCard) errorCard.classList.remove('hidden');
         if (surveyCard) surveyCard.classList.add('hidden');
     } else {
@@ -36,8 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('projectName').textContent = project || '-';
         document.getElementById('customerName').textContent = customer || '-';
         
-        if (errorCard) errorCard.classList.add('hidden');
-        if (surveyCard) surveyCard.classList.remove('hidden');
+        // Artificial delay to show the nice loading animation
+        setTimeout(() => {
+            if (loadingCard) loadingCard.classList.add('hidden');
+            if (errorCard) errorCard.classList.add('hidden');
+            if (surveyCard) surveyCard.classList.remove('hidden');
+        }, 1200);
     }
 
     // 2. Star Ratings Logic

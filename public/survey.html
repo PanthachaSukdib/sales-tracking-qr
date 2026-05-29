@@ -8,11 +8,20 @@
     <link rel="preload" href="/fonts/noto-sans-thai-400-thai.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/noto-sans-thai-500-thai.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/fonts.css">
-    <link rel="stylesheet" href="/css/styles.css?v=4">
+    <link rel="stylesheet" href="/css/styles.css?v=5">
 </head>
 <body class="survey-body">
 
     <div class="survey-container">
+
+        <!-- Loading Card -->
+        <main class="survey-card" id="loading-card">
+            <div class="loading-content">
+                <div class="loading-spinner-ring"></div>
+                <h2 class="loading-title">กำลังเปิดแบบฟอร์ม...</h2>
+                <p class="loading-subtitle">กรุณารอสักครู่</p>
+            </div>
+        </main>
 
         <!-- Error Card -->
         <main class="survey-card hidden" id="error-card">
@@ -24,7 +33,7 @@
         </main>
 
         <!-- Main Survey Form -->
-        <main class="survey-card" id="survey-card">
+        <main class="survey-card hidden" id="survey-card">
             
             <!-- Step Indicator -->
             <div class="step-progress" id="step-progress">
@@ -217,13 +226,13 @@
         <!-- Success Screen -->
         <main class="survey-card success-card hidden" id="success-card">
             <div class="success-icon-wrapper">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
             <h1 class="success-title">ประเมินเรียบร้อยแล้ว</h1>
             <h2 class="success-subtitle">ขอบคุณสำหรับความคิดเห็นของคุณ</h2>
-            <p class="success-desc">คุณได้ทำการประเมินความพึงพอใจสำหรับการบริการนี้ไปแล้ว ขอบคุณสำหรับข้อมูลและการสนับสนุนที่ดีตลอดมา</p>
+            <p class="success-desc">คุณได้ทำการประเมินความพึงพอใจสำหรับการบริการนี้<br>ไปแล้ว ขอบคุณสำหรับข้อมูลและการสนับสนุนที่ดีตลอดมา</p>
             
             <hr class="success-divider">
             <p class="success-footer">ระบบเก็บสถิติความพึงพอใจการให้บริการลูกค้า</p>
