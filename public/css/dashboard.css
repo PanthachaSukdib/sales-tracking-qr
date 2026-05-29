@@ -347,7 +347,7 @@
 .q-tooltip-star {
     font-size: 11px;
     color: #F59E0B;
-    width: 24px;
+    width: 35px;
     text-align: right;
 }
 
@@ -367,7 +367,7 @@
 
 .q-tooltip-count {
     font-size: 11px;
-    width: 20px;
+    width: 30px;
     text-align: right;
     color: #D1D5DB;
 }

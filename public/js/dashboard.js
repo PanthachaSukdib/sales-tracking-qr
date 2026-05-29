@@ -95,11 +95,11 @@ async function loadDashboard() {
                         const pct = item.total > 0 ? (count / item.total) * 100 : 0;
                         distHtml += `
                             <div class="q-tooltip-row">
-                                <div class="q-tooltip-star">${star}★</div>
+                                <div class="q-tooltip-star">${star} ดาว</div>
                                 <div class="q-tooltip-bar-bg">
                                     <div class="q-tooltip-bar-fill" style="width: ${pct}%"></div>
                                 </div>
-                                <div class="q-tooltip-count">${count}</div>
+                                <div class="q-tooltip-count">${count} คน</div>
                             </div>
                         `;
                     });
