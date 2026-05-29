@@ -49,10 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Star Ratings Logic
     const ratings = { q1: 0, q2: 0, q3: 0, q4: 0 };
     const starContainers = document.querySelectorAll('.stars-container');
+    
+    const starLabels = {
+        1: 'ต้องปรับปรุง',
+        2: 'พอใช้',
+        3: 'ปานกลาง',
+        4: 'ดี',
+        5: 'ดีมาก'
+    };
 
     starContainers.forEach(container => {
         const qId = container.getAttribute('data-q');
         const stars = container.querySelectorAll('.star-btn');
+        const textElement = document.getElementById(`rating-text-${qId}`);
 
         stars.forEach(star => {
             star.addEventListener('click', () => {
@@ -63,15 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 stars.forEach(s => {
                     if (parseInt(s.getAttribute('data-val'), 10) <= val) {
                         s.classList.add('active');
-                        s.textContent = '★'; // Solid star (could use filled icon)
                     } else {
                         s.classList.remove('active');
-                        s.textContent = '★';
                     }
                 });
+                
+                if (textElement) {
+                    textElement.textContent = starLabels[val] || '';
+                    textElement.className = `rating-text level-${val}`;
+                }
             });
 
-            // Optional: Hover effect
+            // Hover effect
             star.addEventListener('mouseenter', () => {
                 const hoverVal = parseInt(star.getAttribute('data-val'), 10);
                 stars.forEach(s => {
@@ -79,10 +91,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         s.classList.add('hover-active');
                     }
                 });
+                
+                if (textElement) {
+                    textElement.textContent = starLabels[hoverVal] || '';
+                    textElement.className = `rating-text level-${hoverVal}`;
+                }
             });
 
             star.addEventListener('mouseleave', () => {
                 stars.forEach(s => s.classList.remove('hover-active'));
+                
+                // Revert text to selected rating
+                if (textElement) {
+                    const currentVal = ratings[qId];
+                    if (currentVal > 0) {
+                        textElement.textContent = starLabels[currentVal] || '';
+                        textElement.className = `rating-text level-${currentVal}`;
+                    } else {
+                        textElement.textContent = '';
+                        textElement.className = 'rating-text';
+                    }
+                }
             });
         });
     });
