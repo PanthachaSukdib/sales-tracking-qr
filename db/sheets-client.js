@@ -65,7 +65,10 @@ async function getAllRowsAsObjects(tabName) {
     });
     const rows = res.data.values || [];
     if (rows.length < 2) return [];
-    const headers = rows[0];
+    
+    // Trim headers to prevent issues with trailing spaces in Google Sheets
+    const headers = rows[0].map(h => (h || '').trim());
+    
     return rows.slice(1).map(row => {
         const obj = {};
         headers.forEach((h, i) => { obj[h] = row[i] || null; });
