@@ -285,7 +285,7 @@
 }
 
 /* Question Hover Tooltip (Distribution) */
-.q-stat-card {
+.q-stat-card, .stat-card {
     position: relative;
     /* other styles are above */
 }
@@ -308,7 +308,8 @@
     pointer-events: none;
 }
 
-.q-stat-card:hover .q-tooltip {
+.q-stat-card:hover .q-tooltip,
+.stat-card:hover .q-tooltip {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(5px);

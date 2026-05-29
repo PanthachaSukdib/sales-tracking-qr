@@ -65,6 +65,32 @@ async function loadDashboard() {
         document.getElementById('responseRate').textContent = data.totals.response_rate;
         document.getElementById('avgScore').textContent = data.totals.avg_score.toFixed(1);
 
+        // Render overall tooltip distribution
+        const distOverallDiv = document.getElementById('distOverall');
+        if (distOverallDiv && data.totals.overall_distribution) {
+            const overallDist = data.totals.overall_distribution;
+            const overallTotal = data.totals.overall_total_scores || 0;
+            if (overallTotal === 0) {
+                distOverallDiv.innerHTML = '<div style="text-align:center;font-size:11px;color:#6B7280;">ไม่มีข้อมูล</div>';
+            } else {
+                let distHtml = '';
+                [5, 4, 3, 2, 1].forEach(star => {
+                    const count = overallDist[star] || 0;
+                    const pct = overallTotal > 0 ? (count / overallTotal) * 100 : 0;
+                    distHtml += `
+                        <div class="q-tooltip-row">
+                            <div class="q-tooltip-star">${star} ดาว</div>
+                            <div class="q-tooltip-bar-bg">
+                                <div class="q-tooltip-bar-fill" style="width: ${pct}%"></div>
+                            </div>
+                            <div class="q-tooltip-count">${count} คน</div>
+                        </div>
+                    `;
+                });
+                distOverallDiv.innerHTML = distHtml;
+            }
+        }
+
         // 2. Per-employee table
         renderEmployeeTable(data.by_employee);
 

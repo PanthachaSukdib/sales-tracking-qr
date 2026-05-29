@@ -37,6 +37,12 @@ router.get('/summary', async (req, res) => {
         const avgScore = allScores.length > 0
             ? Math.round((allScores.reduce((a,b) => a+b, 0) / allScores.length) * 10) / 10
             : 0;
+            
+        const overallDistribution = {5:0, 4:0, 3:0, 2:0, 1:0};
+        allScores.forEach(s => {
+            const rounded = Math.round(s);
+            if (overallDistribution[rounded] !== undefined) overallDistribution[rounded]++;
+        });
 
         // ====================================
         // 2. Per-employee summary (group by employee_id)
@@ -182,7 +188,9 @@ router.get('/summary', async (req, res) => {
                 qr_created: qrCreated,
                 survey_completed: surveyCompleted,
                 response_rate: responseRate,
-                avg_score: avgScore
+                avg_score: avgScore,
+                overall_distribution: overallDistribution,
+                overall_total_scores: allScores.length
             },
             by_employee: byEmployee,
             pending_customers: pendingCustomers,
