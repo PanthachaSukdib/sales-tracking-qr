@@ -437,8 +437,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                const file = new File([blob], 'QR_Survey.png', { type: 'image/png' });
+                showToast('กำลังเตรียมรูปภาพเพื่อแชร์...', 1000);
+                const targetFrame = document.querySelector('.qr-dashed-frame');
+                const canvasFrame = targetFrame ? await html2canvas(targetFrame, {
+                    scale: 2,
+                    backgroundColor: '#FFFFFF',
+                    useCORS: true
+                }) : canvas;
+
+                const blob = await new Promise(resolve => canvasFrame.toBlob(resolve, 'image/png'));
+                const file = new File([blob], 'SST_QR_Survey.png', { type: 'image/png' });
 
                 if (window.InAppBrowser?.canShareFiles() && navigator.canShare({ files: [file] })) {
                     await navigator.share({
