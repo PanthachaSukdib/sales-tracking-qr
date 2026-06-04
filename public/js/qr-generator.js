@@ -381,15 +381,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
+                const targetFrame = document.querySelector('.qr-dashed-frame');
+                if (!targetFrame) {
+                    showToast('ไม่พบกรอบ QR Code', 2000);
+                    return;
+                }
+                
+                // แจ้งเตือนก่อนเริ่มแคปจอเพราะอาจจะใช้เวลาเล็กน้อย
+                showToast('กำลังประมวลผลรูปภาพ...', 1500);
+
+                const canvasFrame = await html2canvas(targetFrame, {
+                    scale: 2, // ความคมชัดสูง 2 เท่า
+                    backgroundColor: '#FFFFFF',
+                    useCORS: true
+                });
+
                 const link = document.createElement('a');
                 const empId = document.getElementById('displayEmpId').textContent || 'qr';
                 const safeName = empId.replace(/[^a-zA-Z0-9_-]/g, '');
-                link.download = `QR_${safeName}_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.download = `SST_QR_${safeName}_${Date.now()}.png`;
+                link.href = canvasFrame.toDataURL('image/png');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                showToast('บันทึกรูปภาพแล้ว');
+                
+                setTimeout(() => showToast('บันทึกรูปภาพเรียบร้อยแล้ว!', 2000), 1000);
             } catch (err) {
                 console.error(err);
                 showToast('ไม่สามารถบันทึกได้ กรุณากดค้างที่ QR Code');
