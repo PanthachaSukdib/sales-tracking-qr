@@ -808,6 +808,8 @@ body {
 .pdpa-red-text a {
     color: #DC2626;
     text-decoration: underline;
+    word-break: break-all;
+    overflow-wrap: break-word;
     font-weight: 500;
 }
 
