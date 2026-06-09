@@ -74,8 +74,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Sales Tracking Server is running on port ${PORT}`);
-    console.log(`🌍 URL: http://localhost:${PORT}/`);
-    console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Export the app for Vercel Serverless
+module.exports = app;
+
+// Only listen locally if run directly
+if (require.main === module) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Sales Tracking Server is running on port ${PORT}`);
+        console.log(`🌍 URL: http://localhost:${PORT}/`);
+        console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+}

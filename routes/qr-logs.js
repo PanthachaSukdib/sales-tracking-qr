@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { appendRow, getAllRowsAsObjects } = require('../db/sheets-client');
+const { insertRow, getAllRowsAsObjects } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
 router.post('/', async (req, res) => {
@@ -42,16 +42,16 @@ router.post('/', async (req, res) => {
         const created_at = new Date().toISOString();
         const user_agent = req.headers['user-agent'] || '';
 
-        await appendRow('qr_logs', [
+        await insertRow('qr_logs', {
             id,
             created_at,
             employee_id,
             employee_name,
-            project_name || '',
-            customer_name || '',
+            project_name: project_name || '',
+            customer_name: customer_name || '',
             generated_url,
             user_agent
-        ]);
+        });
         res.json({ id, created_at });
     } catch (err) {
         console.error('Sheets append failed:', err);

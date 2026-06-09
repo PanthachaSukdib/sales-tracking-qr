@@ -3,7 +3,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { appendRow } = require('../db/sheets-client');
+const { insertRow } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
 /**
@@ -33,17 +33,17 @@ router.post('/', async (req, res) => {
     const timestamp = new Date().toISOString();
 
     try {
-        await appendRow('events', [
+        await insertRow('events', {
             id,
             timestamp,
             session_id,
             event_type,
-            employee_id || '',
-            employee_name || '',
-            customer_name || '',
-            project_name || '',
-            typeof metadata === 'object' ? JSON.stringify(metadata) : (metadata || '')
-        ]);
+            employee_id: employee_id || '',
+            employee_name: employee_name || '',
+            customer_name: customer_name || '',
+            project_name: project_name || '',
+            metadata: metadata || null
+        });
 
         res.json({ id, timestamp, event_type, message: 'Event recorded' });
     } catch (err) {

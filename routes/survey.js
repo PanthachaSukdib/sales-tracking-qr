@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { appendRow, getAllRowsAsObjects } = require('../db/sheets-client');
+const { insertRow, getAllRowsAsObjects } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
 // ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
@@ -108,29 +108,26 @@ router.post('/', async (req, res) => {
         const id = randomUUID();
         const submitted_at = new Date().toISOString();
 
-        // 18 columns array
-        const rowData = [
+        await insertRow('survey_results', {
             id,
             submitted_at,
-            session_id || '',
-            employee_id || '',
-            employee_name || '',
-            project_name || '',
-            customer_name || '',
-            pdpa_consent_1 || '',
+            session_id: session_id || '',
+            employee_id: employee_id || '',
+            employee_name: employee_name || '',
+            project_name: project_name || '',
+            customer_name: customer_name || '',
+            pdpa_consent_1: pdpa_consent_1 || '',
             score_q1,
             score_q2,
             score_q3,
             score_q4,
-            improvements || '',
-            improvements_other || '',
-            contact_name || '',
-            contact_phone || '',
-            contact_email || '',
-            pdpa_consent_2 || ''
-        ];
-
-        await appendRow('survey_results', rowData);
+            improvements: improvements || '',
+            improvements_other: improvements_other || '',
+            contact_name: contact_name || '',
+            contact_phone: contact_phone || '',
+            contact_email: contact_email || '',
+            pdpa_consent_2: pdpa_consent_2 || ''
+        });
         res.json({ id, submitted_at, message: 'ขอบคุณสำหรับความเห็น' });
     } catch (err) {
         console.error('Sheets append failed:', err);

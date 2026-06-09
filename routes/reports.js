@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllRowsAsObjects } = require('../db/sheets-client');
+const { getAllRowsAsObjects } = require('../db/supabase-client');
 const basicAuth = require('express-basic-auth');
 
 // Apply Basic Auth (keep existing middleware)
