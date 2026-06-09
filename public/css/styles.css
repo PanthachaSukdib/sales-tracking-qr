@@ -167,6 +167,13 @@ body {
     100% { background: var(--primary-bg); }
 }
 
+.form-input:read-only {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    cursor: not-allowed;
+    border-color: #E5E7EB;
+}
+
 /* Select dropdown chevron */
 .form-select {
     appearance: none;

@@ -77,6 +77,7 @@ function setupAutoFill() {
         if (employee) {
             empNameInput.value = employee.name;
             empNameInput.classList.add('autofilled');
+            empNameInput.readOnly = true;
 
             if (employee.jobs && employee.jobs.length > 0) {
                 jobInput.hidden = true;
@@ -101,6 +102,7 @@ function setupAutoFill() {
             showToast(`พบข้อมูล: ${employee.name}`, 1800);
         } else {
             empNameInput.classList.remove('autofilled');
+            empNameInput.readOnly = false;
             jobSelect.hidden = true;
             jobInput.hidden = false;
         }
