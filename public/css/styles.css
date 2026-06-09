@@ -802,7 +802,11 @@ body {
     font-size: 13px;
     color: #DC2626;
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 12px 0;
+}
+
+.pdpa-red-text:last-child {
+    margin-bottom: 0;
 }
 
 .pdpa-red-text a {
