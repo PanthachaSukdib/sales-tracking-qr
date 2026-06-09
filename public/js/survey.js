@@ -172,6 +172,25 @@ document.addEventListener('DOMContentLoaded', () => {
         pdpaToggleBtn.style.display = 'inline';
     });
 
+    // 4.6 PDPA Radio Logic (Hide Contact Section)
+    const pdpaRadios = document.querySelectorAll('input[name="pdpa"]');
+    const contactSection = document.querySelector('.contact-section');
+
+    pdpaRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.value === 'ไม่ยินยอม') {
+                if(contactSection) contactSection.style.display = 'none';
+                
+                // Clear input values so they aren't sent
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactPhone').value = '';
+                document.getElementById('contactEmail').value = '';
+            } else {
+                if(contactSection) contactSection.style.display = 'block';
+            }
+        });
+    });
+
     // 4.5 Step Navigation
     const step1 = document.getElementById('step1');
     const step2 = document.getElementById('step2');
