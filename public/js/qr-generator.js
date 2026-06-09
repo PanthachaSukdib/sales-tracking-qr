@@ -21,6 +21,17 @@ async function loadEmployeeData() {
 }
 
 function setupAutoFill() {
+    const listDiv = document.getElementById('empAutocompleteList');
+    function closeAllLists(elmnt) {
+        if (!listDiv) return;
+        listDiv.innerHTML = '';
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (e.target !== document.getElementById('empId')) {
+            closeAllLists();
+        }
+    });
     const empIdInput = document.getElementById('empId');
     const empNameInput = document.getElementById('empName');
     const jobInput = document.getElementById('jobNumberInput');
@@ -31,7 +42,33 @@ function setupAutoFill() {
     if (!empIdInput) return;
 
     empIdInput.addEventListener('input', function() {
-        const empId = this.value.trim().toUpperCase();
+        let val = this.value.trim();
+        
+        // Autocomplete Logic
+        if (listDiv) {
+            listDiv.innerHTML = '';
+            if (val) {
+                const matches = [];
+                for (const [id, emp] of Object.entries(employeeData)) {
+                    if (id.toLowerCase().includes(val.toLowerCase()) || emp.name.toLowerCase().includes(val.toLowerCase())) {
+                        matches.push({ id, name: emp.name });
+                    }
+                }
+                matches.forEach(match => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerHTML = `<strong>${match.id}</strong> - ${match.name}`;
+                    item.addEventListener('click', function() {
+                        empIdInput.value = match.id;
+                        closeAllLists();
+                        empIdInput.dispatchEvent(new Event('input'));
+                    });
+                    listDiv.appendChild(item);
+                });
+            }
+        }
+
+        const empId = val.toUpperCase();
         const employee = employeeData[empId];
 
         customerInfo.hidden = true;
