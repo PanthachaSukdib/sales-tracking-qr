@@ -167,7 +167,7 @@ body {
     100% { background: var(--primary-bg); }
 }
 
-.form-input:read-only {
+input.form-input[readonly] {
     background-color: #F3F4F6;
     color: #6B7280;
     cursor: not-allowed;
