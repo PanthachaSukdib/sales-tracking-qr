@@ -244,7 +244,8 @@ async function createAndDisplayQR(data) {
             emp_id: data.empId,
             emp_name: data.empName,
             project: data.projectName,
-            customer: data.customerName
+            customer: data.customerName,
+            openExternalBrowser: '1'
         });
         const tempUrl = `${baseUrl}?${tempParams.toString()}`;
 
