@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { insertRow, getAllRowsAsObjects } = require('../db/supabase-client');
+const { supabase, insertRow } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
 router.post('/', async (req, res) => {
@@ -14,14 +14,17 @@ router.post('/', async (req, res) => {
     try {
         // ตรวจสอบว่า project_name (เลข Job งาน) นี้เคยสร้าง QR ไปแล้วหรือยัง
         if (project_name) {
-            const existingRows = await getAllRowsAsObjects('qr_logs').catch(err => {
-                console.warn('Failed to fetch qr_logs for duplicate check, skipping:', err);
-                return [];
-            });
+            const { data: existingRows, error: fetchError } = await supabase
+                .from('qr_logs')
+                .select('*')
+                .eq('project_name', project_name)
+                .limit(1);
 
-            const existing = existingRows.find(row =>
-                row.project_name === project_name
-            );
+            if (fetchError) {
+                console.warn('Failed to fetch qr_logs for duplicate check, skipping:', fetchError);
+            }
+
+            const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
 
             if (existing) {
                 console.log(`[Duplicate QR block] project_name (Job Number): ${project_name} already exists in qr_logs.`);
