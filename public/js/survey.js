@@ -38,12 +38,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('projectName').textContent = project || '-';
         document.getElementById('customerName').textContent = customer || '-';
         
-        // Artificial delay to show the nice loading animation
-        setTimeout(() => {
-            if (loadingCard) loadingCard.classList.add('hidden');
-            if (errorCard) errorCard.classList.add('hidden');
-            if (surveyCard) surveyCard.classList.remove('hidden');
-        }, 1200);
+        // Check if already completed
+        fetch(`/api/survey/check-completed?emp_id=${empId}&customer=${encodeURIComponent(customer || '')}&project=${encodeURIComponent(project || '')}`)
+            .then(res => res.json())
+            .then(data => {
+                setTimeout(() => {
+                    if (loadingCard) loadingCard.classList.add('hidden');
+                    if (data.completed) {
+                        // Already completed, show success screen
+                        if (successCard) successCard.classList.remove('hidden');
+                    } else {
+                        // Not completed, show survey form
+                        if (errorCard) errorCard.classList.add('hidden');
+                        if (surveyCard) surveyCard.classList.remove('hidden');
+                    }
+                }, 800);
+            })
+            .catch(err => {
+                console.error('Check status error:', err);
+                // Fallback to showing form if check fails
+                setTimeout(() => {
+                    if (loadingCard) loadingCard.classList.add('hidden');
+                    if (errorCard) errorCard.classList.add('hidden');
+                    if (surveyCard) surveyCard.classList.remove('hidden');
+                }, 800);
+            });
     }
 
     // 2. Star Ratings Logic
