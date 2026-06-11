@@ -92,32 +92,27 @@ function setupAutoFill() {
             empNameInput.classList.add('autofilled');
             empNameInput.readOnly = true;
 
-            if (employee.jobs && employee.jobs.length > 0) {
+            const pendingJobs = (employee.jobs || []).filter(job => !job.isCompleted);
+
+            if (pendingJobs.length > 0) {
                 jobInput.hidden = true;
                 jobInput.value = '';
                 jobSelect.hidden = false;
                 jobSelect.value = '';
                 jobSelect.innerHTML = '<option value="">-- เลือก JOB --</option>';
 
-                employee.jobs.forEach(job => {
+                pendingJobs.forEach(job => {
                     const opt = document.createElement('option');
                     opt.value = job.jobNumber;
                     opt.dataset.customer = job.customer;
-                    
-                    if (job.isCompleted) {
-                        opt.textContent = `${job.jobNumber} (ประเมินแล้ว)`;
-                        opt.disabled = true;
-                        opt.style.color = '#888';
-                    } else {
-                        opt.textContent = job.jobNumber;
-                    }
-                    
+                    opt.textContent = job.jobNumber;
                     jobSelect.appendChild(opt);
                 });
             } else {
-                // Keep input as text if no jobs remembered yet
+                // Keep input as text if no pending jobs are available
                 jobSelect.hidden = true;
                 jobInput.hidden = false;
+                jobInput.value = '';
             }
 
             showToast(`พบข้อมูล: ${employee.name}`, 1800);
