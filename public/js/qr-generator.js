@@ -9,9 +9,22 @@ async function loadEmployeeData() {
         const res = await fetch('/api/employees');
         employeeData = await res.json();
         
-        // Merge with custom saved employees from LocalStorage
+        // Merge with custom saved employees from LocalStorage safely
         const saved = JSON.parse(localStorage.getItem('customEmployees') || '{}');
-        employeeData = { ...employeeData, ...saved };
+        for (const [empId, localEmp] of Object.entries(saved)) {
+            if (!employeeData[empId]) {
+                employeeData[empId] = localEmp;
+            } else {
+                if (localEmp.jobs) {
+                    localEmp.jobs.forEach(localJob => {
+                        const existsInServer = employeeData[empId].jobs.find(j => j.jobNumber === localJob.jobNumber);
+                        if (!existsInServer) {
+                            employeeData[empId].jobs.push(localJob);
+                        }
+                    });
+                }
+            }
+        }
         
         console.log('Loaded', Object.keys(employeeData).length, 'employees (including custom)');
     } catch (err) {
