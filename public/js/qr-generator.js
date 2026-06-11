@@ -6,7 +6,7 @@ let generatedSurveyUrl = '';
 
 async function loadEmployeeData() {
     try {
-        const res = await fetch('/data/employees.json');
+        const res = await fetch('/api/employees');
         employeeData = await res.json();
         
         // Merge with custom saved employees from LocalStorage
@@ -89,8 +89,16 @@ function setupAutoFill() {
                 employee.jobs.forEach(job => {
                     const opt = document.createElement('option');
                     opt.value = job.jobNumber;
-                    opt.textContent = job.jobNumber;
                     opt.dataset.customer = job.customer;
+                    
+                    if (job.isCompleted) {
+                        opt.textContent = `${job.jobNumber} (ประเมินแล้ว)`;
+                        opt.disabled = true;
+                        opt.style.color = '#888';
+                    } else {
+                        opt.textContent = job.jobNumber;
+                    }
+                    
                     jobSelect.appendChild(opt);
                 });
             } else {

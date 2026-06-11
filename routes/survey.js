@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { insertRow, getAllRowsAsObjects } = require('../db/supabase-client');
+const { supabase, insertRow } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
 // ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
@@ -12,40 +12,30 @@ router.get('/check-completed', async (req, res) => {
     }
 
     try {
-        const [surveys, events] = await Promise.all([
-            getAllRowsAsObjects('survey_results').catch(err => {
-                console.warn('Failed to fetch survey results for duplicate check, skipping:', err);
-                return [];
-            }),
-            getAllRowsAsObjects('events').catch(err => {
-                console.warn('Failed to fetch events for duplicate check, skipping:', err);
-                return [];
-            })
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const oneDayAgo = new Date(Date.now() - ONE_DAY_MS).toISOString();
+
+        const [surveyResponse, eventResponse] = await Promise.all([
+            supabase
+                .from('survey_results')
+                .select('id')
+                .eq('project_name', project)
+                .limit(1),
+            supabase
+                .from('events')
+                .select('id')
+                .eq('project_name', project)
+                .in('event_type', ['survey_submitted', 'declined_at_step_1'])
+                .gte('timestamp', oneDayAgo)
+                .limit(1)
         ]);
 
-        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const now = Date.now();
-
-        // 1. ตรวจสอบว่าโครงการ/เลข Job นี้เคยประเมินให้ดาวไปแล้วหรือไม่
-        const alreadyCompleted = surveys.some(s => s.project_name === project);
-
-        // 2. ตรวจสอบว่าเคยดำเนินการทำแบบฟอร์มขั้นตอนสุดท้าย (คลิกไปต่อ หรือกดข้าม) ไปแล้วหรือยังใน 24 ชม.
-        const finalStepDone = events.some(evt => {
-            const isMatch = evt.project_name === project;
-            if (!isMatch) return false;
-
-            const isFinalEvent = evt.event_type === 'survey_submitted' || evt.event_type === 'declined_at_step_1';
-            if (!isFinalEvent) return false;
-
-            const eventTime = new Date(evt.timestamp).getTime();
-            if (isNaN(eventTime)) return false;
-
-            return (now - eventTime) < ONE_DAY_MS;
-        });
+        const alreadyCompleted = surveyResponse.data && surveyResponse.data.length > 0;
+        const finalStepDone = eventResponse.data && eventResponse.data.length > 0;
 
         res.json({ 
-            completed: alreadyCompleted,
-            final_step_done: finalStepDone
+            completed: !!alreadyCompleted,
+            final_step_done: !!finalStepDone
         });
     } catch (err) {
         console.error('Check completed failed:', err);
@@ -81,28 +71,35 @@ router.post('/', async (req, res) => {
     try {
         // 1. ป้องกันการบันทึกซ้ำ (Idempotency) ที่ฝั่ง Server โดยตรวจเช็คจาก session_id ในตาราง events
         if (session_id) {
-            const events = await getAllRowsAsObjects('events').catch(err => {
-                console.warn('Failed to fetch events for duplicate check, skipping:', err);
-                return [];
-            });
-            const alreadySubmitted = events.some(evt => evt.session_id === session_id && evt.event_type === 'survey_submitted');
-            if (alreadySubmitted) {
+            const { data: events, error } = await supabase
+                .from('events')
+                .select('id')
+                .eq('session_id', session_id)
+                .eq('event_type', 'survey_submitted')
+                .limit(1);
+
+            if (error) {
+                console.warn('Failed to fetch events for duplicate check, skipping:', error);
+            } else if (events && events.length > 0) {
                 console.log(`[Duplicate survey block] session_id: ${session_id} has already submitted score.`);
                 return res.json({ id: session_id, message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
             }
         }
 
         // 2. ป้องกันการบันทึกซ้ำแบบข้าม Session — ใช้ชื่อโครงการ (เลข Job งาน) ในการตรวจสอบระบบ
-        const surveys = await getAllRowsAsObjects('survey_results').catch(err => {
-            console.warn('Failed to fetch survey results for backend cross-session duplicate check:', err);
-            return [];
-        });
+        if (project_name) {
+            const { data: surveys, error: surveyError } = await supabase
+                .from('survey_results')
+                .select('id')
+                .eq('project_name', project_name)
+                .limit(1);
 
-        const alreadySubmitted = surveys.some(s => s.project_name === project_name);
-
-        if (alreadySubmitted) {
-            console.log(`[Duplicate survey block] project (Job Number): ${project_name} has already submitted score.`);
-            return res.json({ id: 'duplicate', message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
+            if (surveyError) {
+                console.warn('Failed to fetch survey results for backend cross-session duplicate check:', surveyError);
+            } else if (surveys && surveys.length > 0) {
+                console.log(`[Duplicate survey block] project (Job Number): ${project_name} has already submitted score.`);
+                return res.json({ id: 'duplicate', message: 'คุณได้ส่งความคิดเห็นนี้เรียบร้อยแล้ว' });
+            }
         }
 
         const id = randomUUID();

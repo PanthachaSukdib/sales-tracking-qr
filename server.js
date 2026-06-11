@@ -41,11 +41,13 @@ const qrLogsRouter = require('./routes/qr-logs');
 const surveyRouter = require('./routes/survey');
 const reportsRouter = require('./routes/reports');
 const eventsRouter = require('./routes/events');
+const employeesRouter = require('./routes/employees');
 
 app.use('/api/qr-logs', qrLogsRouter);
 app.use('/api/survey', surveyRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/employees', employeesRouter);
 
 // Config Endpoints
 
