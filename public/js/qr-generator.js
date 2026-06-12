@@ -342,6 +342,9 @@ async function createAndDisplayQR(data) {
             showToast('สร้าง QR Code สำเร็จ!');
         }
 
+        // Start polling for real-time status updates (every 3 seconds)
+        startStatusPolling(data.projectName);
+
     } catch (error) {
         console.error('QR Generation error:', error);
         showToast('ไม่สามารถสร้าง QR Code ได้');
@@ -356,8 +359,48 @@ async function createAndDisplayQR(data) {
 function cleanupQrSection() {
     const container = document.querySelector('.qr-canvas-container');
     if (container) {
-        container.innerHTML = '<canvas id="qr-canvas"></canvas>';
+        container.innerHTML = `
+            <canvas id="qr-canvas" width="240" height="240"></canvas>
+            <div id="qr-success-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; border-radius: 12px; z-index: 10;">
+                <div style="width: 68px; height: 68px; background: #D1FAE5; color: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <span style="font-size: 15px; color: #065F46; font-weight: 600;">ประเมินเสร็จเรียบร้อย!</span>
+                <span style="font-size: 11px; color: #047857; margin-top: 2px;">ขอบคุณสำหรับความพึงพอใจ</span>
+            </div>
+        `;
     }
+
+    const badge = document.getElementById('qr-status-badge');
+    const dot = document.getElementById('qr-status-dot');
+    const text = document.getElementById('qr-status-text');
+    if (badge) {
+        badge.style.background = '#F3F4F6';
+        badge.style.color = '#4B5563';
+        badge.style.borderColor = '#E5E7EB';
+    }
+    if (dot) {
+        dot.className = 'status-pulse-gray';
+        dot.style.background = '#9CA3AF';
+    }
+    if (text) {
+        text.textContent = 'รอการสแกน...';
+    }
+
+    const btnSave = document.getElementById('btn-save');
+    const btnShare = document.getElementById('btn-share');
+    const btnCopy = document.getElementById('btn-copy');
+    if (btnSave) btnSave.disabled = false;
+    if (btnShare) btnShare.disabled = false;
+    if (btnCopy) btnCopy.disabled = false;
+
+    if (window.statusPollInterval) {
+        clearInterval(window.statusPollInterval);
+        window.statusPollInterval = null;
+    }
+
     const displayEmpId = document.getElementById('displayEmpId');
     const displayEmpName = document.getElementById('displayEmpName');
     const displayProject = document.getElementById('displayProject');
@@ -366,6 +409,77 @@ function cleanupQrSection() {
     if (displayEmpName) displayEmpName.textContent = '-';
     if (displayProject) displayProject.textContent = '-';
     if (displayCustomer) displayCustomer.textContent = '-';
+}
+
+function startStatusPolling(project_name) {
+    if (window.statusPollInterval) {
+        clearInterval(window.statusPollInterval);
+    }
+
+    const badge = document.getElementById('qr-status-badge');
+    const dot = document.getElementById('qr-status-dot');
+    const text = document.getElementById('qr-status-text');
+    const overlay = document.getElementById('qr-success-overlay');
+    const btnSave = document.getElementById('btn-save');
+    const btnShare = document.getElementById('btn-share');
+    const btnCopy = document.getElementById('btn-copy');
+
+    let isScannedState = false;
+
+    window.statusPollInterval = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/survey/check-completed?project=${encodeURIComponent(project_name)}`);
+            if (res.ok) {
+                const data = await res.json();
+
+                if (data.completed || data.final_step_done) {
+                    clearInterval(window.statusPollInterval);
+                    window.statusPollInterval = null;
+
+                    if (badge) {
+                        badge.style.background = '#D1FAE5';
+                        badge.style.color = '#065F46';
+                        badge.style.borderColor = '#A7F3D0';
+                    }
+                    if (dot) {
+                        dot.className = 'status-pulse-green';
+                        dot.style.background = '#10B981';
+                    }
+                    if (text) {
+                        text.textContent = 'ประเมินเสร็จเรียบร้อยแล้ว!';
+                    }
+                    if (overlay) {
+                        overlay.style.opacity = '1';
+                        overlay.style.pointerEvents = 'auto';
+                    }
+
+                    if (btnSave) btnSave.disabled = true;
+                    if (btnShare) btnShare.disabled = true;
+                    if (btnCopy) btnCopy.disabled = true;
+
+                    showToast('ลูกค้าทำการส่งแบบประเมินเรียบร้อยแล้ว!', 3000);
+
+                } else if (data.scanned && !isScannedState) {
+                    isScannedState = true;
+                    if (badge) {
+                        badge.style.background = '#FEF3C7';
+                        badge.style.color = '#92400E';
+                        badge.style.borderColor = '#FDE68A';
+                    }
+                    if (dot) {
+                        dot.className = 'status-pulse-amber';
+                        dot.style.background = '#F59E0B';
+                    }
+                    if (text) {
+                        text.textContent = 'ลูกค้ากำลังทำแบบสอบถาม...';
+                    }
+                    showToast('ลูกค้าสแกน QR Code แล้ว กำลังตอบแบบสอบถาม...', 3000);
+                }
+            }
+        } catch (err) {
+            console.warn('Status polling error:', err);
+        }
+    }, 3000);
 }
 
 async function renderQR(canvas, url) {

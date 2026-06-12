@@ -16,6 +16,32 @@
             window.QR_REDIRECT_BASE = cfg.baseUrl;
         });
     </script>
+    <style>
+        @keyframes pulse-gray {
+            0% { box-shadow: 0 0 0 0 rgba(156, 163, 175, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(156, 163, 175, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(156, 163, 175, 0); }
+        }
+        @keyframes pulse-amber {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .status-pulse-gray {
+            animation: pulse-gray 1.8s infinite;
+        }
+        .status-pulse-amber {
+            animation: pulse-amber 1.8s infinite;
+        }
+        .status-pulse-green {
+            animation: pulse-green 1.8s infinite;
+        }
+    </style>
 </head>
 <body>
 
@@ -103,9 +129,26 @@
     
     <hr class="qr-frame-divider top">
     
+    <!-- Real-time Status Badge -->
+    <div style="text-align: center; margin: 8px 0;">
+      <div id="qr-status-badge" style="display: inline-flex; align-items: center; gap: 8px; background: #F3F4F6; border: 1px solid #E5E7EB; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #4B5563; transition: all 0.3s ease;">
+        <span id="qr-status-dot" class="status-pulse-gray" style="width: 8px; height: 8px; border-radius: 50%; background: #9CA3AF; display: inline-block;"></span>
+        <span id="qr-status-text">รอการสแกน...</span>
+      </div>
+    </div>
+
     <!-- QR Code Area -->
-    <div class="qr-canvas-container">
+    <div class="qr-canvas-container" style="position: relative;">
       <canvas id="qr-canvas" width="240" height="240"></canvas>
+      <div id="qr-success-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; border-radius: 12px; z-index: 10;">
+        <div style="width: 68px; height: 68px; background: #D1FAE5; color: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <span style="font-size: 15px; color: #065F46; font-weight: 600;">ประเมินเสร็จเรียบร้อย!</span>
+        <span style="font-size: 11px; color: #047857; margin-top: 2px;">ขอบคุณสำหรับความพึงพอใจ</span>
+      </div>
     </div>
     
     <hr class="qr-frame-divider bottom">

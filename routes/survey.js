@@ -5,17 +5,18 @@ const { randomUUID } = require('crypto');
 
 // ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
 router.get('/check-completed', async (req, res) => {
-    const { emp_id, customer, project } = req.query;
+    const { project } = req.query;
 
-    if (!emp_id || !customer || !project) {
-        return res.status(400).json({ error: 'Missing required query parameters' });
+    if (!project) {
+        return res.status(400).json({ error: 'Missing required query parameter: project' });
     }
 
     try {
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const oneDayAgo = new Date(Date.now() - ONE_DAY_MS).toISOString();
+        const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 
-        const [surveyResponse, eventResponse] = await Promise.all([
+        const [surveyResponse, eventResponse, scanResponse] = await Promise.all([
             supabase
                 .from('survey_results')
                 .select('id')
@@ -27,15 +28,24 @@ router.get('/check-completed', async (req, res) => {
                 .eq('project_name', project)
                 .in('event_type', ['survey_submitted', 'declined_at_step_1'])
                 .gte('timestamp', oneDayAgo)
+                .limit(1),
+            supabase
+                .from('events')
+                .select('id')
+                .eq('project_name', project)
+                .eq('event_type', 'scanned')
+                .gte('timestamp', thirtyMinsAgo)
                 .limit(1)
         ]);
 
         const alreadyCompleted = surveyResponse.data && surveyResponse.data.length > 0;
         const finalStepDone = eventResponse.data && eventResponse.data.length > 0;
+        const recentlyScanned = scanResponse.data && scanResponse.data.length > 0;
 
         res.json({ 
             completed: !!alreadyCompleted,
-            final_step_done: !!finalStepDone
+            final_step_done: !!finalStepDone,
+            scanned: !!recentlyScanned
         });
     } catch (err) {
         console.error('Check completed failed:', err);
