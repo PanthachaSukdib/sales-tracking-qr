@@ -191,24 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pdpaToggleBtn.style.display = 'inline';
     });
 
-    // 4.6 PDPA Radio Logic (Hide Contact Section)
-    const pdpaRadios = document.querySelectorAll('input[name="pdpa"]');
-    const contactSection = document.querySelector('.contact-section');
 
-    pdpaRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            if (e.target.value === 'ไม่ยินยอม') {
-                if(contactSection) contactSection.style.display = 'none';
-                
-                // Clear input values so they aren't sent
-                document.getElementById('contactName').value = '';
-                document.getElementById('contactPhone').value = '';
-                document.getElementById('contactEmail').value = '';
-            } else {
-                if(contactSection) contactSection.style.display = 'block';
-            }
-        });
-    });
 
     // 4.5 Step Navigation
     const step1 = document.getElementById('step1');
@@ -270,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        const consentGiven = pdpaRadio.value === 'ยินยอม';
+
         // Backend expects specific field names
         const payload = {
             session_id: '', // Not strictly needed, or we could pass local storage session id
@@ -284,9 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
             score_q4: ratings.q4,
             improvements: improvementsList.join(', '),
             improvements_other: improvementsOtherText,
-            contact_name: document.getElementById('contactName').value.trim(),
-            contact_phone: document.getElementById('contactPhone').value.trim(),
-            contact_email: document.getElementById('contactEmail').value.trim(),
+            contact_name: consentGiven ? document.getElementById('contactName').value.trim() : '',
+            contact_phone: consentGiven ? document.getElementById('contactPhone').value.trim() : '',
+            contact_email: consentGiven ? document.getElementById('contactEmail').value.trim() : '',
             pdpa_consent_2: pdpaRadio.value
         };
 
