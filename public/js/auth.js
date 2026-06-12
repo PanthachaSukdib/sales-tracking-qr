@@ -83,78 +83,56 @@ function showAuthToast(msg, type = 'success') {
 // 🔐 ระบบเข้าสู่ระบบ (SIGN IN METHODS)
 // ==========================================
 
-// 1. ล็อกอินด้วย Password (เมลกลาง: nui.panthcha@gmail.com)
-async function loginWithPassword(email, password) {
-    if (!supabaseClient) return;
-    
-    const btn = document.getElementById('btn-login-pass');
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'กำลังตรวจสอบ...';
-
-    try {
-        const { error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-
-        if (error) throw error;
-        showAuthToast('เข้าสู่ระบบเมลกลางสำเร็จ!');
-    } catch (err) {
-        console.error('Password login failed:', err);
-        showAuthToast('อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
+// Helper: แปลงเบอร์โทรศัพท์มือถือไทยปกติ เป็นรูปแบบสากล E.164 (+66)
+function formatThaiPhoneNumber(phone) {
+    let cleaned = phone.trim().replace(/[-\s]/g, '');
+    if (cleaned.startsWith('0')) {
+        cleaned = '+66' + cleaned.substring(1);
     }
+    return cleaned;
 }
 
-// 2. ขอรหัส OTP ไปยังอีเมล (Request Email OTP)
+// 1. ขอรหัส OTP ไปยังอีเมล (Request Email OTP)
 async function requestEmailOtp(email) {
     if (!supabaseClient) return;
 
-    // ตรวจสอบความปลอดภัย: อนุญาตเฉพาะเมลกลาง หรืออีเมลที่ลงท้ายด้วยโดเมนบริษัท @sst.co.th เท่านั้น
-    const cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail !== 'nui.panthcha@gmail.com' && !cleanEmail.endsWith('@sst.co.th')) {
-        showAuthToast('อีเมลนี้ไม่ได้รับสิทธิ์ (ต้องลงท้ายด้วย @sst.co.th หรือเมลกลาง)', 'error');
-        return;
-    }
-
-    const btn = document.getElementById('btn-send-otp');
+    const btn = document.getElementById('btn-send-email-otp');
     const origText = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'กำลังส่ง OTP...';
+
+    const cleanEmail = email.trim();
 
     try {
         const { error } = await supabaseClient.auth.signInWithOtp({
             email: cleanEmail,
             options: {
-                shouldCreateUser: true // อนุญาตให้ลงทะเบียนบัญชีใหม่สำหรับเมลโดเมนบริษัทอัตโนมัติ
+                shouldCreateUser: true // อนุญาตให้สมัครใช้งานด้วยเมลทั่วไปได้ทันที
             }
         });
 
         if (error) throw error;
 
         // สลับแสดงช่องกรอกรหัส OTP
-        document.getElementById('otp-request-section').style.display = 'none';
-        document.getElementById('otp-verify-section').style.display = 'block';
-        document.getElementById('otp-verify-email').textContent = cleanEmail;
+        document.getElementById('email-request-section').style.display = 'none';
+        document.getElementById('email-verify-section').style.display = 'block';
+        document.getElementById('email-verify-target').textContent = cleanEmail;
         
-        showAuthToast('ส่งรหัส OTP ไปยังอีเมลของท่านแล้ว กรุณาตรวจสอบกล่องจดหมาย');
+        showAuthToast('ส่งรหัส OTP ไปยังอีเมลเรียบร้อยแล้ว! กรุณาตรวจสอบกล่องจดหมาย');
     } catch (err) {
-        console.error('OTP request failed:', err);
-        showAuthToast('ส่งรหัส OTP ล้มเหลว (ตรวจสอบอีเมลว่ามีในระบบแล้วหรือไม่)', 'error');
+        console.error('Email OTP request failed:', err);
+        showAuthToast('ขอรหัส OTP ล้มเหลว กรุณาตรวจสอบความถูกต้องของอีเมล', 'error');
     } finally {
         btn.disabled = false;
         btn.textContent = origText;
     }
 }
 
-// 3. ยืนยันรหัส OTP (Verify Email OTP)
+// 2. ยืนยันรหัส OTP อีเมล (Verify Email OTP)
 async function verifyEmailOtp(email, otpCode) {
     if (!supabaseClient) return;
 
-    const btn = document.getElementById('btn-verify-otp');
+    const btn = document.getElementById('btn-verify-email-otp');
     const origText = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'กำลังยืนยัน...';
@@ -167,17 +145,86 @@ async function verifyEmailOtp(email, otpCode) {
         });
 
         if (error) throw error;
-        showAuthToast('ยืนยันรหัส OTP สำเร็จ ยินดีต้อนรับ!');
+        showAuthToast('ยืนยันรหัส OTP อีเมลสำเร็จ ยินดีต้อนรับ!');
     } catch (err) {
-        console.error('OTP verification failed:', err);
-        showAuthToast('รหัส OTP ไม่ถูกต้องหรือหมดอายุการใช้งาน', 'error');
+        console.error('Email OTP verification failed:', err);
+        showAuthToast('รหัส OTP ไม่ถูกต้องหรือหมดอายุ', 'error');
     } finally {
         btn.disabled = false;
         btn.textContent = origText;
     }
 }
 
-// 4. ออกจากระบบ (Log Out)
+// 3. ขอรหัส OTP ไปยังเบอร์โทรศัพท์ (Request SMS OTP)
+async function requestPhoneOtp(phone) {
+    if (!supabaseClient) return;
+
+    const btn = document.getElementById('btn-send-phone-otp');
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'กำลังส่ง OTP...';
+
+    const formattedPhone = formatThaiPhoneNumber(phone);
+
+    if (!formattedPhone.startsWith('+') || formattedPhone.length < 10) {
+        showAuthToast('รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'error');
+        btn.disabled = false;
+        btn.textContent = origText;
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            phone: formattedPhone
+        });
+
+        if (error) throw error;
+
+        // สลับแสดงช่องกรอกรหัส OTP
+        document.getElementById('phone-request-section').style.display = 'none';
+        document.getElementById('phone-verify-section').style.display = 'block';
+        document.getElementById('phone-verify-target').textContent = formattedPhone;
+        
+        showAuthToast('ส่งรหัส OTP ทาง SMS สำเร็จ! กรุณาตรวจสอบข้อความมือถือ');
+    } catch (err) {
+        console.error('Phone OTP request failed:', err);
+        showAuthToast('ส่ง SMS OTP ล้มเหลว (กรุณาเช็คว่าเปิดใช้งาน Phone provider ใน Supabase แล้วหรือไม่)', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+    }
+}
+
+// 4. ยืนยันรหัส OTP เบอร์โทรศัพท์ (Verify SMS OTP)
+async function verifyPhoneOtp(phone, otpCode) {
+    if (!supabaseClient) return;
+
+    const btn = document.getElementById('btn-verify-phone-otp');
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'กำลังยืนยัน...';
+
+    const formattedPhone = formatThaiPhoneNumber(phone);
+
+    try {
+        const { error } = await supabaseClient.auth.verifyOtp({
+            phone: formattedPhone,
+            token: otpCode,
+            type: 'sms'
+        });
+
+        if (error) throw error;
+        showAuthToast('ยืนยันรหัส OTP มือถือสำเร็จ ยินดีต้อนรับ!');
+    } catch (err) {
+        console.error('Phone OTP verification failed:', err);
+        showAuthToast('รหัส OTP ไม่ถูกต้องหรือหมดอายุ', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+    }
+}
+
+// 5. ออกจากระบบ (Log Out)
 async function handleLogout() {
     if (!supabaseClient) return;
     try {
@@ -196,77 +243,103 @@ document.addEventListener('DOMContentLoaded', () => {
     // โหลดฐานข้อมูล Supabase
     initSupabase();
 
-    // 1. สลับแท็บวิธีการล็อกอิน (Password vs OTP)
-    const tabPass = document.getElementById('tab-pass');
-    const tabOtp = document.getElementById('tab-otp');
-    const formPass = document.getElementById('login-pass-form');
-    const formOtp = document.getElementById('form-otp');
+    // 1. สลับแท็บวิธีการล็อกอิน (Email OTP vs Phone OTP)
+    const tabEmail = document.getElementById('tab-email');
+    const tabPhone = document.getElementById('tab-phone');
+    const formEmail = document.getElementById('form-email-otp');
+    const formPhone = document.getElementById('form-phone-otp');
 
-    if (tabPass && tabOtp) {
-        tabPass.addEventListener('click', () => {
-            tabPass.classList.add('active');
-            tabOtp.classList.remove('active');
-            formPass.style.display = 'block';
-            formOtp.style.display = 'none';
+    if (tabEmail && tabPhone) {
+        tabEmail.addEventListener('click', () => {
+            tabEmail.classList.add('active');
+            tabPhone.classList.remove('active');
+            formEmail.style.display = 'block';
+            formPhone.style.display = 'none';
         });
 
-        tabOtp.addEventListener('click', () => {
-            tabOtp.classList.add('active');
-            tabPass.classList.remove('active');
-            formOtp.style.display = 'block';
-            formPass.style.display = 'none';
-        });
-    }
-
-    // 2. ล็อกอินด้วย Password Submit
-    const loginPassForm = document.getElementById('login-pass-form');
-    if (loginPassForm) {
-        loginPassForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            loginWithPassword(email, pass);
+        tabPhone.addEventListener('click', () => {
+            tabPhone.classList.add('active');
+            tabEmail.classList.remove('active');
+            formPhone.style.display = 'block';
+            formEmail.style.display = 'none';
         });
     }
 
-    // 3. ขอรหัส OTP Submit
-    const btnSendOtp = document.getElementById('btn-send-otp');
-    if (btnSendOtp) {
-        btnSendOtp.addEventListener('click', () => {
-            const email = document.getElementById('otp-email').value;
+    // 2. ขอรหัส OTP อีเมล Submit
+    const btnSendEmailOtp = document.getElementById('btn-send-email-otp');
+    if (btnSendEmailOtp) {
+        btnSendEmailOtp.addEventListener('click', () => {
+            const email = document.getElementById('email-otp-input').value;
             if (!email) {
-                showAuthToast('กรุณากรอกอีเมลของท่าน', 'error');
+                showAuthToast('กรุณากรอกอีเมลของคุณ', 'error');
                 return;
             }
             requestEmailOtp(email);
         });
     }
 
-    // 4. ยืนยันรหัส OTP Submit
-    const btnVerifyOtp = document.getElementById('btn-verify-otp');
-    if (btnVerifyOtp) {
-        btnVerifyOtp.addEventListener('click', () => {
-            const email = document.getElementById('otp-verify-email').textContent;
-            const code = document.getElementById('otp-code').value.trim();
+    // 3. ยืนยันรหัส OTP อีเมล Submit
+    const btnVerifyEmailOtp = document.getElementById('btn-verify-email-otp');
+    if (btnVerifyEmailOtp) {
+        btnVerifyEmailOtp.addEventListener('click', () => {
+            const email = document.getElementById('email-verify-target').textContent;
+            const code = document.getElementById('email-otp-code').value.trim();
             if (!code || code.length !== 6) {
-                showAuthToast('กรุณากรอกรหัส OTP จำนวน 6 หลักให้ครบถ้วน', 'error');
+                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
                 return;
             }
             verifyEmailOtp(email, code);
         });
     }
 
-    // 5. ปุ่มกลับหน้ากรอกอีเมล (ย้อนกลับจากรหัส OTP)
-    const btnBackOtp = document.getElementById('btn-back-otp');
-    if (btnBackOtp) {
-        btnBackOtp.addEventListener('click', () => {
-            document.getElementById('otp-verify-section').style.display = 'none';
-            document.getElementById('otp-request-section').style.display = 'block';
-            document.getElementById('otp-code').value = '';
+    // 4. ปุ่มย้อนกลับจากหน้ากรอกรหัส OTP อีเมล
+    const btnBackEmailOtp = document.getElementById('btn-back-email-otp');
+    if (btnBackEmailOtp) {
+        btnBackEmailOtp.addEventListener('click', () => {
+            document.getElementById('email-verify-section').style.display = 'none';
+            document.getElementById('email-request-section').style.display = 'block';
+            document.getElementById('email-otp-code').value = '';
         });
     }
 
-    // 6. ปุ่มออกจากระบบ (Log Out)
+    // 5. ขอรหัส OTP เบอร์โทรศัพท์ Submit
+    const btnSendPhoneOtp = document.getElementById('btn-send-phone-otp');
+    if (btnSendPhoneOtp) {
+        btnSendPhoneOtp.addEventListener('click', () => {
+            const phone = document.getElementById('phone-otp-input').value;
+            if (!phone) {
+                showAuthToast('กรุณากรอกเบอร์โทรศัพท์ของคุณ', 'error');
+                return;
+            }
+            requestPhoneOtp(phone);
+        });
+    }
+
+    // 6. ยืนยันรหัส OTP เบอร์โทรศัพท์ Submit
+    const btnVerifyPhoneOtp = document.getElementById('btn-verify-phone-otp');
+    if (btnVerifyPhoneOtp) {
+        btnVerifyPhoneOtp.addEventListener('click', () => {
+            const phone = document.getElementById('phone-verify-target').textContent;
+            const code = document.getElementById('phone-otp-code').value.trim();
+            if (!code || code.length !== 6) {
+                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
+                return;
+            }
+            verifyPhoneOtp(phone, code);
+        });
+    }
+
+    // 7. ปุ่มย้อนกลับจากหน้ากรอกรหัส OTP เบอร์โทรศัพท์
+    const btnBackPhoneOtp = document.getElementById('btn-back-phone-otp');
+    if (btnBackPhoneOtp) {
+        btnBackPhoneOtp.addEventListener('click', () => {
+            document.getElementById('phone-verify-section').style.display = 'none';
+            document.getElementById('phone-request-section').style.display = 'block';
+            document.getElementById('phone-otp-code').value = '';
+        });
+    }
+
+    // 8. ปุ่มออกจากระบบ (Log Out)
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', (e) => {

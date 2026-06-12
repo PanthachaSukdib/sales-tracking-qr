@@ -212,53 +212,72 @@
             <p class="login-subtitle">สยามซินดิเคทเทคโนโลยี จำกัด (มหาชน)</p>
             
             <div class="login-tabs">
-                <div id="tab-pass" class="login-tab active">ล็อกอินเมลกลาง</div>
-                <div id="tab-otp" class="login-tab">ขอรับรหัส OTP</div>
+                <div id="tab-email" class="login-tab active">ล็อกอินผ่านอีเมล</div>
+                <div id="tab-phone" class="login-tab">ล็อกอินผ่านเบอร์โทร</div>
             </div>
 
-            <!-- วิธีที่ 1: เข้าสู่ระบบด้วยรหัสผ่าน (เมลกลาง) -->
-            <form id="login-pass-form" style="display: block;">
-                <div class="form-group-login">
-                    <label class="form-label-login" for="login-email">อีเมลกลาง</label>
-                    <input type="email" id="login-email" class="form-input-login" placeholder="กรอกอีเมลกลาง เช่น nui.panthcha@gmail.com" required>
-                </div>
-                <div class="form-group-login">
-                    <label class="form-label-login" for="login-password">รหัสผ่าน</label>
-                    <input type="password" id="login-password" class="form-input-login" placeholder="กรอกรหัสผ่าน" required>
-                </div>
-                <button type="submit" id="btn-login-pass" class="btn-login" style="margin-top: 10px;">
-                    เข้าสู่ระบบ
-                </button>
-            </form>
-
-            <!-- วิธีที่ 2: เข้าสู่ระบบด้วย OTP (อีเมลพนักงาน) -->
-            <div id="form-otp" style="display: none;">
-                <!-- ส่วนร้องขอรหัส OTP -->
-                <div id="otp-request-section" style="display: block;">
+            <!-- วิธีที่ 1: เข้าสู่ระบบด้วย Email OTP -->
+            <div id="form-email-otp" style="display: block;">
+                <!-- ส่วนร้องขอ OTP อีเมล -->
+                <div id="email-request-section" style="display: block;">
                     <div class="form-group-login">
-                        <label class="form-label-login" for="otp-email">อีเมลพนักงาน</label>
-                        <input type="email" id="otp-email" class="form-input-login" placeholder="เช่น yourname@sst.co.th" required>
+                        <label class="form-label-login" for="email-otp-input">อีเมลพนักงาน</label>
+                        <input type="email" id="email-otp-input" class="form-input-login" placeholder="กรอกอีเมล เช่น name@gmail.com" required>
                     </div>
-                    <button type="button" id="btn-send-otp" class="btn-login" style="margin-top: 10px;">
-                        ขอรหัส OTP
+                    <button type="button" id="btn-send-email-otp" class="btn-login" style="margin-top: 10px;">
+                        ขอรหัส OTP ทางอีเมล
                     </button>
-                    <p class="otp-notice">ระบบจะส่งรหัสผ่านใช้ครั้งเดียว (OTP) จำนวน 6 หลักไปยังอีเมลของคุณเพื่อล็อกอินเข้าใช้งาน</p>
+                    <p class="otp-notice">ระบบจะส่งรหัส OTP 6 หลักไปยังอีเมลของคุณเพื่อยืนยันตัวตน</p>
                 </div>
 
-                <!-- ส่วนยืนยันรหัส OTP -->
-                <div id="otp-verify-section" style="display: none;">
-                    <div style="text-align: center; margin-bottom: 16px; font-size: 13px; color: #4B5563; font-family: inherit;">
-                        ส่งรหัสไปที่: <strong id="otp-verify-email"></strong>
+                <!-- ส่วนยืนยันรหัส OTP อีเมล -->
+                <div id="email-verify-section" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 16px; font-size: 13px; color: #6B7280; font-family: inherit;">
+                        ส่งรหัสไปที่: <strong id="email-verify-target"></strong>
                     </div>
                     <div class="form-group-login">
-                        <label class="form-label-login" for="otp-code">รหัส OTP 6 หลัก</label>
-                        <input type="text" id="otp-code" class="form-input-login" placeholder="------" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;" required>
+                        <label class="form-label-login" for="email-otp-code">รหัส OTP 6 หลัก</label>
+                        <input type="text" id="email-otp-code" class="form-input-login" placeholder="------" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;" required>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button type="button" id="btn-back-otp" class="btn-outline-login" style="flex: 1;">
+                        <button type="button" id="btn-back-email-otp" class="btn-outline-login" style="flex: 1;">
                             ย้อนกลับ
                         </button>
-                        <button type="button" id="btn-verify-otp" class="btn-login" style="flex: 2;">
+                        <button type="button" id="btn-verify-email-otp" class="btn-login" style="flex: 2;">
+                            ยืนยัน OTP
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- วิธีที่ 2: เข้าสู่ระบบด้วย SMS OTP -->
+            <div id="form-phone-otp" style="display: none;">
+                <!-- ส่วนร้องขอ OTP เบอร์โทร -->
+                <div id="phone-request-section" style="display: block;">
+                    <div class="form-group-login">
+                        <label class="form-label-login" for="phone-otp-input">เบอร์โทรศัพท์มือถือ</label>
+                        <input type="tel" id="phone-otp-input" class="form-input-login" placeholder="เช่น 0812345678" required>
+                    </div>
+                    <button type="button" id="btn-send-phone-otp" class="btn-login" style="margin-top: 10px;">
+                        ขอรหัส OTP ทาง SMS
+                    </button>
+                    <p class="otp-notice">ระบบจะส่งรหัส OTP 6 หลักไปยังเบอร์มือถือของคุณเพื่อยืนยันตัวตน</p>
+                </div>
+
+                <!-- ส่วนยืนยันรหัส OTP เบอร์โทร -->
+                <div id="phone-verify-section" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 16px; font-size: 13px; color: #6B7280; font-family: inherit;">
+                        ส่งรหัสไปที่: <strong id="phone-verify-target"></strong>
+                    </div>
+                    <div class="form-group-login">
+                        <label class="form-label-login" for="phone-otp-code">รหัส OTP 6 หลัก</label>
+                        <input type="text" id="phone-otp-code" class="form-input-login" placeholder="------" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="btn-back-phone-otp" class="btn-outline-login" style="flex: 1;">
+                            ย้อนกลับ
+                        </button>
+                        <button type="button" id="btn-verify-phone-otp" class="btn-login" style="flex: 2;">
                             ยืนยัน OTP
                         </button>
                     </div>
