@@ -284,8 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnVerifyEmailOtp.addEventListener('click', () => {
             const email = document.getElementById('email-verify-target').textContent;
             const code = document.getElementById('email-otp-code').value.trim();
-            if (!code || code.length !== 6) {
-                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
+            if (!code || code.length < 6 || code.length > 8) {
+                showAuthToast('กรุณากรอกรหัส OTP ให้ครบถ้วน', 'error');
                 return;
             }
             verifyEmailOtp(email, code);
@@ -321,8 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnVerifyPhoneOtp.addEventListener('click', () => {
             const phone = document.getElementById('phone-verify-target').textContent;
             const code = document.getElementById('phone-otp-code').value.trim();
-            if (!code || code.length !== 6) {
-                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
+            if (!code || code.length < 6 || code.length > 8) {
+                showAuthToast('กรุณากรอกรหัส OTP ให้ครบถ้วน', 'error');
                 return;
             }
             verifyPhoneOtp(phone, code);
