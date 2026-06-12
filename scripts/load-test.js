@@ -5,7 +5,7 @@
 // ⚙️ การตั้งค่าหลัก (SETTINGS)
 // ==========================================
 const TARGET_URL = 'https://sales-tracking-qr.vercel.app'; // เปลี่ยนเป็น 'http://localhost:3000' หากต้องการเทสที่เครื่องตนเอง (Local)
-const CONCURRENT_USERS = 25; // จำนวนบอทที่ต้องการจำลองส่งข้อมูลพร้อมกัน (แนะนำเริ่มต้นที่ 20-30 ตัวบนรุ่นฟรี)
+const CONCURRENT_USERS = 100; // จำนวนบอทที่ต้องการจำลองส่งข้อมูลพร้อมกัน (จำลองการกดพร้อมกัน 100 คน)
 
 // ตัวช่วยหน่วงเวลาจำลองพฤติกรรมลูกค้า (Delay Helper)
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
