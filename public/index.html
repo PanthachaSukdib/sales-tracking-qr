@@ -11,6 +11,7 @@
     <script src="/js/webview-helper.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         fetch('/api/config/qr-base').then(r => r.json()).then(cfg => {
             window.QR_REDIRECT_BASE = cfg.baseUrl;
@@ -41,11 +42,247 @@
         .status-pulse-green {
             animation: pulse-green 1.8s infinite;
         }
+        
+        /* Login Styles */
+        .login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            background: linear-gradient(135deg, #0F6E56 0%, #059669 100%);
+            box-sizing: border-box;
+        }
+        .login-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+            padding: 36px 28px;
+            box-sizing: border-box;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .login-logo {
+            display: block;
+            max-height: 48px;
+            margin: 0 auto 20px auto;
+        }
+        .login-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            text-align: center;
+            margin: 0 0 8px 0;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .login-subtitle {
+            font-size: 13px;
+            color: #6B7280;
+            text-align: center;
+            margin: 0 0 24px 0;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .login-tabs {
+            display: flex;
+            background: #F3F4F6;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .login-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4B5563;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .login-tab.active {
+            background: #FFFFFF;
+            color: #0F6E56;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .form-group-login {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .form-label-login {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .form-input-login {
+            width: 100%;
+            padding: 11px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .form-input-login:focus {
+            border-color: #10B981;
+        }
+        .btn-login {
+            width: 100%;
+            background: #0F6E56;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 4px 12px rgba(15, 110, 86, 0.15);
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .btn-login:hover {
+            background: #059669;
+        }
+        .btn-login:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-outline-login {
+            width: 100%;
+            background: transparent;
+            border: 1px solid #D1D5DB;
+            color: #374151;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans Thai', sans-serif;
+            text-align: center;
+        }
+        .btn-outline-login:hover {
+            background: #F9FAFB;
+        }
+        .otp-notice {
+            font-size: 12px;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-top: 12px;
+            text-align: center;
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .btn-logout-header:hover {
+            background: #EF4444 !important;
+            color: white !important;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <style>
+        @keyframes pulse-gray {
+            0% { box-shadow: 0 0 0 0 rgba(156, 163, 175, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(156, 163, 175, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(156, 163, 175, 0); }
+        }
+        @keyframes pulse-amber {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .status-pulse-gray {
+            animation: pulse-gray 1.8s infinite;
+        }
+        .status-pulse-amber {
+            animation: pulse-amber 1.8s infinite;
+        }
+        .status-pulse-green {
+            animation: pulse-green 1.8s infinite;
+        }
     </style>
 </head>
 <body>
 
-    <div id="webview-banner" class="webview-banner" hidden>
+    <!-- 🔐 หน้าต่างล็อกอินพนักงาน (Login Screen) -->
+    <div id="login-container" class="login-wrap" style="display: none;">
+        <div class="login-card">
+            <img src="/img/company_logo.png" alt="SST" class="login-logo">
+            <h2 class="login-title">ระบบสร้าง QR Code ประเมิน</h2>
+            <p class="login-subtitle">สยามซินดิเคทเทคโนโลยี จำกัด (มหาชน)</p>
+            
+            <div class="login-tabs">
+                <div id="tab-pass" class="login-tab active">ล็อกอินเมลกลาง</div>
+                <div id="tab-otp" class="login-tab">ขอรับรหัส OTP</div>
+            </div>
+
+            <!-- วิธีที่ 1: เข้าสู่ระบบด้วยรหัสผ่าน (เมลกลาง) -->
+            <form id="login-pass-form" style="display: block;">
+                <div class="form-group-login">
+                    <label class="form-label-login" for="login-email">อีเมลกลาง</label>
+                    <input type="email" id="login-email" class="form-input-login" value="nui.panthcha@gmail.com" required readonly>
+                </div>
+                <div class="form-group-login">
+                    <label class="form-label-login" for="login-password">รหัสผ่าน</label>
+                    <input type="password" id="login-password" class="form-input-login" placeholder="กรอกรหัสผ่าน" required>
+                </div>
+                <button type="submit" id="btn-login-pass" class="btn-login" style="margin-top: 10px;">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <!-- วิธีที่ 2: เข้าสู่ระบบด้วย OTP (อีเมลพนักงาน) -->
+            <div id="form-otp" style="display: none;">
+                <!-- ส่วนร้องขอรหัส OTP -->
+                <div id="otp-request-section" style="display: block;">
+                    <div class="form-group-login">
+                        <label class="form-label-login" for="otp-email">อีเมลพนักงาน</label>
+                        <input type="email" id="otp-email" class="form-input-login" placeholder="เช่น yourname@sst.co.th" required>
+                    </div>
+                    <button type="button" id="btn-send-otp" class="btn-login" style="margin-top: 10px;">
+                        ขอรหัส OTP
+                    </button>
+                    <p class="otp-notice">ระบบจะส่งรหัสผ่านใช้ครั้งเดียว (OTP) จำนวน 6 หลักไปยังอีเมลของคุณเพื่อล็อกอินเข้าใช้งาน</p>
+                </div>
+
+                <!-- ส่วนยืนยันรหัส OTP -->
+                <div id="otp-verify-section" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 16px; font-size: 13px; color: #4B5563; font-family: 'Noto Sans Thai', sans-serif;">
+                        ส่งรหัสไปที่: <strong id="otp-verify-email"></strong>
+                    </div>
+                    <div class="form-group-login">
+                        <label class="form-label-login" for="otp-code">รหัส OTP 6 หลัก</label>
+                        <input type="text" id="otp-code" class="form-input-login" placeholder="------" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="btn-back-otp" class="btn-outline-login" style="flex: 1;">
+                            ย้อนกลับ
+                        </button>
+                        <button type="button" id="btn-verify-otp" class="btn-login" style="flex: 2;">
+                            ยืนยัน OTP
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌐 ส่วนเนื้อหาโปรแกรมหลัก (จะแสดงผลหลังจากล็อกอินผ่านแล้วเท่านั้น) -->
+    <div id="app-container" style="display: none;">
+        <div id="webview-banner" class="webview-banner" hidden>
         <div class="webview-banner-content">
             <div class="webview-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -66,12 +303,15 @@
   <div class="qr-card">
     
     <!-- Header: Logo + Title -->
-    <header class="card-header">
+    <header class="card-header" style="position: relative;">
       <img src="/img/company_logo.png" alt="SST" class="company-logo">
       <div class="header-text">
         <h1>แบบสอบถามความพึงพอใจต่อการขายและบริการ</h1>
         <p class="company-name">บริษัทสยามซินดิเคทเทคโนโลยี จำกัด (มหาชน)</p>
       </div>
+      <button type="button" id="btn-logout" class="btn-logout-header" style="position: absolute; top: 12px; right: 12px; background: transparent; border: 1px solid #EF4444; color: #EF4444; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans Thai', sans-serif; outline: none; z-index: 50;">
+        ออกจากระบบ
+      </button>
     </header>
 
     <!-- Form -->
@@ -214,6 +454,8 @@
 </section>
 </main>
 
+    </div>
+
     <!-- Reusable Black Toast Message Box -->
     <div id="toast" class="toast-container">ข้อความแจ้งเตือน</div>
 
@@ -229,7 +471,9 @@
             </div>
         </div>
     </div>
+    </div> <!-- ปิดแผงแอปหลัก app-container -->
 
+    <script src="js/auth.js"></script>
     <script src="js/qr-generator.js"></script>
 </body>
 </html>

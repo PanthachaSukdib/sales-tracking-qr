@@ -229,23 +229,7 @@
       };
       localStorage.setItem('sst_session', JSON.stringify(session));
 
-      // log scan ไป backend (qr_logs)
-      try {
-        await fetchWithTimeout('/api/qr-logs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            employee_id: empId,
-            employee_name: empName,
-            project_name: project,
-            customer_name: customer,
-            generated_url: window.location.href
-          }),
-          timeout: 4000
-        });
-      } catch (err) {
-        console.warn('Log failed (continuing):', err);
-      }
+      // QR scan event is tracked via /api/events below
 
       // ยิง Event "scanned" → event tracking
       try {

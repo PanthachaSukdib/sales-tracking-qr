@@ -36,6 +36,31 @@ app.use('/fonts', express.static(path.join(__dirname, 'public/fonts'), {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+const { supabase } = require('./db/supabase-client');
+
+// Middleware to validate Supabase JWT tokens
+const validateSupabaseToken = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Unauthorized: Missing or invalid token format' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+
+        if (error || !user) {
+            return res.status(401).json({ error: 'Unauthorized: Session invalid or expired' });
+        }
+
+        req.user = user;
+        next();
+    } catch (err) {
+        console.error('Auth middleware error:', err);
+        res.status(500).json({ error: 'Internal server error during authentication' });
+    }
+};
+
 // Mount API Routes
 const qrLogsRouter = require('./routes/qr-logs');
 const surveyRouter = require('./routes/survey');
@@ -43,11 +68,19 @@ const reportsRouter = require('./routes/reports');
 const eventsRouter = require('./routes/events');
 const employeesRouter = require('./routes/employees');
 
-app.use('/api/qr-logs', qrLogsRouter);
+app.use('/api/qr-logs', validateSupabaseToken, qrLogsRouter);
 app.use('/api/survey', surveyRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/events', eventsRouter);
-app.use('/api/employees', employeesRouter);
+app.use('/api/employees', validateSupabaseToken, employeesRouter);
+
+// Config Endpoints
+app.get('/api/config/supabase-anon', (req, res) => {
+    res.json({
+        supabaseUrl: process.env.SUPABASE_URL,
+        supabaseKey: process.env.SUPABASE_KEY
+    });
+});
 
 // Config Endpoints
 

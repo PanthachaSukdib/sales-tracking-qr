@@ -6,7 +6,15 @@ let generatedSurveyUrl = '';
 
 async function loadEmployeeData() {
     try {
-        const res = await fetch('/api/employees');
+        const token = window.getAuthToken ? await window.getAuthToken() : null;
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const res = await fetch('/api/employees', { headers });
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
         employeeData = await res.json();
         
         // Merge with custom saved employees from LocalStorage safely
@@ -276,9 +284,14 @@ async function createAndDisplayQR(data) {
         let isDuplicate = false;
 
         try {
+            const token = window.getAuthToken ? await window.getAuthToken() : null;
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch('/api/qr-logs', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({
                     employee_id: data.empId,
                     employee_name: data.empName,
@@ -519,24 +532,26 @@ async function renderQR(canvas, url) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadEmployeeData().then(() => {
-        setupAutoFill();
-        setupFormSubmit();
-        
-        const saved = localStorage.getItem('sst_employee');
-        if (saved) {
-            try {
-                const emp = JSON.parse(saved);
-                if (emp.empId) {
-                    const empIdInput = document.getElementById('empId');
-                    if (empIdInput) {
-                        empIdInput.value = emp.empId;
-                        empIdInput.dispatchEvent(new Event('input'));
-                    }
+    // Expose functions globally so auth.js can trigger them on login
+    window.loadEmployeeData = loadEmployeeData;
+    window.cleanupQrSection = cleanupQrSection;
+
+    setupAutoFill();
+    setupFormSubmit();
+    
+    const saved = localStorage.getItem('sst_employee');
+    if (saved) {
+        try {
+            const emp = JSON.parse(saved);
+            if (emp.empId) {
+                const empIdInput = document.getElementById('empId');
+                if (empIdInput) {
+                    empIdInput.value = emp.empId;
+                    empIdInput.dispatchEvent(new Event('input'));
                 }
-            } catch {}
-        }
-    });
+            }
+        } catch {}
+    }
 
     const btnSave = document.getElementById('btn-save');
     const btnShare = document.getElementById('btn-share');
