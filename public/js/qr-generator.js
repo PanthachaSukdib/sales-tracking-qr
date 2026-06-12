@@ -201,6 +201,12 @@ function setupFormSubmit() {
             return;
         }
 
+        // Validate Employee ID exists in the database to prevent typos
+        if (Object.keys(employeeData).length > 0 && !employeeData[data.empId]) {
+            showToast('ไม่พบรหัสพนักงานนี้ในระบบหลัก กรุณาตรวจสอบรหัสพนักงานอีกครั้ง');
+            return;
+        }
+
         if (!data.customerName) {
             const manual = await showCustomPrompt();
             if (!manual || !manual.trim()) {

@@ -52,7 +52,12 @@ app.use('/api/employees', employeesRouter);
 // Config Endpoints
 
 app.get('/api/config/qr-base', (req, res) => {
-    res.json({ baseUrl: process.env.QR_REDIRECT_BASE_URL || '/scan.html' });
+    if (process.env.QR_REDIRECT_BASE_URL) {
+        return res.json({ baseUrl: process.env.QR_REDIRECT_BASE_URL });
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const host = req.get('host');
+    res.json({ baseUrl: `${protocol}://${host}/scan.html` });
 });
 
 // Fallback for non-existent public files or APIs
