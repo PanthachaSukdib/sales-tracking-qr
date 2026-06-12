@@ -46,7 +46,7 @@ function handleAuthState(session) {
         }
     } else {
         // ยังไม่ได้ล็อกอิน -> แสดงฟอร์มล็อกอิน, ซ่อนหน้า QR
-        if (loginContainer) loginContainer.style.display = 'block';
+        if (loginContainer) loginContainer.style.display = 'flex';
         if (appContainer) appContainer.style.display = 'none';
         
         // เคลียร์ค่าฟอร์มสร้าง QR เดิม
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. สลับแท็บวิธีการล็อกอิน (Password vs OTP)
     const tabPass = document.getElementById('tab-pass');
     const tabOtp = document.getElementById('tab-otp');
-    const formPass = document.getElementById('form-pass');
+    const formPass = document.getElementById('login-pass-form');
     const formOtp = document.getElementById('form-otp');
 
     if (tabPass && tabOtp) {
