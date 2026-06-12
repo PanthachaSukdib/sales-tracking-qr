@@ -140,10 +140,10 @@ async function requestEmailOtp(email) {
         document.getElementById('otp-verify-section').style.display = 'block';
         document.getElementById('otp-verify-email').textContent = cleanEmail;
         
-        showAuthToast('ส่งรหัส OTP ไปยังอีเมลของท่านแล้ว กรุณาตรวจสอบกล่องจดหมาย');
+        showAuthToast('ส่งลิงก์เข้าสู่ระบบไปยังอีเมลเรียบร้อยแล้ว!');
     } catch (err) {
         console.error('OTP request failed:', err);
-        showAuthToast('ส่งรหัส OTP ล้มเหลว (ตรวจสอบอีเมลว่ามีในระบบแล้วหรือไม่)', 'error');
+        showAuthToast('ส่งลิงก์เข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง', 'error');
     } finally {
         btn.disabled = false;
         btn.textContent = origText;

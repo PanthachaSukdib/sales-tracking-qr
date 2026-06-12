@@ -213,7 +213,7 @@
             
             <div class="login-tabs">
                 <div id="tab-pass" class="login-tab active">ล็อกอินเมลกลาง</div>
-                <div id="tab-otp" class="login-tab">ขอรับรหัส OTP</div>
+                <div id="tab-otp" class="login-tab">ลิงก์เข้าสู่ระบบ (Email)</div>
             </div>
 
             <!-- วิธีที่ 1: เข้าสู่ระบบด้วยรหัสผ่าน (เมลกลาง) -->
@@ -231,37 +231,34 @@
                 </button>
             </form>
 
-            <!-- วิธีที่ 2: เข้าสู่ระบบด้วย OTP (อีเมลพนักงาน) -->
+            <!-- วิธีที่ 2: เข้าสู่ระบบด้วย Magic Link (อีเมลพนักงาน) -->
             <div id="form-otp" style="display: none;">
-                <!-- ส่วนร้องขอรหัส OTP -->
+                <!-- ส่วนร้องขอลิงก์เข้าสู่ระบบ -->
                 <div id="otp-request-section" style="display: block;">
                     <div class="form-group-login">
                         <label class="form-label-login" for="otp-email">อีเมลพนักงาน</label>
                         <input type="email" id="otp-email" class="form-input-login" placeholder="เช่น yourname@sst.co.th" required>
                     </div>
                     <button type="button" id="btn-send-otp" class="btn-login" style="margin-top: 10px;">
-                        ขอรหัส OTP
+                        ส่งลิงก์เข้าสู่ระบบ
                     </button>
-                    <p class="otp-notice">ระบบจะส่งรหัสผ่านใช้ครั้งเดียว (OTP) จำนวน 6 หลักไปยังอีเมลของคุณเพื่อล็อกอินเข้าใช้งาน</p>
+                    <p class="otp-notice">ระบบจะส่งลิงก์เข้าสู่ระบบ (Magic Link) ไปยังอีเมลของท่านเพื่อกดเข้าใช้งานโดยไม่ต้องใช้รหัสผ่าน</p>
                 </div>
 
-                <!-- ส่วนยืนยันรหัส OTP -->
-                <div id="otp-verify-section" style="display: none;">
-                    <div style="text-align: center; margin-bottom: 16px; font-size: 13px; color: #4B5563; font-family: 'Noto Sans Thai', sans-serif;">
-                        ส่งรหัสไปที่: <strong id="otp-verify-email"></strong>
+                <!-- ส่วนแสดงผลเมื่อส่งลิงก์สำเร็จ -->
+                <div id="otp-verify-section" style="display: none; text-align: center;">
+                    <div style="width: 56px; height: 56px; background: #D1FAE5; color: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
                     </div>
-                    <div class="form-group-login">
-                        <label class="form-label-login" for="otp-code">รหัส OTP 6 หลัก</label>
-                        <input type="text" id="otp-code" class="form-input-login" placeholder="------" maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;" required>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button type="button" id="btn-back-otp" class="btn-outline-login" style="flex: 1;">
-                            ย้อนกลับ
-                        </button>
-                        <button type="button" id="btn-verify-otp" class="btn-login" style="flex: 2;">
-                            ยืนยัน OTP
-                        </button>
-                    </div>
+                    <h3 style="font-size: 16px; color: #065F46; font-weight: 600; margin-bottom: 8px; font-family: inherit;">ส่งลิงก์สำเร็จแล้ว!</h3>
+                    <p style="font-size: 13px; color: #047857; margin-bottom: 20px; line-height: 1.5; font-family: inherit;">
+                        กรุณาตรวจสอบกล่องจดหมายที่ <strong id="otp-verify-email"></strong> และคลิกปุ่มยืนยันในอีเมลเพื่อเข้าสู่ระบบ
+                    </p>
+                    <button type="button" id="btn-back-otp" class="btn-outline-login" style="width: auto; padding: 10px 20px; min-height: 40px; font-size: 13px; display: inline-block;">
+                        ย้อนกลับ
+                    </button>
                 </div>
             </div>
         </div>
