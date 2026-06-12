@@ -129,7 +129,7 @@ async function requestEmailOtp(email) {
         const { error } = await supabaseClient.auth.signInWithOtp({
             email: cleanEmail,
             options: {
-                shouldCreateUser: false // จำกัดเฉพาะพนักงานที่แอดมินแอดชื่อไว้แล้วเท่านั้น
+                shouldCreateUser: true // อนุญาตให้ลงทะเบียนบัญชีใหม่สำหรับเมลโดเมนบริษัทอัตโนมัติ
             }
         });
 
