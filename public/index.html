@@ -118,6 +118,14 @@
 <!-- QR Code Section -->
 <section class="qr-display-card" id="qr-section" hidden>
   
+  <!-- Real-time Status Badge -->
+  <div style="text-align: center; margin-bottom: 16px;">
+    <div id="qr-status-badge" style="display: inline-flex; align-items: center; gap: 8px; background: #F3F4F6; border: 1px solid #E5E7EB; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #4B5563; transition: all 0.3s ease;">
+      <span id="qr-status-dot" class="status-pulse-gray" style="width: 8px; height: 8px; border-radius: 50%; background: #9CA3AF; display: inline-block;"></span>
+      <span id="qr-status-text">รอการสแกน...</span>
+    </div>
+  </div>
+
   <!-- กรอบเส้นประ ครอบ Header + QR + Info -->
   <div class="qr-dashed-frame">
     
@@ -128,14 +136,6 @@
     </div>
     
     <hr class="qr-frame-divider top">
-    
-    <!-- Real-time Status Badge -->
-    <div style="text-align: center; margin: 8px 0;">
-      <div id="qr-status-badge" style="display: inline-flex; align-items: center; gap: 8px; background: #F3F4F6; border: 1px solid #E5E7EB; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #4B5563; transition: all 0.3s ease;">
-        <span id="qr-status-dot" class="status-pulse-gray" style="width: 8px; height: 8px; border-radius: 50%; background: #9CA3AF; display: inline-block;"></span>
-        <span id="qr-status-text">รอการสแกน...</span>
-      </div>
-    </div>
 
     <!-- QR Code Area -->
     <div class="qr-canvas-container" style="position: relative;">
