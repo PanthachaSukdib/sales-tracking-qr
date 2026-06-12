@@ -122,17 +122,50 @@
 
           const copyBtn = document.getElementById('btn-copy-link');
           if (copyBtn) {
+            const copySuccess = (btn) => {
+              btn.textContent = 'คัดลอกลิงก์สำเร็จแล้ว!';
+              btn.style.background = '#059669';
+              setTimeout(() => {
+                btn.textContent = 'คัดลอกลิงก์เพื่อไปเปิดเอง';
+                btn.style.background = '#10B981';
+              }, 2000);
+            };
+
+            const fallbackCopy = (text, btn) => {
+              const tempInput = document.createElement('input');
+              tempInput.value = text;
+              tempInput.style.position = 'absolute';
+              tempInput.style.left = '-9999px';
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              tempInput.setSelectionRange(0, 99999);
+              
+              let success = false;
+              try {
+                success = document.execCommand('copy');
+              } catch (err) {
+                success = false;
+              }
+              document.body.removeChild(tempInput);
+              
+              if (success) {
+                copySuccess(btn);
+              } else {
+                window.prompt('กรุณาคัดลอกลิงก์ด้านล่างนี้ไปวางในเบราว์เซอร์ Safari:', text);
+              }
+            };
+
             copyBtn.addEventListener('click', () => {
-              navigator.clipboard.writeText(window.location.href).then(() => {
-                copyBtn.textContent = 'คัดลอกลิงก์สำเร็จแล้ว!';
-                copyBtn.style.background = '#059669';
-                setTimeout(() => {
-                  copyBtn.textContent = 'คัดลอกลิงก์เพื่อไปเปิดเอง';
-                  copyBtn.style.background = '#10B981';
-                }, 2000);
-              }).catch(() => {
-                alert('ไม่สามารถคัดลอกลิงก์อัตโนมัติได้ กรุณาคัดลอก URL จากช่องป้อนที่อยู่เว็บด้านบน');
-              });
+              const url = window.location.href;
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                  copySuccess(copyBtn);
+                }).catch(() => {
+                  fallbackCopy(url, copyBtn);
+                });
+              } else {
+                fallbackCopy(url, copyBtn);
+              }
             });
           }
           return; // Stop automatic loading and redirect for iOS in-app browser
