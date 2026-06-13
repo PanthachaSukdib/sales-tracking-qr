@@ -2,6 +2,54 @@
 // ระบบยืนยันตัวตนพนักงาน (Supabase Authentication & Session Management)
 
 let supabaseClient = null;
+let emailInterval = null;
+let phoneInterval = null;
+
+// Helper: ทำการนับเวลาถอยหลัง 60 วินาทีสำหรับปุ่มส่ง OTP อีเมล
+function startEmailCooldown(seconds) {
+    const btn = document.getElementById('btn-send-email-otp');
+    if (!btn) return;
+    
+    let timeLeft = seconds;
+    btn.disabled = true;
+    
+    if (emailInterval) clearInterval(emailInterval);
+    
+    emailInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            clearInterval(emailInterval);
+            btn.disabled = false;
+            btn.textContent = 'ขอรหัส OTP ทางอีเมล';
+        } else {
+            btn.disabled = true;
+            btn.textContent = `ขอรหัสอีกครั้งใน (${timeLeft} วินาที)`;
+        }
+    }, 1000);
+}
+
+// Helper: ทำการนับเวลาถอยหลัง 60 วินาทีสำหรับปุ่มส่ง OTP เบอร์โทร
+function startPhoneCooldown(seconds) {
+    const btn = document.getElementById('btn-send-phone-otp');
+    if (!btn) return;
+    
+    let timeLeft = seconds;
+    btn.disabled = true;
+    
+    if (phoneInterval) clearInterval(phoneInterval);
+    
+    phoneInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            clearInterval(phoneInterval);
+            btn.disabled = false;
+            btn.textContent = 'ขอรหัส OTP ทาง SMS';
+        } else {
+            btn.disabled = true;
+            btn.textContent = `ขอรหัสอีกครั้งใน (${timeLeft} วินาที)`;
+        }
+    }, 1000);
+}
 
 // ดึงการตั้งค่า Supabase Anon Credentials จากเซิร์ฟเวอร์หลังบ้าน
 async function initSupabase() {
@@ -102,6 +150,7 @@ async function requestEmailOtp(email) {
     btn.textContent = 'กำลังส่ง OTP...';
 
     const cleanEmail = email.trim();
+    let success = false;
 
     try {
         const { error } = await supabaseClient.auth.signInWithOtp({
@@ -119,12 +168,16 @@ async function requestEmailOtp(email) {
         document.getElementById('email-verify-target').textContent = cleanEmail;
         
         showAuthToast('ส่งรหัส OTP ไปยังอีเมลเรียบร้อยแล้ว! กรุณาตรวจสอบกล่องจดหมาย');
+        success = true;
+        startEmailCooldown(60);
     } catch (err) {
         console.error('Email OTP request failed:', err);
         showAuthToast('ขอรหัส OTP ล้มเหลว กรุณาตรวจสอบความถูกต้องของอีเมล', 'error');
     } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
+        if (!success) {
+            btn.disabled = false;
+            btn.textContent = origText;
+        }
     }
 }
 
@@ -173,6 +226,8 @@ async function requestPhoneOtp(phone) {
         return;
     }
 
+    let success = false;
+
     try {
         const { error } = await supabaseClient.auth.signInWithOtp({
             phone: formattedPhone
@@ -186,12 +241,16 @@ async function requestPhoneOtp(phone) {
         document.getElementById('phone-verify-target').textContent = formattedPhone;
         
         showAuthToast('ส่งรหัส OTP ทาง SMS สำเร็จ! กรุณาตรวจสอบข้อความมือถือ');
+        success = true;
+        startPhoneCooldown(60);
     } catch (err) {
         console.error('Phone OTP request failed:', err);
         showAuthToast('ส่ง SMS OTP ล้มเหลว (กรุณาเช็คว่าเปิดใช้งาน Phone provider ใน Supabase แล้วหรือไม่)', 'error');
     } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
+        if (!success) {
+            btn.disabled = false;
+            btn.textContent = origText;
+        }
     }
 }
 
