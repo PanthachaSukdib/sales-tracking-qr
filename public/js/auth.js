@@ -150,6 +150,16 @@ async function requestEmailOtp(email) {
     btn.textContent = 'กำลังส่ง OTP...';
 
     const cleanEmail = email.trim();
+    
+    // ตรวจสอบรูปแบบอีเมล (Email Regex Validation)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+        showAuthToast('กรุณากรอกอีเมลให้ถูกต้อง (เช่น name@example.com)', 'error');
+        btn.disabled = false;
+        btn.textContent = origText;
+        return;
+    }
+
     let success = false;
 
     try {
@@ -308,8 +318,19 @@ function setupOtpInputs(wrapperId) {
             // ลบตัวอักษรที่ไม่ใช่ตัวเลขออก
             e.target.value = val.replace(/[^0-9]/g, '');
             
-            if (e.target.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
+            if (e.target.value.length === 1) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                } else {
+                    // กรอกครบ 6 หลักแล้ว -> กดปุ่มยืนยันโดยอัตโนมัติ (Auto-Submit)
+                    const verifyBtn = wrapperId === 'email-otp-wrapper' 
+                        ? document.getElementById('btn-verify-email-otp')
+                        : document.getElementById('btn-verify-phone-otp');
+                    if (verifyBtn) {
+                        verifyBtn.focus(); // ย้ายโฟกัสไปปุ่มเพื่อลดแป้นพิมพ์บนมือถือลง
+                        verifyBtn.click();
+                    }
+                }
             }
         });
 
@@ -330,7 +351,15 @@ function setupOtpInputs(wrapperId) {
                 for (let i = 0; i < inputs.length; i++) {
                     inputs[i].value = pastedData[i] || '';
                 }
-                inputs[inputs.length - 1].focus();
+                
+                // กรอกครบ 6 หลักผ่านการวาง -> กดปุ่มยืนยันอัตโนมัติทันที
+                const verifyBtn = wrapperId === 'email-otp-wrapper' 
+                    ? document.getElementById('btn-verify-email-otp')
+                    : document.getElementById('btn-verify-phone-otp');
+                if (verifyBtn) {
+                    verifyBtn.focus();
+                    verifyBtn.click();
+                }
             }
         });
     });
@@ -382,6 +411,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // รองรับการกด Enter บนช่องกรอกอีเมล
+    const emailOtpInput = document.getElementById('email-otp-input');
+    if (emailOtpInput && btnSendEmailOtp) {
+        emailOtpInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnSendEmailOtp.click();
+            }
+        });
+    }
+
     // 3. ยืนยันรหัส OTP อีเมล Submit
     const btnVerifyEmailOtp = document.getElementById('btn-verify-email-otp');
     if (btnVerifyEmailOtp) {
@@ -422,6 +462,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             requestPhoneOtp(phone);
+        });
+    }
+
+    // รองรับการกด Enter บนช่องกรอกเบอร์โทร
+    const phoneOtpInput = document.getElementById('phone-otp-input');
+    if (phoneOtpInput && btnSendPhoneOtp) {
+        phoneOtpInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnSendPhoneOtp.click();
+            }
         });
     }
 

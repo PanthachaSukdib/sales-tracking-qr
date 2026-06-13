@@ -286,7 +286,7 @@
                 <div id="email-request-section" style="display: block;">
                     <div class="form-group-login">
                         <label class="form-label-login" for="email-otp-input">อีเมลพนักงาน</label>
-                        <input type="email" id="email-otp-input" class="form-input-login" placeholder="กรอกอีเมล เช่น name@gmail.com" required>
+                        <input type="email" id="email-otp-input" class="form-input-login" placeholder="กรอกอีเมล เช่น name@gmail.com" autocomplete="email" required>
                     </div>
                     <button type="button" id="btn-send-email-otp" class="btn-login" style="margin-top: 10px;">
                         ขอรหัส OTP ทางอีเมล
@@ -300,12 +300,12 @@
                     <p class="verify-subtitle">เราได้ส่งรหัส 6 หลักไปยังอีเมล<br><strong id="email-verify-target" style="color: var(--text-primary);"></strong> แล้ว<br><span style="font-size: 11px; color: #EF4444; margin-top: 4px; display: block;">⚠️ รหัสมีอายุการใช้งาน 5 นาที</span></p>
                     
                     <div class="otp-inputs-wrapper" id="email-otp-wrapper">
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 24px;">
@@ -325,7 +325,7 @@
                 <div id="phone-request-section" style="display: block;">
                     <div class="form-group-login">
                         <label class="form-label-login" for="phone-otp-input">เบอร์โทรศัพท์มือถือ</label>
-                        <input type="tel" id="phone-otp-input" class="form-input-login" placeholder="เช่น 0812345678" required>
+                        <input type="tel" id="phone-otp-input" class="form-input-login" placeholder="เช่น 0812345678" autocomplete="tel" required>
                     </div>
                     <button type="button" id="btn-send-phone-otp" class="btn-login" style="margin-top: 10px;">
                         ขอรหัส OTP ทาง SMS
@@ -339,12 +339,12 @@
                     <p class="verify-subtitle">เราได้ส่งรหัส 6 หลักไปยังเบอร์มือถือ<br><strong id="phone-verify-target" style="color: var(--text-primary);"></strong> แล้ว<br><span style="font-size: 11px; color: #EF4444; margin-top: 4px; display: block;">⚠️ รหัสมีอายุการใช้งาน 5 นาที</span></p>
                     
                     <div class="otp-inputs-wrapper" id="phone-otp-wrapper">
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
-                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 24px;">
