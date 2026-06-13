@@ -236,12 +236,57 @@ async function handleLogout() {
     }
 }
 
+// Helper: ตั้งค่ากล่องกรอก OTP แบบ 6 ช่องแยกกัน
+function setupOtpInputs(wrapperId) {
+    const wrapper = document.getElementById(wrapperId);
+    if (!wrapper) return;
+    const inputs = wrapper.querySelectorAll('.otp-box');
+
+    inputs.forEach((input, index) => {
+        // จำกัดให้กรอกเฉพาะตัวเลข
+        input.addEventListener('input', (e) => {
+            const val = e.target.value;
+            // ลบตัวอักษรที่ไม่ใช่ตัวเลขออก
+            e.target.value = val.replace(/[^0-9]/g, '');
+            
+            if (e.target.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+
+        // จัดการปุ่ม Backspace
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+                // เคลียร์ค่าตัวกล่องก่อนหน้าด้วย
+                inputs[index - 1].value = '';
+            }
+        });
+
+        // จัดการการวางข้อมูล (Paste)
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d{6}$/.test(pastedData)) {
+                for (let i = 0; i < inputs.length; i++) {
+                    inputs[i].value = pastedData[i] || '';
+                }
+                inputs[inputs.length - 1].focus();
+            }
+        });
+    });
+}
+
 // ==========================================
 // 🖥️ UI EVENT LISTENERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     // โหลดฐานข้อมูล Supabase
     initSupabase();
+
+    // เริ่มต้นตัวช่วยจัดการกล่องกรอก OTP แยกช่อง
+    setupOtpInputs('email-otp-wrapper');
+    setupOtpInputs('phone-otp-wrapper');
 
     // 1. สลับแท็บวิธีการล็อกอิน (Email OTP vs Phone OTP)
     const tabEmail = document.getElementById('tab-email');
@@ -283,9 +328,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnVerifyEmailOtp) {
         btnVerifyEmailOtp.addEventListener('click', () => {
             const email = document.getElementById('email-verify-target').textContent;
-            const code = document.getElementById('email-otp-code').value.trim();
-            if (!code || code.length < 6 || code.length > 8) {
-                showAuthToast('กรุณากรอกรหัส OTP ให้ครบถ้วน', 'error');
+            
+            // ดึงรหัสผ่าน 6 ช่องมารวมกัน
+            const inputs = document.querySelectorAll('#email-otp-wrapper .otp-box');
+            let code = '';
+            inputs.forEach(input => code += input.value.trim());
+
+            if (!code || code.length !== 6) {
+                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
                 return;
             }
             verifyEmailOtp(email, code);
@@ -298,7 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnBackEmailOtp.addEventListener('click', () => {
             document.getElementById('email-verify-section').style.display = 'none';
             document.getElementById('email-request-section').style.display = 'block';
-            document.getElementById('email-otp-code').value = '';
+            // เคลียร์ช่องกรอกทั้ง 6 ช่อง
+            document.querySelectorAll('#email-otp-wrapper .otp-box').forEach(input => input.value = '');
         });
     }
 
@@ -320,9 +371,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnVerifyPhoneOtp) {
         btnVerifyPhoneOtp.addEventListener('click', () => {
             const phone = document.getElementById('phone-verify-target').textContent;
-            const code = document.getElementById('phone-otp-code').value.trim();
-            if (!code || code.length < 6 || code.length > 8) {
-                showAuthToast('กรุณากรอกรหัส OTP ให้ครบถ้วน', 'error');
+            
+            // ดึงรหัสผ่าน 6 ช่องมารวมกัน
+            const inputs = document.querySelectorAll('#phone-otp-wrapper .otp-box');
+            let code = '';
+            inputs.forEach(input => code += input.value.trim());
+
+            if (!code || code.length !== 6) {
+                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
                 return;
             }
             verifyPhoneOtp(phone, code);
@@ -335,7 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnBackPhoneOtp.addEventListener('click', () => {
             document.getElementById('phone-verify-section').style.display = 'none';
             document.getElementById('phone-request-section').style.display = 'block';
-            document.getElementById('phone-otp-code').value = '';
+            // เคลียร์ช่องกรอกทั้ง 6 ช่อง
+            document.querySelectorAll('#phone-otp-wrapper .otp-box').forEach(input => input.value = '');
         });
     }
 
