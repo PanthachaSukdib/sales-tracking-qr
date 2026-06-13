@@ -382,16 +382,19 @@
 <main class="page-wrap">
   <div class="qr-card">
     
-    <!-- Header: Logo + Title -->
-    <header class="card-header" style="position: relative;">
-      <img src="/img/company_logo.png" alt="SST" class="company-logo">
-      <div class="header-text">
-        <h1>แบบสอบถามความพึงพอใจต่อการขายและบริการ</h1>
-        <p class="company-name">บริษัทสยามซินดิเคทเทคโนโลยี จำกัด (มหาชน)</p>
-      </div>
-      <button type="button" id="btn-logout" class="btn-logout-header" style="position: absolute; top: 12px; right: 12px; background: transparent; border: 1px solid #EF4444; color: #EF4444; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans Thai', sans-serif; outline: none; z-index: 50;">
+    <!-- Header: Logo + Logout -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%; box-sizing: border-box;">
+      <img src="/img/company_logo.png" alt="SST" class="company-logo" style="width: 56px; height: auto; margin: 0;">
+      <button type="button" id="btn-logout" class="btn-logout-header" style="background: transparent; border: 1px solid #EF4444; color: #EF4444; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans Thai', sans-serif; outline: none; margin: 0; z-index: 50;">
         ออกจากระบบ
       </button>
+    </div>
+    <!-- Title & Company Name -->
+    <header class="card-header" style="display: block; margin-bottom: 24px;">
+      <div class="header-text">
+        <h1 style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0 0 6px 0; line-height: 1.5; text-align: left;">แบบสอบถามความพึงพอใจต่อการขายและบริการ</h1>
+        <p class="company-name" style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.4; text-align: left;">บริษัทสยามซินดิเคทเทคโนโลยี จำกัด (มหาชน)</p>
+      </div>
     </header>
 
     <!-- Form -->
