@@ -299,6 +299,10 @@ async function handleLogout() {
     try {
         await supabaseClient.auth.signOut();
         showAuthToast('ออกจากระบบเรียบร้อยแล้ว');
+        // หน่วงเวลาเล็กน้อยเพื่อให้ข้อความแจ้งเตือนแสดงผล จากนั้นรีโหลดหน้าเว็บใหม่แบบสะอาด
+        setTimeout(() => {
+            window.location.reload();
+        }, 600);
     } catch (err) {
         console.error('Logout failed:', err);
         showAuthToast('เกิดข้อผิดพลาดในการออกจากระบบ', 'error');
