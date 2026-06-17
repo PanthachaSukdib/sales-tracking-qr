@@ -135,6 +135,16 @@ function setupAutoFill() {
         const isValid = Array.from(jobSelect.options).some(o => o.value === currentSelection);
         if (currentSelection && isValid) {
             jobSelect.value = currentSelection;
+            const selectedOpt = Array.from(jobSelect.options).find(o => o.value === currentSelection);
+            const triggerText = document.getElementById('jobSelectTriggerText');
+            if (triggerText && selectedOpt) {
+                if (currentSelection === 'custom') {
+                    triggerText.textContent = '-- กรอกรหัส JOB อื่นๆ --';
+                } else {
+                    const custAttr = selectedOpt.getAttribute('data-customer') || '';
+                    triggerText.textContent = `${currentSelection} | ${custAttr}`;
+                }
+            }
         } else {
             jobSelect.value = '';
             if (jobInput) {
@@ -144,6 +154,11 @@ function setupAutoFill() {
             }
             selectedCustomer = '';
             if (customerInfo) customerInfo.hidden = true;
+            
+            const triggerText = document.getElementById('jobSelectTriggerText');
+            if (triggerText) {
+                triggerText.textContent = '-- เลือก JOB-Number / โครงการ --';
+            }
         }
     }
 
@@ -301,6 +316,130 @@ function setupAutoFill() {
                 selectedCustomer = '';
                 if (customerInfo) customerInfo.hidden = true;
             }
+        });
+    }
+
+    // ==========================================
+    // 🔍 Search Modal for Job Number Selection
+    // ==========================================
+    const jobSelectTrigger = document.getElementById('jobSelectTrigger');
+    const jobSearchModal = document.getElementById('jobSearchModal');
+    const closeSearchModal = document.getElementById('closeSearchModal');
+    const modalSearchInput = document.getElementById('modalSearchInput');
+    const modalJobList = document.getElementById('modalJobList');
+
+    function renderModalJobList(searchQuery = '') {
+        if (!modalJobList) return;
+        modalJobList.innerHTML = '';
+
+        const q = searchQuery.toLowerCase().trim();
+
+        // Filter jobs based on activeDept and searchQuery
+        const filtered = allEmployeeJobs.filter(job => {
+            // Department filter
+            const matchDept = (activeDept === 'all') || (getDepartmentCode(job.jobNumber) === activeDept);
+            if (!matchDept) return false;
+
+            // Search query filter
+            if (!q) return true;
+            const jobNo = (job.jobNumber || '').toLowerCase();
+            const cust = (job.customer || '').toLowerCase();
+            return jobNo.includes(q) || cust.includes(q);
+        });
+
+        if (filtered.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'modal-job-item empty-state';
+            empty.style.cssText = 'text-align: center; color: var(--text-secondary); padding: 24px 8px; font-size: 13px;';
+            empty.textContent = searchQuery ? 'ไม่พบข้อมูลเลข JOB หรือชื่อลูกค้าที่ค้นหา' : 'ไม่มีรายการงานในแผนกนี้';
+            modalJobList.appendChild(empty);
+        } else {
+            filtered.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'modal-job-item';
+                if (job.isCompleted) {
+                    item.classList.add('completed');
+                }
+
+                const completedBadge = job.isCompleted ? '<span class="completed-tag">ประเมินแล้ว</span>' : '';
+                item.innerHTML = `
+                    <div class="job-item-header">
+                        <span class="job-item-number">${job.jobNumber}</span>
+                        ${completedBadge}
+                    </div>
+                    <div class="job-item-customer">${job.customer || ''}</div>
+                `;
+
+                item.addEventListener('click', () => {
+                    if (jobSelect) {
+                        jobSelect.value = job.jobNumber;
+                        jobSelect.dispatchEvent(new Event('change'));
+
+                        const triggerText = document.getElementById('jobSelectTriggerText');
+                        if (triggerText) {
+                            triggerText.textContent = `${job.jobNumber} | ${job.customer || ''}`;
+                        }
+
+                        if (jobSearchModal) jobSearchModal.hidden = true;
+                    }
+                });
+                modalJobList.appendChild(item);
+            });
+        }
+
+        // Add Custom Option at the bottom
+        const customItem = document.createElement('div');
+        customItem.className = 'modal-job-item custom-option';
+        customItem.innerHTML = `
+            <div class="job-item-header">
+                <span class="job-item-number" style="color: var(--primary); font-weight: 700;">-- กรอกรหัส JOB อื่นๆ --</span>
+            </div>
+            <div class="job-item-customer">ระบุเลข JOB ใหม่ด้วยตัวเอง</div>
+        `;
+        customItem.addEventListener('click', () => {
+            if (jobSelect) {
+                jobSelect.value = 'custom';
+                jobSelect.dispatchEvent(new Event('change'));
+
+                const triggerText = document.getElementById('jobSelectTriggerText');
+                if (triggerText) {
+                    triggerText.textContent = '-- กรอกรหัส JOB อื่นๆ --';
+                }
+
+                if (jobSearchModal) jobSearchModal.hidden = true;
+            }
+        });
+        modalJobList.appendChild(customItem);
+    }
+
+    if (jobSelectTrigger && jobSearchModal) {
+        jobSelectTrigger.addEventListener('click', () => {
+            jobSearchModal.hidden = false;
+            if (modalSearchInput) {
+                modalSearchInput.value = '';
+                setTimeout(() => modalSearchInput.focus(), 80);
+            }
+            renderModalJobList('');
+        });
+    }
+
+    if (closeSearchModal && jobSearchModal) {
+        closeSearchModal.addEventListener('click', () => {
+            jobSearchModal.hidden = true;
+        });
+    }
+
+    if (jobSearchModal) {
+        jobSearchModal.addEventListener('click', (e) => {
+            if (e.target === jobSearchModal) {
+                jobSearchModal.hidden = true;
+            }
+        });
+    }
+
+    if (modalSearchInput) {
+        modalSearchInput.addEventListener('input', function() {
+            renderModalJobList(this.value);
         });
     }
 }

@@ -1664,3 +1664,278 @@ th.sortable:hover {
     outline: none;
 }
 
+/* ==========================================================================
+   🔍 Job Search Modal & Custom Select Trigger (Mobile Bottom Drawer UI)
+   ========================================================================== */
+
+/* Dropdown Trigger Button */
+.form-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-select-trigger:active {
+    transform: scale(0.99);
+    background-color: #F9FAFB;
+}
+
+.form-select-trigger #jobSelectTriggerText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+    flex: 1;
+    text-align: left;
+}
+
+.dropdown-chevron {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+/* Search Modal Backdrop */
+.search-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end; /* Align bottom on mobile (Bottom Sheet) */
+    justify-content: center;
+    z-index: 2000;
+}
+
+/* Modal Content Box */
+.search-modal-content {
+    background: var(--bg-card, #FFFFFF);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
+    animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Header */
+.search-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #FFFFFF;
+}
+
+.search-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.btn-close-modal {
+    background: #F3F4F6;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: #E5E7EB;
+    color: var(--text-primary);
+}
+
+/* Body */
+.search-modal-body {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+    height: 100%;
+    background: #F9FAFB;
+}
+
+/* Search Box Wrapper */
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 14px;
+    color: #9CA3AF;
+    pointer-events: none;
+}
+
+.modal-search-input {
+    width: 100%;
+    padding: 12px 16px 12px 38px;
+    border: 1px solid #D1D5DB;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s;
+    background: #FFFFFF;
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.modal-search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.08);
+}
+
+/* Scrollable Job List */
+.modal-job-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 24px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Job List Item */
+.modal-job-item {
+    padding: 14px 16px;
+    border: 1px solid #E5E7EB;
+    background: #FFFFFF;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+}
+
+.modal-job-item:hover {
+    border-color: var(--primary);
+    background: #F0FDF4; /* Light emerald tint */
+}
+
+.modal-job-item:active {
+    transform: scale(0.985);
+}
+
+.modal-job-item.completed {
+    background: #F9FAFB;
+    border-color: #E5E7EB;
+    opacity: 0.85;
+}
+
+.modal-job-item.completed:hover {
+    background: #F0FDF4;
+    border-color: var(--primary);
+}
+
+.job-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.job-item-number {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.job-item-customer {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+/* Completed tag badge */
+.completed-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: #047857;
+    background: #D1FAE5;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+/* Custom text field fallback button */
+.custom-option {
+    border-style: dashed !important;
+    border-color: var(--primary) !important;
+    background: #F0FDF4 !important;
+}
+
+.custom-option:hover {
+    background: #DCFCE7 !important;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Center modal on larger screens (Tablet/Desktop) */
+@media (min-width: 500px) {
+    .search-modal-backdrop {
+        align-items: center;
+    }
+    .search-modal-content {
+        border-radius: 20px;
+        max-height: 70vh;
+        animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+

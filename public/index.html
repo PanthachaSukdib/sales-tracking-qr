@@ -395,11 +395,17 @@
           </div>
         </div>
 
-        <!-- Unified Job Selector Dropdown -->
+        <!-- Unified Job Selector Dropdown wrapper with Trigger Button and hidden select -->
         <div id="jobSelectWrapper" style="display: none; margin-bottom: 12px; margin-top: 4px;">
-          <select id="jobSelect" class="form-input form-select">
+          <select id="jobSelect" style="display: none;">
             <option value="">-- เลือก JOB-Number / โครงการ --</option>
           </select>
+          <div id="jobSelectTrigger" class="form-input form-select-trigger">
+            <span id="jobSelectTriggerText">-- เลือก JOB-Number / โครงการ --</span>
+            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
         </div>
 
         <input type="text" id="jobNumberInput" class="form-input" autocomplete="off" placeholder="พิมพ์เลข JOB..." style="display: none;">
@@ -537,6 +543,34 @@
             </div>
         </div>
     </div>
+    
+    <!-- 🔍 หน้าต่างโมดอลค้นหาและเลือก JOB (Job Search Modal) -->
+    <div id="jobSearchModal" class="search-modal-backdrop" hidden>
+      <div class="search-modal-content">
+        <div class="search-modal-header">
+          <h3 class="search-modal-title">เลือก JOB / โครงการ</h3>
+          <button type="button" id="closeSearchModal" class="btn-close-modal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="search-modal-body">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="modalSearchInput" class="modal-search-input" placeholder="พิมพ์เลข JOB หรือชื่อลูกค้าเพื่อค้นหา..." autocomplete="off">
+          </div>
+          <div id="modalJobList" class="modal-job-list">
+            <!-- รายการงานจะถูกสร้างขึ้นด้วย JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
 
     <script src="js/auth.js"></script>
