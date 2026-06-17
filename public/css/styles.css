@@ -1559,65 +1559,46 @@ th.sortable:hover {
     to { transform: rotate(360deg); }
 }
 
-/* Job Filters Styling (Inline Department Chips & Customer Dropdown) */
+/* Job Filters Styling (Redesigned Grid for 100% Mobile Visibility) */
 .dept-chips-scroll-wrapper {
-    position: relative;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 8px;
     margin-bottom: 12px;
     display: flex; /* keep it aligned with JS flex toggle */
 }
 
-/* Smooth fade effect at the right edge indicating more tabs to scroll */
-.dept-chips-scroll-wrapper::after {
-    content: '';
-    position: absolute;
-    top: 1px;
-    right: 0;
-    height: calc(100% - 2px);
-    width: 28px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
-    pointer-events: none;
-    z-index: 5;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-
 .dept-chips-container {
     width: 100%;
-    overflow-x: auto;
-    display: block;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
-}
-
-.dept-chips-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
 }
 
 .dept-chips {
-    display: inline-flex;
-    gap: 8px;
-    padding: 4px 24px 4px 4px; /* extra right padding to ensure full scrolling past fade */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    gap: 8px; /* nice gap between items */
+    width: 100%;
     box-sizing: border-box;
 }
 
 .dept-chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: #F3F4F6;
     border: 1px solid #E5E7EB;
-    padding: 8px 14px;
-    border-radius: 12px; /* modern squircle border radius instead of generic 20px pill */
-    font-size: 13px;
+    padding: 10px 4px;
+    border-radius: 12px; /* modern squircle border radius */
+    font-size: 11.5px; /* slightly smaller to fit text on small mobile screens */
     font-weight: 600;
     color: #4B5563;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
+    text-align: center;
+    white-space: normal; /* allow text to wrap to next line if screen is tiny */
+    word-break: break-word;
     user-select: none;
     outline: none;
+    box-sizing: border-box;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
