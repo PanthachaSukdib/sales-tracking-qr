@@ -46,18 +46,15 @@ function setupAutoFill() {
     const jobListDiv = document.getElementById('jobAutocompleteList');
     
     const deptFilterContainer = document.getElementById('deptFilterContainer');
-    const customerFilterContainer = document.getElementById('customerFilterContainer');
-    const filterCustomer = document.getElementById('filterCustomer');
+    const jobSelectWrapper = document.getElementById('jobSelectWrapper');
+    const jobSelect = document.getElementById('jobSelect');
     const chips = document.querySelectorAll('.dept-chip');
 
     function closeAllLists(elmnt) {
         if (empListDiv && elmnt !== document.getElementById('empId')) {
             empListDiv.innerHTML = '';
         }
-        if (jobListDiv && 
-            elmnt !== document.getElementById('jobNumberInput') &&
-            (!filterCustomer || !filterCustomer.contains(elmnt)) &&
-            (!document.getElementById('deptChipsList') || !document.getElementById('deptChipsList').contains(elmnt))) {
+        if (jobListDiv && elmnt !== document.getElementById('jobNumberInput')) {
             jobListDiv.innerHTML = '';
         }
     }
@@ -75,7 +72,6 @@ function setupAutoFill() {
     if (!empIdInput) return;
 
     let allEmployeeJobs = [];
-    let currentFilteredJobs = [];
     let activeDept = 'all';
 
     function getDepartmentCode(jobNo) {
@@ -97,93 +93,47 @@ function setupAutoFill() {
         return 'อื่นๆ';
     }
 
-    // Helper function to render job autocomplete list
-    function renderJobAutocompleteList(val) {
-        if (!jobListDiv) return;
-        jobListDiv.innerHTML = '';
+    // Populate the unified job select dropdown
+    function populateJobSelect() {
+        if (!jobSelect) return;
         
-        // Show all filtered jobs if value is empty, otherwise filter
-        const filteredJobs = val 
-            ? currentFilteredJobs.filter(job => 
-                job.jobNumber.toLowerCase().includes(val.toLowerCase()) || 
-                (job.customer && job.customer.toLowerCase().includes(val.toLowerCase()))
-              )
-            : currentFilteredJobs;
-
-        if (filteredJobs.length > 0) {
-            filteredJobs.forEach(job => {
-                const item = document.createElement('div');
-                item.className = 'autocomplete-item';
-                // Highlight if completed
-                const completedBadge = job.isCompleted ? ' <span style="font-size:11px; background:#E5E7EB; color:#4B5563; padding:2px 6px; border-radius:4px; margin-left:4px;">ประเมินแล้ว</span>' : '';
-                item.innerHTML = `<strong>${job.jobNumber}</strong>${job.customer ? ' - ' + job.customer : ''}${completedBadge}`;
-                item.addEventListener('click', function() {
-                    jobInput.value = job.jobNumber;
-                    selectedCustomer = job.customer || '';
-                    if (selectedCustomer) {
-                        customerDisplay.textContent = selectedCustomer;
-                        customerInfo.hidden = false;
-                    } else {
-                        customerInfo.hidden = true;
-                    }
-                    closeAllLists();
-                });
-                jobListDiv.appendChild(item);
-            });
-        }
-    }
-
-    function applyFilters() {
-        const selectedCust = filterCustomer ? filterCustomer.value : '';
+        const currentSelection = jobSelect.value;
+        jobSelect.innerHTML = '<option value="">-- เลือก JOB-Number / โครงการ --</option>';
         
-        currentFilteredJobs = allEmployeeJobs.filter(job => {
-            // Filter by Department
-            if (activeDept !== 'all') {
-                const dept = getDepartmentCode(job.jobNumber);
-                if (dept !== activeDept) return false;
-            }
-            
-            // Filter by Customer
-            if (selectedCust && job.customer !== selectedCust) {
-                return false;
-            }
-            
-            return true;
-        });
-
-        const val = jobInput ? jobInput.value.trim() : '';
-        renderJobAutocompleteList(val);
-    }
-
-    function updateCustomerDropdown() {
-        if (!filterCustomer) return;
-        
-        const currentSelection = filterCustomer.value;
-        filterCustomer.innerHTML = '<option value="">-- เลือกกรองตามชื่อลูกค้า/โครงการ --</option>';
-        
-        const customers = new Set();
-        allEmployeeJobs.forEach(job => {
-            if (job.customer) {
-                const dept = getDepartmentCode(job.jobNumber);
-                if (activeDept === 'all' || dept === activeDept) {
-                    customers.add(job.customer);
-                }
-            }
+        // Filter jobs based on activeDept
+        const filteredJobs = allEmployeeJobs.filter(job => {
+            if (activeDept === 'all') return true;
+            return getDepartmentCode(job.jobNumber) === activeDept;
         });
         
-        const sortedCustomers = Array.from(customers).sort();
-        sortedCustomers.forEach(cust => {
+        filteredJobs.forEach(job => {
             const opt = document.createElement('option');
-            opt.value = cust;
-            opt.textContent = cust;
-            filterCustomer.appendChild(opt);
+            opt.value = job.jobNumber;
+            const completedText = job.isCompleted ? ' (ประเมินแล้ว)' : '';
+            opt.textContent = `${job.jobNumber} | ${job.customer || ''}${completedText}`;
+            opt.setAttribute('data-customer', job.customer || '');
+            jobSelect.appendChild(opt);
         });
         
-        // Try to restore previous selection if it is still valid in the new department
-        if (currentSelection && customers.has(currentSelection)) {
-            filterCustomer.value = currentSelection;
+        // Add custom option
+        const customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = '-- กรอกรหัส JOB อื่นๆ --';
+        jobSelect.appendChild(customOpt);
+        
+        // Restore selection if still valid
+        const isValid = Array.from(jobSelect.options).some(o => o.value === currentSelection);
+        if (currentSelection && isValid) {
+            jobSelect.value = currentSelection;
         } else {
-            filterCustomer.value = '';
+            jobSelect.value = '';
+            if (jobInput) {
+                jobInput.value = '';
+                jobInput.style.display = 'none';
+                jobInput.required = false;
+            }
+            selectedCustomer = '';
+            if (customerInfo) customerInfo.hidden = true;
         }
     }
 
@@ -217,14 +167,18 @@ function setupAutoFill() {
         const empId = val.toUpperCase();
         const employee = employeeData[empId];
 
-        customerInfo.hidden = true;
+        if (customerInfo) customerInfo.hidden = true;
         selectedCustomer = '';
         allEmployeeJobs = [];
-        currentFilteredJobs = [];
         activeDept = 'all';
         
         if (jobInput) {
             jobInput.value = '';
+            jobInput.style.display = 'none';
+            jobInput.required = false;
+        }
+        if (jobSelect) {
+            jobSelect.value = '';
         }
 
         // Reset chips class active
@@ -236,10 +190,6 @@ function setupAutoFill() {
             }
         });
         
-        if (filterCustomer) {
-            filterCustomer.value = '';
-        }
-
         if (employee) {
             empNameInput.value = employee.name;
             empNameInput.classList.add('autofilled');
@@ -247,15 +197,13 @@ function setupAutoFill() {
 
             allEmployeeJobs = employee.jobs || [];
             
-            // Populate and setup filters
-            updateCustomerDropdown();
-            applyFilters();
+            populateJobSelect();
             
             if (deptFilterContainer) {
                 deptFilterContainer.style.display = allEmployeeJobs.length > 0 ? 'flex' : 'none';
             }
-            if (customerFilterContainer) {
-                customerFilterContainer.style.display = allEmployeeJobs.length > 0 ? 'block' : 'none';
+            if (jobSelectWrapper) {
+                jobSelectWrapper.style.display = allEmployeeJobs.length > 0 ? 'block' : 'none';
             }
 
             showToast(`พบข้อมูล: ${employee.name}`, 1800);
@@ -264,16 +212,21 @@ function setupAutoFill() {
             empNameInput.readOnly = false;
             
             if (deptFilterContainer) deptFilterContainer.style.display = 'none';
-            if (customerFilterContainer) customerFilterContainer.style.display = 'none';
+            if (jobSelectWrapper) jobSelectWrapper.style.display = 'none';
+            
+            // Show manual text input for non-existent employees
+            if (jobInput) {
+                jobInput.style.display = 'block';
+                jobInput.required = true;
+            }
         }
     });
 
     if (jobInput) {
         jobInput.addEventListener('input', function() {
             const val = this.value.trim();
-            renderJobAutocompleteList(val);
             
-            // Check if input matches an existing job exactly (even if filtered out) to auto-populate customer info
+            // For custom inputs, try to match customer name in the loaded list if typed exactly
             const match = allEmployeeJobs.find(job => job.jobNumber.toUpperCase() === val.toUpperCase());
             if (match) {
                 selectedCustomer = match.customer || '';
@@ -288,14 +241,6 @@ function setupAutoFill() {
                 customerInfo.hidden = true;
             }
         });
-
-        jobInput.addEventListener('focus', function() {
-            renderJobAutocompleteList(this.value.trim());
-        });
-
-        jobInput.addEventListener('click', function() {
-            renderJobAutocompleteList(this.value.trim());
-        });
     }
 
     // Set up event listeners for the inline Department Chips
@@ -305,24 +250,46 @@ function setupAutoFill() {
             this.classList.add('active');
             activeDept = this.getAttribute('data-dept');
             
-            updateCustomerDropdown();
-            applyFilters();
-            
-            // Focus on job input and show the filtered autocomplete list
-            if (jobInput) {
-                jobInput.focus();
-                renderJobAutocompleteList(jobInput.value.trim());
-            }
+            populateJobSelect();
         });
     });
 
-    // Set up event listener for the inline Customer Dropdown
-    if (filterCustomer) {
-        filterCustomer.addEventListener('change', function() {
-            applyFilters();
-            if (jobInput) {
-                jobInput.focus();
-                renderJobAutocompleteList(jobInput.value.trim());
+    // Set up event listener for the unified Job Select dropdown
+    if (jobSelect) {
+        jobSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'custom') {
+                if (jobInput) {
+                    jobInput.value = '';
+                    jobInput.style.display = 'block';
+                    jobInput.required = true;
+                    jobInput.focus();
+                }
+                selectedCustomer = '';
+                if (customerInfo) customerInfo.hidden = true;
+            } else if (val) {
+                const selectedOption = this.options[this.selectedIndex];
+                const cust = selectedOption.getAttribute('data-customer') || '';
+                if (jobInput) {
+                    jobInput.value = val;
+                    jobInput.style.display = 'none';
+                    jobInput.required = false;
+                }
+                selectedCustomer = cust;
+                if (selectedCustomer) {
+                    customerDisplay.textContent = selectedCustomer;
+                    if (customerInfo) customerInfo.hidden = false;
+                } else {
+                    if (customerInfo) customerInfo.hidden = true;
+                }
+            } else {
+                if (jobInput) {
+                    jobInput.value = '';
+                    jobInput.style.display = 'none';
+                    jobInput.required = false;
+                }
+                selectedCustomer = '';
+                if (customerInfo) customerInfo.hidden = true;
             }
         });
     }
@@ -871,26 +838,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const jobInput = document.getElementById('jobNumberInput');
+            const jobSelect = document.getElementById('jobSelect');
+            const jobSelectWrapper = document.getElementById('jobSelectWrapper');
             const jobAutocompleteList = document.getElementById('jobAutocompleteList');
             const deptFilterContainer = document.getElementById('deptFilterContainer');
-            const customerFilterContainer = document.getElementById('customerFilterContainer');
-            const filterCustomer = document.getElementById('filterCustomer');
             const chips = document.querySelectorAll('.dept-chip');
             
             if (jobInput) {
                 jobInput.value = '';
+                jobInput.style.display = 'none';
+            }
+            if (jobSelect) {
+                jobSelect.value = '';
+            }
+            if (jobSelectWrapper) {
+                jobSelectWrapper.style.display = 'none';
             }
             if (jobAutocompleteList) {
                 jobAutocompleteList.innerHTML = '';
             }
             if (deptFilterContainer) {
                 deptFilterContainer.style.display = 'none';
-            }
-            if (customerFilterContainer) {
-                customerFilterContainer.style.display = 'none';
-            }
-            if (filterCustomer) {
-                filterCustomer.value = '';
             }
             chips.forEach(c => {
                 if (c.getAttribute('data-dept') === 'all') {
