@@ -366,16 +366,10 @@
         <input type="text" id="empName" class="form-input" autocomplete="off" placeholder="" required>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="position: relative;">
         <label for="jobNumberInput">JOB-Number<span class="required">*</span></label>
-        
-        <!-- Mode: Select (เมื่อเจอ employee) -->
-        <select id="jobNumberSelect" class="form-input form-select" hidden>
-          <option value="">-- เลือก JOB --</option>
-        </select>
-        
-        <!-- Mode: Manual input (default) -->
-        <input type="text" id="jobNumberInput" class="form-input" autocomplete="off" placeholder="">
+        <input type="text" id="jobNumberInput" class="form-input" autocomplete="off" placeholder="" required>
+        <div id="jobAutocompleteList" class="autocomplete-items"></div>
       </div>
 
       <!-- Customer display (โผล่หลังเลือก JOB) -->

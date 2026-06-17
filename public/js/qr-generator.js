@@ -42,32 +42,72 @@ async function loadEmployeeData() {
 }
 
 function setupAutoFill() {
-    const listDiv = document.getElementById('empAutocompleteList');
+    const empListDiv = document.getElementById('empAutocompleteList');
+    const jobListDiv = document.getElementById('jobAutocompleteList');
+    
     function closeAllLists(elmnt) {
-        if (!listDiv) return;
-        listDiv.innerHTML = '';
+        if (empListDiv && elmnt !== document.getElementById('empId')) {
+            empListDiv.innerHTML = '';
+        }
+        if (jobListDiv && elmnt !== document.getElementById('jobNumberInput')) {
+            jobListDiv.innerHTML = '';
+        }
     }
     
     document.addEventListener('click', function(e) {
-        if (e.target !== document.getElementById('empId')) {
-            closeAllLists();
-        }
+        closeAllLists(e.target);
     });
+    
     const empIdInput = document.getElementById('empId');
     const empNameInput = document.getElementById('empName');
     const jobInput = document.getElementById('jobNumberInput');
-    const jobSelect = document.getElementById('jobNumberSelect');
     const customerInfo = document.getElementById('customerInfo');
     const customerDisplay = document.getElementById('customerDisplay');
 
     if (!empIdInput) return;
 
+    let currentPendingJobs = [];
+
+    // Helper function to render job autocomplete list
+    function renderJobAutocompleteList(val) {
+        if (!jobListDiv) return;
+        jobListDiv.innerHTML = '';
+        
+        // Show all pending jobs if value is empty, otherwise filter
+        const filteredJobs = val 
+            ? currentPendingJobs.filter(job => 
+                job.jobNumber.toLowerCase().includes(val.toLowerCase()) || 
+                (job.customer && job.customer.toLowerCase().includes(val.toLowerCase()))
+              )
+            : currentPendingJobs;
+
+        if (filteredJobs.length > 0) {
+            filteredJobs.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `<strong>${job.jobNumber}</strong>${job.customer ? ' - ' + job.customer : ''}`;
+                item.addEventListener('click', function() {
+                    jobInput.value = job.jobNumber;
+                    selectedCustomer = job.customer || '';
+                    if (selectedCustomer) {
+                        customerDisplay.textContent = selectedCustomer;
+                        customerInfo.hidden = false;
+                    } else {
+                        customerInfo.hidden = true;
+                    }
+                    closeAllLists();
+                });
+                jobListDiv.appendChild(item);
+            });
+        }
+    }
+
     empIdInput.addEventListener('input', function() {
         let val = this.value.trim();
         
-        // Autocomplete Logic
-        if (listDiv) {
-            listDiv.innerHTML = '';
+        // Autocomplete Logic for Employee ID
+        if (empListDiv) {
+            empListDiv.innerHTML = '';
             if (val) {
                 const matches = [];
                 for (const [id, emp] of Object.entries(employeeData)) {
@@ -84,7 +124,7 @@ function setupAutoFill() {
                         closeAllLists();
                         empIdInput.dispatchEvent(new Event('input'));
                     });
-                    listDiv.appendChild(item);
+                    empListDiv.appendChild(item);
                 });
             }
         }
@@ -94,62 +134,53 @@ function setupAutoFill() {
 
         customerInfo.hidden = true;
         selectedCustomer = '';
+        currentPendingJobs = [];
+        if (jobInput) {
+            jobInput.value = '';
+        }
 
         if (employee) {
             empNameInput.value = employee.name;
             empNameInput.classList.add('autofilled');
             empNameInput.readOnly = true;
 
-            const pendingJobs = (employee.jobs || []).filter(job => !job.isCompleted);
-
-            if (pendingJobs.length > 0) {
-                jobInput.hidden = true;
-                jobInput.value = '';
-                jobSelect.hidden = false;
-                jobSelect.value = '';
-                jobSelect.innerHTML = '<option value="">-- เลือก JOB --</option>';
-
-                pendingJobs.forEach(job => {
-                    const opt = document.createElement('option');
-                    opt.value = job.jobNumber;
-                    opt.dataset.customer = job.customer;
-                    opt.textContent = job.jobNumber;
-                    jobSelect.appendChild(opt);
-                });
-            } else {
-                // Keep input as text if no pending jobs are available
-                jobSelect.hidden = true;
-                jobInput.hidden = false;
-                jobInput.value = '';
-            }
-
+            currentPendingJobs = (employee.jobs || []).filter(job => !job.isCompleted);
             showToast(`พบข้อมูล: ${employee.name}`, 1800);
         } else {
             empNameInput.classList.remove('autofilled');
             empNameInput.readOnly = false;
-            jobSelect.hidden = true;
-            jobInput.hidden = false;
         }
     });
 
-    jobSelect.addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        const customer = opt.dataset.customer || '';
+    if (jobInput) {
+        jobInput.addEventListener('input', function() {
+            const val = this.value.trim();
+            renderJobAutocompleteList(val);
+            
+            // Check if input matches an existing pending job exactly to auto-populate customer info
+            const match = currentPendingJobs.find(job => job.jobNumber.toUpperCase() === val.toUpperCase());
+            if (match) {
+                selectedCustomer = match.customer || '';
+                if (selectedCustomer) {
+                    customerDisplay.textContent = selectedCustomer;
+                    customerInfo.hidden = false;
+                } else {
+                    customerInfo.hidden = true;
+                }
+            } else {
+                selectedCustomer = '';
+                customerInfo.hidden = true;
+            }
+        });
 
-        if (customer) {
-            selectedCustomer = customer;
-            customerDisplay.textContent = customer;
-            customerInfo.hidden = false;
-        } else {
-            selectedCustomer = '';
-            customerInfo.hidden = true;
-        }
-    });
+        jobInput.addEventListener('focus', function() {
+            renderJobAutocompleteList(this.value.trim());
+        });
 
-    jobInput.addEventListener('input', function() {
-        selectedCustomer = '';
-        customerInfo.hidden = true;
-    });
+        jobInput.addEventListener('click', function() {
+            renderJobAutocompleteList(this.value.trim());
+        });
+    }
 }
 
 function showCustomPrompt() {
@@ -193,9 +224,8 @@ function setupFormSubmit() {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const jobSelect = document.getElementById('jobNumberSelect');
         const jobInput = document.getElementById('jobNumberInput');
-        const jobValue = !jobSelect.hidden ? jobSelect.value : jobInput.value.trim();
+        const jobValue = jobInput ? jobInput.value.trim() : '';
 
         const data = {
             empId: document.getElementById('empId').value.trim().toUpperCase(),
@@ -695,15 +725,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 empNameInput.classList.remove('autofilled');
             }
             
-            const jobSelect = document.getElementById('jobNumberSelect');
             const jobInput = document.getElementById('jobNumberInput');
-            if (jobSelect) {
-                jobSelect.value = '';
-                jobSelect.hidden = true;
-            }
+            const jobAutocompleteList = document.getElementById('jobAutocompleteList');
             if (jobInput) {
                 jobInput.value = '';
-                jobInput.hidden = false;
+            }
+            if (jobAutocompleteList) {
+                jobAutocompleteList.innerHTML = '';
             }
             
             const customerInfo = document.getElementById('customerInfo');
