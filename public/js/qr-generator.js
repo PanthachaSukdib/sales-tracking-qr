@@ -77,6 +77,16 @@ function setupAutoFill() {
     function getDepartmentCode(jobNo) {
         if (!jobNo) return 'อื่นๆ';
         const upper = jobNo.toUpperCase();
+        
+        // Match JOB-[Dept][Brand]-[Year]-[Seq] format
+        if (upper.startsWith('JOB-')) {
+            const dept = upper.substring(4, 6);
+            if (['WT', 'MM', 'EE', 'EF', 'NC'].includes(dept)) {
+                return dept;
+            }
+        }
+        
+        // Match old SNWT-, SNMM-, etc. format
         if (upper.startsWith('SNWT') || upper.startsWith('SN-EV')) return 'WT';
         if (upper.startsWith('SNMM')) return 'MM';
         if (upper.startsWith('SNEE')) return 'EE';
