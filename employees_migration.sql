@@ -29,7 +29,7 @@ INSERT INTO public.employees (emp_id, name) VALUES
 ('SST00730', 'พิมทอง บริบูรณ์'),
 ('SST00710', 'พสธร เรืองพระยา'),
 ('SST00259', 'นิธิวัฒน์ หวังวัฒนากูล'),
-('SST00008', 'ช่างเทคนิค ทดสอบระบบ')
+('SST00008', 'ชานนท์ ชัยวัฒน์')
 ON CONFLICT (emp_id) DO UPDATE SET name = EXCLUDED.name;
 
 -- 5. Insert Data (employee_jobs)
