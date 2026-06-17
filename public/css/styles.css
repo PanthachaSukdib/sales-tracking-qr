@@ -1560,60 +1560,104 @@ th.sortable:hover {
 }
 
 /* Job Filters Styling (Inline Department Chips & Customer Dropdown) */
+.dept-chips-scroll-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    display: flex; /* keep it aligned with JS flex toggle */
+}
+
+/* Smooth fade effect at the right edge indicating more tabs to scroll */
+.dept-chips-scroll-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 0;
+    height: calc(100% - 2px);
+    width: 28px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+    pointer-events: none;
+    z-index: 5;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
 .dept-chips-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    margin-bottom: 8px;
+    width: 100%;
     overflow-x: auto;
-    padding: 6px 2px;
+    display: block;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    scrollbar-width: none; /* Firefox */
 }
 
 .dept-chips-container::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome/Safari */
-}
-
-.dept-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #4B5563;
-    white-space: nowrap;
+    display: none; /* Chrome/Safari */
 }
 
 .dept-chips {
-    display: flex;
+    display: inline-flex;
     gap: 8px;
+    padding: 4px 24px 4px 4px; /* extra right padding to ensure full scrolling past fade */
+    box-sizing: border-box;
 }
 
 .dept-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: #F3F4F6;
     border: 1px solid #E5E7EB;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 12px; /* modern squircle border radius instead of generic 20px pill */
+    font-size: 13px;
+    font-weight: 600;
     color: #4B5563;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     user-select: none;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .dept-chip:hover {
     background: #E5E7EB;
     color: #1F2937;
-    transform: translateY(-1px);
+}
+
+.dept-chip:active {
+    transform: scale(0.96); /* tactile scaling on press */
 }
 
 .dept-chip.active {
     background: #0F6E56;
     border-color: #0F6E56;
     color: #FFFFFF;
-    box-shadow: 0 4px 6px -1px rgba(15, 110, 86, 0.15);
+    box-shadow: 0 4px 12px rgba(15, 110, 86, 0.18);
 }
+
+/* Beautiful color-coded indicator dots for each department */
+.chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9CA3AF; /* gray default for 'all' */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.dept-chip.active .chip-dot {
+    background: #FFFFFF !important; /* turns white when active for high contrast */
+    transform: scale(1.2);
+}
+
+/* Department Specific Dot Colors (when inactive) */
+.chip-dot.WT { background: #3B82F6; } /* Water Treatment - Blue */
+.chip-dot.MM { background: #F97316; } /* Mechanical & Motor - Orange */
+.chip-dot.EE { background: #8B5CF6; } /* Electrical Systems - Purple */
+.chip-dot.EF { background: #F59E0B; } /* Earthing & Lightning - Gold/Amber */
+.chip-dot.NC { background: #EF4444; } /* Fire Protection - Red */
 
 .customer-filter-inline {
     margin-bottom: 12px;
