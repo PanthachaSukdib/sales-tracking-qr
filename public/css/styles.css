@@ -1564,7 +1564,7 @@ th.sortable:hover {
     width: 100%;
     margin-top: 8px;
     margin-bottom: 12px;
-    display: flex; /* keep it aligned with JS flex toggle */
+    display: flex;
 }
 
 .dept-chips-container {
@@ -1573,8 +1573,12 @@ th.sortable:hover {
 
 .dept-chips {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
-    gap: 8px; /* nice gap between items */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px; /* clean micro-gap */
+    background: #F3F4F6; /* light track background */
+    padding: 4px; /* inner spacing for segments */
+    border-radius: var(--radius-md, 10px);
+    border: 1px solid #E5E7EB;
     width: 100%;
     box-sizing: border-box;
 }
@@ -1583,62 +1587,37 @@ th.sortable:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    background: #F3F4F6;
-    border: 1px solid #E5E7EB;
+    background: transparent; /* transparent inside the track */
+    border: none;
     padding: 10px 4px;
-    border-radius: 12px; /* modern squircle border radius */
-    font-size: 11.5px; /* slightly smaller to fit text on small mobile screens */
-    font-weight: 600;
-    color: #4B5563;
+    border-radius: 6px; /* slightly smaller border-radius for segments */
+    font-size: 11.5px;
+    font-weight: 700; /* bold corporate font */
+    color: #4B5563; /* neutral dark text */
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s ease;
     text-align: center;
-    white-space: normal; /* allow text to wrap to next line if screen is tiny */
+    white-space: normal;
     word-break: break-word;
     user-select: none;
     outline: none;
     box-sizing: border-box;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .dept-chip:hover {
-    background: #E5E7EB;
+    background: rgba(0, 0, 0, 0.04);
     color: #1F2937;
 }
 
 .dept-chip:active {
-    transform: scale(0.96); /* tactile scaling on press */
+    transform: scale(0.97); /* tactile scaling on press */
 }
 
 .dept-chip.active {
-    background: #0F6E56;
-    border-color: #0F6E56;
-    color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(15, 110, 86, 0.18);
+    background: #FFFFFF; /* active segment is solid white card */
+    color: #0F6E56; /* active text is corporate teal */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* crisp drop shadow */
 }
-
-/* Beautiful color-coded indicator dots for each department */
-.chip-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #9CA3AF; /* gray default for 'all' */
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    display: inline-block;
-}
-
-.dept-chip.active .chip-dot {
-    background: #FFFFFF !important; /* turns white when active for high contrast */
-    transform: scale(1.2);
-}
-
-/* Department Specific Dot Colors (when inactive) */
-.chip-dot.WT { background: #3B82F6; } /* Water Treatment - Blue */
-.chip-dot.MM { background: #F97316; } /* Mechanical & Motor - Orange */
-.chip-dot.EE { background: #8B5CF6; } /* Electrical Systems - Purple */
-.chip-dot.EF { background: #F59E0B; } /* Earthing & Lightning - Gold/Amber */
-.chip-dot.NC { background: #EF4444; } /* Fire Protection - Red */
 
 .customer-filter-inline {
     margin-bottom: 12px;
