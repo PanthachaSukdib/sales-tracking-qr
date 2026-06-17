@@ -185,13 +185,7 @@ input.form-input[readonly] {
     cursor: pointer;
 }
 
-/* JOB input ตัวเปล่า (default mode) ใส่ chevron icon ด้วย เพื่อให้ดูเหมือนภาพ */
-#jobNumberInput {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    padding-right: 42px;
-}
+
 
 /* ============================
    Customer info display (read-only)
