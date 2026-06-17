@@ -110,8 +110,9 @@ function setupAutoFill() {
         const currentSelection = jobSelect.value;
         jobSelect.innerHTML = '<option value="">-- เลือก JOB-Number / โครงการ --</option>';
         
-        // Filter jobs based on activeDept
+        // Filter jobs based on activeDept, and exclude already-completed jobs
         const filteredJobs = allEmployeeJobs.filter(job => {
+            if (job.isCompleted) return false; // Hide completed jobs
             if (activeDept === 'all') return true;
             return getDepartmentCode(job.jobNumber) === activeDept;
         });
@@ -119,8 +120,7 @@ function setupAutoFill() {
         filteredJobs.forEach(job => {
             const opt = document.createElement('option');
             opt.value = job.jobNumber;
-            const completedText = job.isCompleted ? ' (ประเมินแล้ว)' : '';
-            opt.textContent = `${job.jobNumber} | ${job.customer || ''}${completedText}`;
+            opt.textContent = `${job.jobNumber} | ${job.customer || ''}`;
             opt.setAttribute('data-customer', job.customer || '');
             jobSelect.appendChild(opt);
         });
@@ -335,8 +335,11 @@ function setupAutoFill() {
 
         const q = searchQuery.toLowerCase().trim();
 
-        // Filter jobs based on activeDept and searchQuery
+        // Filter jobs based on activeDept and searchQuery, and exclude completed jobs
         const filtered = allEmployeeJobs.filter(job => {
+            // Exclude already-surveyed jobs entirely
+            if (job.isCompleted) return false;
+
             // Department filter
             const matchDept = (activeDept === 'all') || (getDepartmentCode(job.jobNumber) === activeDept);
             if (!matchDept) return false;
@@ -352,22 +355,17 @@ function setupAutoFill() {
             const empty = document.createElement('div');
             empty.className = 'modal-job-item empty-state';
             empty.style.cssText = 'text-align: center; color: var(--text-secondary); padding: 24px 8px; font-size: 13px;';
-            empty.textContent = searchQuery ? 'ไม่พบข้อมูลเลข JOB หรือชื่อลูกค้าที่ค้นหา' : 'ไม่มีรายการงานในแผนกนี้';
+            empty.textContent = searchQuery ? 'ไม่พบข้อมูลเลข JOB หรือชื่อลูกค้าที่ค้นหา' : 'ไม่มีรายการงานในแผนกนี้ หรืองานทุกรายการถูกประเมินครบแล้ว';
             modalJobList.appendChild(empty);
         } else {
             filtered.forEach(job => {
                 const item = document.createElement('button');
                 item.type = 'button';
                 item.className = 'modal-job-item';
-                if (job.isCompleted) {
-                    item.classList.add('completed');
-                }
 
-                const completedBadge = job.isCompleted ? '<span class="completed-tag">ประเมินแล้ว</span>' : '';
                 item.innerHTML = `
                     <div class="job-item-header">
                         <span class="job-item-number">${job.jobNumber}</span>
-                        ${completedBadge}
                     </div>
                     <div class="job-item-customer">${job.customer || ''}</div>
                 `;

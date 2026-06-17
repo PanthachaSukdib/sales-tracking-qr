@@ -239,9 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Submit Form
     const btnSubmit = document.getElementById('btn-submit');
+    let isSubmitting = false; // Guard against double-submit (prevents 429 rate-limit)
     
     btnSubmit.addEventListener('click', async () => {
-        // Validate PDPA
+        if (isSubmitting) return; // Block if already in progress
         const pdpaRadio = document.querySelector('input[name="pdpa"]:checked');
         if (!pdpaRadio) {
             showToast('กรุณาเลือกให้ความยินยอมหรือไม่ยินยอมในข้อมูลส่วนบุคคล', 'error');
@@ -285,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Submit logic
+        isSubmitting = true;
         const originalText = btnSubmit.innerHTML;
         btnSubmit.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: center;">
@@ -305,7 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const err = new Error('Network response was not ok');
+                err.status = response.status;
+                throw err;
             }
 
             // Show Success button state first
@@ -330,7 +334,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error submitting survey:', error);
-            showToast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+            isSubmitting = false; // Allow retry on real errors
+            if (error.status === 429) {
+                showToast('ส่งคำขอถี่เกินไป กรุณารอสักครู่แล้วลองใหม่', 'error');
+            } else {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+            }
             btnSubmit.innerHTML = originalText;
             btnSubmit.style.background = '';
             btnSubmit.disabled = false;
