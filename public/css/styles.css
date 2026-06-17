@@ -1558,3 +1558,155 @@ th.sortable:hover {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+/* Job Filters Styling */
+.btn-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover {
+    background: #E5E7EB;
+    color: #1F2937;
+}
+
+.btn-filter.active {
+    background: #D1FAE5;
+    border-color: #A7F3D0;
+    color: #065F46;
+}
+
+.filters-card {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    z-index: 100;
+    margin-top: 8px;
+    animation: slideDownFade 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filters-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.filter-field {
+    margin-bottom: 16px;
+}
+
+.filter-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 6px;
+}
+
+.filter-select {
+    width: 100%;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+    border: 1px solid #D1D5DB !important;
+    background-color: #FFFFFF !important;
+    cursor: pointer;
+}
+
+.filter-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 6px 0;
+}
+
+.filter-checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #4B5563;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 4px;
+    accent-color: #4B5563;
+    cursor: pointer;
+}
+
+.filters-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #F3F4F6;
+}
+
+.btn-filter-clear {
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #9CA3AF;
+    cursor: pointer;
+    transition: color 0.15s;
+    padding: 6px 12px;
+}
+
+.btn-filter-clear:hover {
+    color: #EF4444;
+}
+
+.btn-filter-apply {
+    background: #FFFFFF;
+    border: 1.5px solid #000000;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-filter-apply:hover {
+    background: #F3F4F6;
+}
+
