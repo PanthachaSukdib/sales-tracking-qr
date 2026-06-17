@@ -944,6 +944,7 @@ button.pdpa-toggle {
     transition: var(--transition-normal);
     width: 100%;
     margin-top: 12px;
+    touch-action: manipulation;
 }
 
 .btn-outline-survey:hover {
@@ -1157,6 +1158,7 @@ button.pdpa-toggle {
     width: 100%;
     margin-top: 12px;
     box-shadow: 0 4px 12px rgba(15, 110, 86, 0.25);
+    touch-action: manipulation;
 }
 
 .btn-submit-survey:hover {
