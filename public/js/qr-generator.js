@@ -380,7 +380,7 @@ function setupAutoFill() {
                             triggerText.textContent = `${job.jobNumber} | ${job.customer || ''}`;
                         }
 
-                        if (jobSearchModal) jobSearchModal.hidden = true;
+                        if (jobSearchModal) jobSearchModal.classList.remove('show');
                     }
                 });
                 modalJobList.appendChild(item);
@@ -406,7 +406,7 @@ function setupAutoFill() {
                     triggerText.textContent = '-- กรอกรหัส JOB อื่นๆ --';
                 }
 
-                if (jobSearchModal) jobSearchModal.hidden = true;
+                if (jobSearchModal) jobSearchModal.classList.remove('show');
             }
         });
         modalJobList.appendChild(customItem);
@@ -416,7 +416,7 @@ function setupAutoFill() {
 
     if (jobSelectTrigger && jobSearchModal) {
         jobSelectTrigger.addEventListener('click', () => {
-            jobSearchModal.hidden = false;
+            jobSearchModal.classList.add('show');
             if (modalSearchInput) {
                 modalSearchInput.value = '';
                 setTimeout(() => modalSearchInput.focus(), 80);
@@ -428,14 +428,14 @@ function setupAutoFill() {
 
     if (closeSearchModal && jobSearchModal) {
         closeSearchModal.addEventListener('click', () => {
-            jobSearchModal.hidden = true;
+            jobSearchModal.classList.remove('show');
         });
     }
 
     if (jobSearchModal) {
         jobSearchModal.addEventListener('click', (e) => {
             if (e.target === jobSearchModal) {
-                jobSearchModal.hidden = true;
+                jobSearchModal.classList.remove('show');
             }
         });
     }
