@@ -1729,9 +1729,12 @@ th.sortable:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: 12px 20px; /* adjusted padding to save vertical space on mobile */
     border-bottom: 1px solid var(--border);
     background: #FFFFFF;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 .search-modal-title {
@@ -1739,6 +1742,12 @@ th.sortable:hover {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
 }
 
 .btn-close-modal {
@@ -1746,17 +1755,26 @@ th.sortable:hover {
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 6px;
+    width: 44px; /* 44px minimum touch target size for accessibility */
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 12px;
+    outline: none;
+    -webkit-tap-highlight-color: transparent; /* remove blue highlight on touch */
 }
 
 .btn-close-modal:hover {
     background: #E5E7EB;
     color: var(--text-primary);
+}
+
+.btn-close-modal:active {
+    transform: scale(0.92); /* tactile scaling feedback when tapped */
 }
 
 /* Body */
