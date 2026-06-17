@@ -176,7 +176,8 @@ function setupAutoFill() {
                     }
                 }
                 matches.forEach(match => {
-                    const item = document.createElement('div');
+                    const item = document.createElement('button');
+                    item.type = 'button';
                     item.className = 'autocomplete-item';
                     item.innerHTML = `<strong>${match.id}</strong> - ${match.name}`;
                     item.addEventListener('click', function() {
@@ -355,7 +356,8 @@ function setupAutoFill() {
             modalJobList.appendChild(empty);
         } else {
             filtered.forEach(job => {
-                const item = document.createElement('div');
+                const item = document.createElement('button');
+                item.type = 'button';
                 item.className = 'modal-job-item';
                 if (job.isCompleted) {
                     item.classList.add('completed');
@@ -380,7 +382,7 @@ function setupAutoFill() {
                             triggerText.textContent = `${job.jobNumber} | ${job.customer || ''}`;
                         }
 
-                        if (jobSearchModal) jobSearchModal.classList.remove('show');
+                        closeJobSearchModal();
                     }
                 });
                 modalJobList.appendChild(item);
@@ -388,7 +390,8 @@ function setupAutoFill() {
         }
 
         // Add Custom Option at the bottom
-        const customItem = document.createElement('div');
+        const customItem = document.createElement('button');
+        customItem.type = 'button';
         customItem.className = 'modal-job-item custom-option';
         customItem.innerHTML = `
             <div class="job-item-header">
@@ -406,7 +409,7 @@ function setupAutoFill() {
                     triggerText.textContent = '-- กรอกรหัส JOB อื่นๆ --';
                 }
 
-                if (jobSearchModal) jobSearchModal.classList.remove('show');
+                closeJobSearchModal();
             }
         });
         modalJobList.appendChild(customItem);
@@ -414,28 +417,38 @@ function setupAutoFill() {
 
     const clearSearchInput = document.getElementById('clearSearchInput');
 
+    function closeJobSearchModal() {
+        if (jobSearchModal) jobSearchModal.classList.remove('show');
+        document.body.style.overflow = ''; // Restore background scroll
+    }
+
     if (jobSelectTrigger && jobSearchModal) {
-        jobSelectTrigger.addEventListener('click', () => {
+        jobSelectTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
             jobSearchModal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Lock background scroll
             if (modalSearchInput) {
                 modalSearchInput.value = '';
-                setTimeout(() => modalSearchInput.focus(), 80);
+                // Synchronous focus for reliable virtual keyboard on iOS/Android
+                modalSearchInput.focus();
             }
             if (clearSearchInput) clearSearchInput.style.display = 'none';
             renderModalJobList('');
         });
     }
 
-    if (closeSearchModal && jobSearchModal) {
-        closeSearchModal.addEventListener('click', () => {
-            jobSearchModal.classList.remove('show');
+    if (closeSearchModal) {
+        closeSearchModal.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeJobSearchModal();
         });
     }
 
     if (jobSearchModal) {
+        // Tap backdrop to close (reliable on desktop and iOS because of cursor: pointer in CSS)
         jobSearchModal.addEventListener('click', (e) => {
             if (e.target === jobSearchModal) {
-                jobSearchModal.classList.remove('show');
+                closeJobSearchModal();
             }
         });
     }
@@ -451,7 +464,8 @@ function setupAutoFill() {
     }
 
     if (clearSearchInput && modalSearchInput) {
-        clearSearchInput.addEventListener('click', () => {
+        clearSearchInput.addEventListener('click', (e) => {
+            e.preventDefault();
             modalSearchInput.value = '';
             clearSearchInput.style.display = 'none';
             modalSearchInput.focus();

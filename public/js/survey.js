@@ -108,36 +108,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Hover effect
-            star.addEventListener('mouseenter', () => {
-                const hoverVal = parseInt(star.getAttribute('data-val'), 10);
-                stars.forEach(s => {
-                    if (parseInt(s.getAttribute('data-val'), 10) <= hoverVal) {
-                        s.classList.add('hover-active');
+            // Hover effect (only for devices supporting mouse/hover to prevent stuck stars on mobile touch screens)
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (!isTouchDevice) {
+                star.addEventListener('mouseenter', () => {
+                    const hoverVal = parseInt(star.getAttribute('data-val'), 10);
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute('data-val'), 10) <= hoverVal) {
+                            s.classList.add('hover-active');
+                        }
+                    });
+                    
+                    if (textElement) {
+                        textElement.textContent = starLabels[hoverVal] || '';
+                        textElement.className = `rating-text level-${hoverVal}`;
                     }
                 });
-                
-                if (textElement) {
-                    textElement.textContent = starLabels[hoverVal] || '';
-                    textElement.className = `rating-text level-${hoverVal}`;
-                }
-            });
 
-            star.addEventListener('mouseleave', () => {
-                stars.forEach(s => s.classList.remove('hover-active'));
-                
-                // Revert text to selected rating
-                if (textElement) {
-                    const currentVal = ratings[qId];
-                    if (currentVal > 0) {
-                        textElement.textContent = starLabels[currentVal] || '';
-                        textElement.className = `rating-text level-${currentVal}`;
-                    } else {
-                        textElement.textContent = '';
-                        textElement.className = 'rating-text';
+                star.addEventListener('mouseleave', () => {
+                    stars.forEach(s => s.classList.remove('hover-active'));
+                    
+                    // Revert text to selected rating
+                    if (textElement) {
+                        const currentVal = ratings[qId];
+                        if (currentVal > 0) {
+                            textElement.textContent = starLabels[currentVal] || '';
+                            textElement.className = `rating-text level-${currentVal}`;
+                        } else {
+                            textElement.textContent = '';
+                            textElement.className = 'rating-text';
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     });
 

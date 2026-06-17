@@ -607,6 +607,7 @@ input.form-input[readonly] {
     -webkit-tap-highlight-color: transparent;
     font-size: inherit;
     line-height: inherit;
+    touch-action: manipulation;
 }
 
 .star-btn.active, .star-btn.hover-active {
@@ -786,6 +787,17 @@ input.form-input[readonly] {
     color: #DC2626;
     font-weight: 500;
     text-decoration: none;
+    touch-action: manipulation;
+}
+
+button.pdpa-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    display: inline;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .pdpa-toggle:hover {
@@ -1540,13 +1552,28 @@ th.sortable:hover {
     font-size: 14px;
     color: #1F2937;
     transition: background-color 0.2s;
+    touch-action: manipulation;
 }
 
-.autocomplete-item:last-child {
+button.autocomplete-item {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #E5E7EB;
+    text-align: left;
+    font-family: inherit;
+    display: block;
+    background-color: #ffffff;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+button.autocomplete-item:last-child {
     border-radius: 0 0 12px 12px;
+    border-bottom: none;
 }
 
-.autocomplete-item:hover {
+.autocomplete-item:hover, button.autocomplete-item:hover, button.autocomplete-item:active {
     background-color: #F3F4F6;
 }
 
@@ -1602,6 +1629,7 @@ th.sortable:hover {
     user-select: none;
     outline: none;
     box-sizing: border-box;
+    touch-action: manipulation;
 }
 
 .dept-chip:hover {
@@ -1665,6 +1693,14 @@ th.sortable:hover {
     user-select: none;
     transition: all 0.2s ease;
     box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+button.form-select-trigger {
+    font-family: inherit;
+    text-align: left;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .form-select-trigger:active {
@@ -1692,8 +1728,8 @@ th.sortable:hover {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    right: 0;
+    bottom: 0; /* Use absolute edges for perfect mobile keyboard resizing stability */
     background: rgba(15, 23, 42, 0.65);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -1701,6 +1737,7 @@ th.sortable:hover {
     align-items: flex-end; /* Align bottom on mobile (Bottom Sheet) */
     justify-content: center;
     z-index: 2000;
+    cursor: pointer; /* Critical iOS Safari click delegation bubble fix */
 }
 
 .search-modal-backdrop.show {
@@ -1766,6 +1803,7 @@ th.sortable:hover {
     margin-left: 12px;
     outline: none;
     -webkit-tap-highlight-color: transparent; /* remove blue highlight on touch */
+    touch-action: manipulation;
 }
 
 .btn-close-modal:hover {
@@ -1846,6 +1884,15 @@ th.sortable:hover {
     gap: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
     box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+button.modal-job-item {
+    width: 100%;
+    font-family: inherit;
+    text-align: left;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .modal-job-item:hover {
@@ -1966,6 +2013,7 @@ th.sortable:hover {
     transition: background 0.2s, transform 0.1s;
     outline: none;
     z-index: 5;
+    touch-action: manipulation;
 }
 
 .btn-clear-search:hover {
