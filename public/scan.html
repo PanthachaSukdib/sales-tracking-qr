@@ -83,12 +83,17 @@
       });
     }
 
+    function sanitizeString(str) {
+      if (!str) return '';
+      return str.replace(/<[^>]*>/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s\-_./()]/g, '').trim().substring(0, 100);
+    }
+
     (async function() {
       const params = new URLSearchParams(window.location.search);
-      const empId = params.get('emp_id');
-      const empName = params.get('emp_name');
-      const project = params.get('project');
-      const customer = params.get('customer');
+      const empId = sanitizeString(params.get('emp_id'));
+      const empName = sanitizeString(params.get('emp_name'));
+      const project = sanitizeString(params.get('project'));
+      const customer = sanitizeString(params.get('customer'));
       const statusEl = document.getElementById('scanStatus');
       const errorEl = document.getElementById('scanError');
       const spinner = document.getElementById('scanSpinner');

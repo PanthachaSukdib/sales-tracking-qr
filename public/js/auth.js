@@ -3,7 +3,6 @@
 
 let supabaseClient = null;
 let emailInterval = null;
-let phoneInterval = null;
 
 // Helper: ทำการนับเวลาถอยหลัง 60 วินาทีสำหรับปุ่มส่ง OTP อีเมล
 function startEmailCooldown(seconds) {
@@ -21,29 +20,6 @@ function startEmailCooldown(seconds) {
             clearInterval(emailInterval);
             btn.disabled = false;
             btn.textContent = 'ขอรหัส OTP ทางอีเมล';
-        } else {
-            btn.disabled = true;
-            btn.textContent = `ขอรหัสอีกครั้งใน (${timeLeft} วินาที)`;
-        }
-    }, 1000);
-}
-
-// Helper: ทำการนับเวลาถอยหลัง 60 วินาทีสำหรับปุ่มส่ง OTP เบอร์โทร
-function startPhoneCooldown(seconds) {
-    const btn = document.getElementById('btn-send-phone-otp');
-    if (!btn) return;
-    
-    let timeLeft = seconds;
-    btn.disabled = true;
-    
-    if (phoneInterval) clearInterval(phoneInterval);
-    
-    phoneInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-            clearInterval(phoneInterval);
-            btn.disabled = false;
-            btn.textContent = 'ขอรหัส OTP ทาง SMS';
         } else {
             btn.disabled = true;
             btn.textContent = `ขอรหัสอีกครั้งใน (${timeLeft} วินาที)`;
@@ -131,15 +107,6 @@ function showAuthToast(msg, type = 'success') {
 // 🔐 ระบบเข้าสู่ระบบ (SIGN IN METHODS)
 // ==========================================
 
-// Helper: แปลงเบอร์โทรศัพท์มือถือไทยปกติ เป็นรูปแบบสากล E.164 (+66)
-function formatThaiPhoneNumber(phone) {
-    let cleaned = phone.trim().replace(/[-\s]/g, '');
-    if (cleaned.startsWith('0')) {
-        cleaned = '+66' + cleaned.substring(1);
-    }
-    return cleaned;
-}
-
 // 1. ขอรหัส OTP ไปยังอีเมล (Request Email OTP)
 async function requestEmailOtp(email) {
     if (!supabaseClient) return;
@@ -217,82 +184,6 @@ async function verifyEmailOtp(email, otpCode) {
         btn.textContent = origText;
     }
 }
-
-// 3. ขอรหัส OTP ไปยังเบอร์โทรศัพท์ (Request SMS OTP)
-async function requestPhoneOtp(phone) {
-    if (!supabaseClient) return;
-
-    const btn = document.getElementById('btn-send-phone-otp');
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'กำลังส่ง OTP...';
-
-    const formattedPhone = formatThaiPhoneNumber(phone);
-
-    if (!formattedPhone.startsWith('+') || formattedPhone.length < 10) {
-        showAuthToast('รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'error');
-        btn.disabled = false;
-        btn.textContent = origText;
-        return;
-    }
-
-    let success = false;
-
-    try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            phone: formattedPhone
-        });
-
-        if (error) throw error;
-
-        // สลับแสดงช่องกรอกรหัส OTP
-        document.getElementById('phone-request-section').style.display = 'none';
-        document.getElementById('phone-verify-section').style.display = 'block';
-        document.getElementById('phone-verify-target').textContent = formattedPhone;
-        
-        showAuthToast('ส่งรหัส OTP ทาง SMS สำเร็จ! กรุณาตรวจสอบข้อความมือถือ');
-        success = true;
-        startPhoneCooldown(60);
-    } catch (err) {
-        console.error('Phone OTP request failed:', err);
-        showAuthToast('ส่ง SMS OTP ล้มเหลว (กรุณาเช็คว่าเปิดใช้งาน Phone provider ใน Supabase แล้วหรือไม่)', 'error');
-    } finally {
-        if (!success) {
-            btn.disabled = false;
-            btn.textContent = origText;
-        }
-    }
-}
-
-// 4. ยืนยันรหัส OTP เบอร์โทรศัพท์ (Verify SMS OTP)
-async function verifyPhoneOtp(phone, otpCode) {
-    if (!supabaseClient) return;
-
-    const btn = document.getElementById('btn-verify-phone-otp');
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'กำลังยืนยัน...';
-
-    const formattedPhone = formatThaiPhoneNumber(phone);
-
-    try {
-        const { error } = await supabaseClient.auth.verifyOtp({
-            phone: formattedPhone,
-            token: otpCode,
-            type: 'sms'
-        });
-
-        if (error) throw error;
-        showAuthToast('ยืนยันรหัส OTP มือถือสำเร็จ ยินดีต้อนรับ!');
-    } catch (err) {
-        console.error('Phone OTP verification failed:', err);
-        showAuthToast('รหัส OTP ไม่ถูกต้องหรือหมดอายุ', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
-    }
-}
-
 // 5. ออกจากระบบ (Log Out)
 async function handleLogout() {
     if (!supabaseClient) return;
@@ -378,29 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // เริ่มต้นตัวช่วยจัดการกล่องกรอก OTP แยกช่อง
     setupOtpInputs('email-otp-wrapper');
-    setupOtpInputs('phone-otp-wrapper');
-
-    // 1. สลับแท็บวิธีการล็อกอิน (Email OTP vs Phone OTP)
-    const tabEmail = document.getElementById('tab-email');
-    const tabPhone = document.getElementById('tab-phone');
-    const formEmail = document.getElementById('form-email-otp');
-    const formPhone = document.getElementById('form-phone-otp');
-
-    if (tabEmail && tabPhone) {
-        tabEmail.addEventListener('click', () => {
-            tabEmail.classList.add('active');
-            tabPhone.classList.remove('active');
-            formEmail.style.display = 'block';
-            formPhone.style.display = 'none';
-        });
-
-        tabPhone.addEventListener('click', () => {
-            tabPhone.classList.add('active');
-            tabEmail.classList.remove('active');
-            formPhone.style.display = 'block';
-            formEmail.style.display = 'none';
-        });
-    }
 
     // 2. ขอรหัส OTP อีเมล Submit
     const btnSendEmailOtp = document.getElementById('btn-send-email-otp');
@@ -453,60 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('email-request-section').style.display = 'block';
             // เคลียร์ช่องกรอกทั้ง 6 ช่อง
             document.querySelectorAll('#email-otp-wrapper .otp-box').forEach(input => input.value = '');
-        });
-    }
-
-    // 5. ขอรหัส OTP เบอร์โทรศัพท์ Submit
-    const btnSendPhoneOtp = document.getElementById('btn-send-phone-otp');
-    if (btnSendPhoneOtp) {
-        btnSendPhoneOtp.addEventListener('click', () => {
-            const phone = document.getElementById('phone-otp-input').value;
-            if (!phone) {
-                showAuthToast('กรุณากรอกเบอร์โทรศัพท์ของคุณ', 'error');
-                return;
-            }
-            requestPhoneOtp(phone);
-        });
-    }
-
-    // รองรับการกด Enter บนช่องกรอกเบอร์โทร
-    const phoneOtpInput = document.getElementById('phone-otp-input');
-    if (phoneOtpInput && btnSendPhoneOtp) {
-        phoneOtpInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                btnSendPhoneOtp.click();
-            }
-        });
-    }
-
-    // 6. ยืนยันรหัส OTP เบอร์โทรศัพท์ Submit
-    const btnVerifyPhoneOtp = document.getElementById('btn-verify-phone-otp');
-    if (btnVerifyPhoneOtp) {
-        btnVerifyPhoneOtp.addEventListener('click', () => {
-            const phone = document.getElementById('phone-verify-target').textContent;
-            
-            // ดึงรหัสผ่าน 6 ช่องมารวมกัน
-            const inputs = document.querySelectorAll('#phone-otp-wrapper .otp-box');
-            let code = '';
-            inputs.forEach(input => code += input.value.trim());
-
-            if (!code || code.length !== 6) {
-                showAuthToast('กรุณากรอกรหัส OTP 6 หลักให้ครบถ้วน', 'error');
-                return;
-            }
-            verifyPhoneOtp(phone, code);
-        });
-    }
-
-    // 7. ปุ่มย้อนกลับจากหน้ากรอกรหัส OTP เบอร์โทรศัพท์
-    const btnBackPhoneOtp = document.getElementById('btn-back-phone-otp');
-    if (btnBackPhoneOtp) {
-        btnBackPhoneOtp.addEventListener('click', () => {
-            document.getElementById('phone-verify-section').style.display = 'none';
-            document.getElementById('phone-request-section').style.display = 'block';
-            // เคลียร์ช่องกรอกทั้ง 6 ช่อง
-            document.querySelectorAll('#phone-otp-wrapper .otp-box').forEach(input => input.value = '');
         });
     }
 

@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 520" width="1140" height="520">
+  <defs>
+    <!-- Fonts -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=Noto+Sans+Thai:wght@300;400;500;600;700&amp;display=swap');
+      
+      /* ERD Table Style */
+      .erd-title { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 13px; fill: #FFFFFF; }
+      .erd-col-pk { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 10px; fill: #fbbf24; }
+      .erd-col-fk { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 10px; fill: #38bdf8; }
+      .erd-col-name { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 11px; fill: #E2E8F0; }
+      .erd-col-type { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 9px; fill: #64748b; }
+      
+      /* Flow Badge Style */
+      .flow-badge-bg { fill: #f43f5e; filter: url(#shadow); }
+      .flow-badge-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 11px; fill: #FFFFFF; }
+      .flow-label { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 600; font-size: 10px; fill: #f43f5e; }
+
+      .node-card { transition: transform 0.2s ease; cursor: pointer; }
+      .node-card:hover { transform: translateY(-2px); }
+    </style>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Markers for arrows -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+    </marker>
+  </defs>
+
+
+
+  <!-- ==================== 4 ZONES / GROUPS (Visual Columns) ==================== -->
+  
+  <!-- Zone 1: employee_master_data (Blue) -->
+  <g transform="translate(10, 5)">
+    <rect width="260" height="510" rx="16" fill="rgba(59, 130, 246, 0.03)" stroke="rgba(59, 130, 246, 0.15)" stroke-width="1.5" />
+  </g>
+
+  <!-- Zone 2: qr_logs (Green) -->
+  <g transform="translate(295, 5)">
+    <rect width="260" height="510" rx="16" fill="rgba(16, 185, 129, 0.03)" stroke="rgba(16, 185, 129, 0.15)" stroke-width="1.5" />
+  </g>
+
+  <!-- Zone 3: Activity Logs (Purple) -->
+  <g transform="translate(580, 5)">
+    <rect width="260" height="510" rx="16" fill="rgba(139, 92, 246, 0.03)" stroke="rgba(139, 92, 246, 0.15)" stroke-width="1.5" />
+  </g>
+
+  <!-- Zone 4: Survey Results (Orange) -->
+  <g transform="translate(865, 5)">
+    <rect width="265" height="510" rx="16" fill="rgba(245, 158, 11, 0.03)" stroke="rgba(245, 158, 11, 0.15)" stroke-width="1.5" />
+  </g>
+
+  <!-- ==================== LOGICAL FLOW CONNECTIONS (RED ARROWS) ==================== -->
+  
+  <!-- Flow 1: employee_master_data to qr_logs (Create QR Action) -->
+  <path d="M 250,105 H 315" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#arrow)" />
+  <g transform="translate(267, 70)">
+    <circle cx="12" cy="12" r="10" class="flow-badge-bg" />
+    <text x="12" y="16" class="flow-badge-text" text-anchor="middle">A</text>
+  </g>
+  <text x="282" y="97" class="flow-label" text-anchor="middle">สร้าง QR</text>
+
+  <!-- Flow 2: qr_logs to events (Scan QR Action) -->
+  <path d="M 515,105 H 600" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#arrow)" />
+  <g transform="translate(542, 70)">
+    <circle cx="12" cy="12" r="10" class="flow-badge-bg" />
+    <text x="12" y="16" class="flow-badge-text" text-anchor="middle">B</text>
+  </g>
+  <text x="557" y="97" class="flow-label" text-anchor="middle">สแกน QR</text>
+
+  <!-- Flow 3: events to survey_results (Submit Score Action via session_id) -->
+  <path d="M 800,105 H 885" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#arrow)" />
+  <g transform="translate(827, 70)">
+    <circle cx="12" cy="12" r="10" class="flow-badge-bg" />
+    <text x="12" y="16" class="flow-badge-text" text-anchor="middle">C</text>
+  </g>
+  <text x="842" y="97" class="flow-label" text-anchor="middle">ส่งผลประเมิน</text>
+
+  <!-- ==================== ERD TABLES (Actual schemas matching screenshot) ==================== -->
+
+  <!-- 1. employee_master_data (Blue) -->
+  <g class="node-card" transform="translate(30, 25)">
+    <rect width="220" height="150" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" />
+    <path d="M 4,0 L 216,0 C 220,0 220,4 220,8 L 220,24 L 0,24 L 0,8 C 0,4 0,0 4,0 Z" fill="#1e3a8a" />
+    <text x="12" y="16" class="erd-title">employee_master_data</text>
+    
+    <!-- Columns -->
+    <text x="10" y="42" class="erd-col-pk">PK</text>
+    <text x="32" y="42" class="erd-col-name" fill="#38bdf8">emp_id</text>
+    <text x="165" y="42" class="erd-col-type">text</text>
+    
+    <text x="32" y="66" class="erd-col-name">emp_name</text>
+    <text x="165" y="66" class="erd-col-type">text</text>
+    
+    <text x="10" y="90" class="erd-col-pk">PK</text>
+    <text x="32" y="90" class="erd-col-name" fill="#fb7185">job_number</text>
+    <text x="165" y="90" class="erd-col-type">text</text>
+    
+    <text x="32" y="114" class="erd-col-name">customer_name</text>
+    <text x="165" y="114" class="erd-col-type">text</text>
+    
+    <text x="32" y="138" class="erd-col-name">created_at</text>
+    <text x="165" y="138" class="erd-col-type">timestamptz</text>
+  </g>
+
+  <!-- 2. qr_logs (Green) -->
+  <g class="node-card" transform="translate(315, 25)">
+    <rect width="220" height="220" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+    <path d="M 4,0 L 216,0 C 220,0 220,4 220,8 L 220,24 L 0,24 L 0,8 C 0,4 0,0 4,0 Z" fill="#064e3b" />
+    <text x="12" y="16" class="erd-title">qr_logs</text>
+    
+    <!-- Columns -->
+    <text x="10" y="42" class="erd-col-pk">PK</text>
+    <text x="32" y="42" class="erd-col-name">id</text>
+    <text x="165" y="42" class="erd-col-type">uuid</text>
+    
+    <text x="32" y="66" class="erd-col-name">created_at</text>
+    <text x="165" y="66" class="erd-col-type">timestamptz</text>
+    
+    <text x="10" y="90" class="erd-col-fk">FK</text>
+    <text x="32" y="90" class="erd-col-name" fill="#38bdf8">employee_id</text>
+    <text x="165" y="90" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="114" class="erd-col-name">employee_name</text>
+    <text x="165" y="114" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="138" class="erd-col-name" fill="#fb7185">project_name</text>
+    <text x="165" y="138" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="162" class="erd-col-name">customer_name</text>
+    <text x="165" y="162" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="186" class="erd-col-name">generated_url</text>
+    <text x="165" y="186" class="erd-col-type">text</text>
+    
+    <text x="32" y="210" class="erd-col-name">user_agent</text>
+    <text x="165" y="210" class="erd-col-type">text</text>
+  </g>
+
+  <!-- 3. events (Purple) -->
+  <g class="node-card" transform="translate(600, 25)">
+    <rect width="220" height="245" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5" />
+    <path d="M 4,0 L 216,0 C 220,0 220,4 220,8 L 220,24 L 0,24 L 0,8 C 0,4 0,0 4,0 Z" fill="#4c1d95" />
+    <text x="12" y="16" class="erd-title">events</text>
+    
+    <!-- Columns -->
+    <text x="10" y="42" class="erd-col-pk">PK</text>
+    <text x="32" y="42" class="erd-col-name">id</text>
+    <text x="165" y="42" class="erd-col-type">uuid</text>
+    
+    <text x="32" y="66" class="erd-col-name">timestamp</text>
+    <text x="165" y="66" class="erd-col-type">timestamptz</text>
+    
+    <text x="10" y="90" class="erd-col-fk">FK</text>
+    <text x="32" y="90" class="erd-col-name" fill="#fb923c">session_id</text>
+    <text x="165" y="90" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="114" class="erd-col-name">event_type</text>
+    <text x="165" y="114" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="138" class="erd-col-name" fill="#38bdf8">employee_id</text>
+    <text x="165" y="138" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="162" class="erd-col-name">employee_name</text>
+    <text x="165" y="162" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="186" class="erd-col-name">customer_name</text>
+    <text x="165" y="186" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="210" class="erd-col-name" fill="#fb7185">project_name</text>
+    <text x="165" y="210" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="234" class="erd-col-name">metadata</text>
+    <text x="165" y="234" class="erd-col-type">jsonb</text>
+  </g>
+
+  <!-- 4. survey_results (Orange) -->
+  <g class="node-card" transform="translate(885, 25)">
+    <rect width="225" height="475" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" />
+    <path d="M 4,0 L 221,0 C 225,0 225,4 225,8 L 225,24 L 0,24 L 0,8 C 0,4 0,0 4,0 Z" fill="#78350f" />
+    <text x="12" y="16" class="erd-title">survey_results</text>
+    
+    <!-- Columns -->
+    <text x="10" y="42" class="erd-col-pk">PK</text>
+    <text x="32" y="42" class="erd-col-name">id</text>
+    <text x="170" y="42" class="erd-col-type">uuid</text>
+    
+    <text x="32" y="66" class="erd-col-name">submitted_at</text>
+    <text x="170" y="66" class="erd-col-type">timestamptz</text>
+    
+    <text x="10" y="90" class="erd-col-fk">FK</text>
+    <text x="32" y="90" class="erd-col-name" fill="#fb923c">session_id</text>
+    <text x="170" y="90" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="114" class="erd-col-name" fill="#38bdf8">employee_id</text>
+    <text x="170" y="114" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="138" class="erd-col-name">employee_name</text>
+    <text x="170" y="138" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="162" class="erd-col-name" fill="#fb7185">project_name</text>
+    <text x="170" y="162" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="186" class="erd-col-name">customer_name</text>
+    <text x="170" y="186" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="210" class="erd-col-name">pdpa_consent_1</text>
+    <text x="170" y="210" class="erd-col-type">varchar</text>
+
+    <text x="32" y="234" class="erd-col-name" fill="#86efac">score_q1</text>
+    <text x="170" y="234" class="erd-col-type">int4</text>
+    
+    <text x="32" y="258" class="erd-col-name" fill="#86efac">score_q2</text>
+    <text x="170" y="258" class="erd-col-type">int4</text>
+    
+    <text x="32" y="282" class="erd-col-name" fill="#86efac">score_q3</text>
+    <text x="170" y="282" class="erd-col-type">int4</text>
+    
+    <text x="32" y="306" class="erd-col-name" fill="#86efac">score_q4</text>
+    <text x="170" y="306" class="erd-col-type">int4</text>
+    
+    <text x="32" y="330" class="erd-col-name">improvements</text>
+    <text x="170" y="330" class="erd-col-type">text</text>
+    
+    <text x="32" y="354" class="erd-col-name">improvements_other</text>
+    <text x="170" y="354" class="erd-col-type">text</text>
+    
+    <text x="32" y="378" class="erd-col-name">contact_name</text>
+    <text x="170" y="378" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="402" class="erd-col-name">contact_phone</text>
+    <text x="170" y="402" class="erd-col-type">varchar</text>
+    
+    <text x="32" y="426" class="erd-col-name">contact_email</text>
+    <text x="170" y="426" class="erd-col-type">varchar</text>
+
+    <text x="32" y="450" class="erd-col-name">pdpa_consent_2</text>
+    <text x="170" y="450" class="erd-col-type">varchar</text>
+  </g>
+</svg>

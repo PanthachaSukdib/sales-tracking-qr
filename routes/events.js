@@ -1,10 +1,12 @@
-// routes/events.js — Event Tracking API
-// บันทึกทุก step ของ Customer Journey ลง Google Sheets tab "events"
-
 const express = require('express');
 const router = express.Router();
 const { insertRow } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
+
+const sanitizeString = (str) => {
+    if (typeof str !== 'string') return '';
+    return str.replace(/<[^>]*>/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s\-_./()]/g, '').trim().substring(0, 100);
+};
 
 /**
  * POST /api/events
@@ -17,11 +19,25 @@ const { randomUUID } = require('crypto');
  *   - "skipped_ms_forms"  → ลูกค้ากด "ข้ามขั้นตอนนี้"
  */
 router.post('/', async (req, res) => {
-    const { session_id, event_type, employee_id, employee_name, customer_name, project_name, metadata } = req.body;
-
     // Basic Validation
-    if (!session_id || !event_type) {
+    if (!req.body.session_id || !req.body.event_type) {
         return res.status(400).json({ error: 'Missing required fields: session_id, event_type' });
+    }
+
+    const session_id = sanitizeString(req.body.session_id);
+    const event_type = sanitizeString(req.body.event_type);
+    const employee_id = sanitizeString(req.body.employee_id);
+    const employee_name = sanitizeString(req.body.employee_name);
+    const customer_name = sanitizeString(req.body.customer_name);
+    const project_name = sanitizeString(req.body.project_name);
+    
+    // metadata is a JSON object or string, if it's an object we can leave it or stringify & sanitize
+    let metadata = req.body.metadata;
+    if (metadata) {
+        if (typeof metadata === 'object') {
+            metadata = JSON.stringify(metadata);
+        }
+        metadata = sanitizeString(metadata);
     }
 
     const VALID_EVENTS = ['scanned', 'survey_submitted', 'ms_forms_opened', 'skipped_ms_forms'];

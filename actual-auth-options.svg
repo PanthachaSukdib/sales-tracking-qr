@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="100%" height="100%">
+  <defs>
+    <!-- Fonts -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=Noto+Sans+Thai:wght@300;400;500;600;700&amp;display=swap');
+      
+      .text-title { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; fill: #F8FAFC; }
+      .text-subtitle { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 400; fill: #94A3B8; }
+      .text-card-title { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 20px; }
+      .text-step-title { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 14px; fill: #F8FAFC; }
+      .text-step-desc { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 400; font-size: 11px; fill: #94A3B8; }
+      .text-badge { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 11px; }
+      .text-footer-title { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 13px; fill: #a7f3d0; }
+      .text-footer-body { font-family: 'Outfit', 'Noto Sans Thai', sans-serif; font-weight: 400; font-size: 12px; fill: #a7f3d0; }
+      
+      /* Card Hover styling */
+      .slide-card { transition: transform 0.3s ease; cursor: pointer; }
+      .slide-card:hover { transform: translate(0, -5px); }
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="100%" height="100%" fill="#0B0F19" />
+  
+  <!-- Subtle Grid Pattern in background -->
+  <g opacity="0.05">
+    <path d="M 0,50 L 1200,50 M 0,100 L 1200,100 M 0,150 L 1200,150 M 0,200 L 1200,200 M 0,250 L 1200,250 M 0,300 L 1200,300 M 0,350 L 1200,350 M 0,400 L 1200,400 M 0,450 L 1200,450 M 0,500 L 1200,500 M 0,550 L 1200,550 M 0,600 L 1200,600" stroke="#ffffff" stroke-width="1" />
+    <path d="M 100,0 L 100,675 M 200,0 L 200,675 M 300,0 L 300,675 M 400,0 L 400,675 M 500,0 L 500,675 M 600,0 L 600,675 M 700,0 L 700,675 M 800,0 L 800,675 M 900,0 L 900,675 M 1000,0 L 1000,675 M 1100,0 L 1100,675" stroke="#ffffff" stroke-width="1" />
+  </g>
+
+  <!-- Title & Subtitle -->
+  <text x="50" y="55" class="text-title" font-size="26">Authentication Options — Supabase Auth (ระบบจริงของคุณ)</text>
+  <text x="50" y="82" class="text-subtitle" font-size="14">2 ช่องทางการเข้าสู่ระบบพนักงานที่ถูกตั้งค่าไว้ใช้งานจริงผ่าน Supabase Client</text>
+
+  <!-- ==================== LEFT CARD: EMAIL OTP/PASSWORD ==================== -->
+  <g class="slide-card" transform="translate(50, 110)">
+    <!-- Main Card Body -->
+    <rect width="525" height="420" rx="16" fill="rgba(17, 24, 39, 0.7)" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+    <!-- Colored Top Border -->
+    <path d="M 16,0 L 509,0 C 518,0 525,7 525,16 L 525,24 L 0,24 L 0,16 C 0,7 7,0 16,0 Z" fill="#3b82f6" />
+    
+    <!-- Title & Badge -->
+    <text x="24" y="60" class="text-card-title" fill="#60a5fa">Option 1 — Email OTP / Password</text>
+    
+    <g transform="translate(375, 42)">
+      <rect width="125" height="24" rx="12" fill="rgba(59, 130, 246, 0.15)" stroke="rgba(59, 130, 246, 0.4)" stroke-width="1" />
+      <text x="62.5" y="16" class="text-badge" fill="#60a5fa" text-anchor="middle">ฟรี 100% (50K MAU)</text>
+    </g>
+    
+    <line x1="24" y1="85" x2="501" y2="85" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+
+    <!-- Step 1 -->
+    <g transform="translate(24, 105)">
+      <circle cx="16" cy="16" r="14" fill="rgba(59, 130, 246, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#60a5fa" text-anchor="middle">1</text>
+      <text x="44" y="15" class="text-step-title">กรอก Email พนักงานบริษัท</text>
+      <text x="44" y="30" class="text-step-desc">ระบุ Email องค์กรที่ได้รับสิทธิ์ผ่านระบบ หรือขอรับ OTP</text>
+    </g>
+
+    <!-- Step 2 -->
+    <g transform="translate(24, 165)">
+      <circle cx="16" cy="16" r="14" fill="rgba(59, 130, 246, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#60a5fa" text-anchor="middle">2</text>
+      <text x="44" y="15" class="text-step-title">Supabase ส่งรหัสยืนยันเข้าอีเมล</text>
+      <text x="44" y="30" class="text-step-desc">เซิร์ฟเวอร์ Supabase ส่งเมล OTP 6 หลักหรือ Magic Link ให้พนักงาน</text>
+    </g>
+
+    <!-- Step 3 -->
+    <g transform="translate(24, 225)">
+      <circle cx="16" cy="16" r="14" fill="rgba(59, 130, 246, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#60a5fa" text-anchor="middle">3</text>
+      <text x="44" y="15" class="text-step-title">กรอกรหัสและส่งตรวจสอบผ่าน Client SDK</text>
+      <text x="44" y="30" class="text-step-desc">หน้าเว็บส่ง OTP กลับไปตรวจสอบกับ Supabase Auth ในเครื่องผู้ใช้</text>
+    </g>
+
+    <!-- Step 4 -->
+    <g transform="translate(24, 285)">
+      <circle cx="16" cy="16" r="14" fill="rgba(59, 130, 246, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#60a5fa" text-anchor="middle">4</text>
+      <text x="44" y="15" class="text-step-title">ได้รับ Session JWT (access_token) บน Client</text>
+      <text x="44" y="30" class="text-step-desc">เมื่อยืนยันสำเร็จ หน้าเว็บ JS จะเซฟ JWT เก็บลง Session ทันที</text>
+    </g>
+
+    <!-- Step 5 -->
+    <g transform="translate(24, 345)">
+      <circle cx="16" cy="16" r="14" fill="rgba(59, 130, 246, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#60a5fa" text-anchor="middle">5</text>
+      <text x="44" y="15" class="text-step-title">ส่งต่อ Token ไป Express API หลังบ้าน</text>
+      <text x="44" y="30" class="text-step-desc">แนบ Token ใน Authorization Header เพื่อยืนยันตัวตนสำหรับโหลดพนักงาน/สร้าง QR</text>
+    </g>
+  </g>
+
+  <!-- ==================== RIGHT CARD: SMS OTP ==================== -->
+  <g class="slide-card" transform="translate(625, 110)">
+    <!-- Main Card Body -->
+    <rect width="525" height="420" rx="16" fill="rgba(17, 24, 39, 0.7)" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+    <!-- Colored Top Border -->
+    <path d="M 16,0 L 509,0 C 518,0 525,7 525,16 L 525,24 L 0,24 L 0,16 C 0,7 7,0 16,0 Z" fill="#10b981" />
+    
+    <!-- Title & Badge -->
+    <text x="24" y="60" class="text-card-title" fill="#34d399">Option 2 — SMS OTP (เบอร์โทร)</text>
+    
+    <g transform="translate(375, 42)">
+      <rect width="125" height="24" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1" />
+      <text x="62.5" y="16" class="text-badge" fill="#34d399" text-anchor="middle">ตามผู้ให้บริการ SMS</text>
+    </g>
+    
+    <line x1="24" y1="85" x2="501" y2="85" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+
+    <!-- Step 1 -->
+    <g transform="translate(24, 105)">
+      <circle cx="16" cy="16" r="14" fill="rgba(16, 185, 129, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#34d399" text-anchor="middle">1</text>
+      <text x="44" y="15" class="text-step-title">กรอกหมายเลขโทรศัพท์พนักงาน</text>
+      <text x="44" y="30" class="text-step-desc">ระบุเบอร์โทรศัพท์ปลายทางเพื่อรับสิทธิ์ OTP ทางระบบ SMS</text>
+    </g>
+
+    <!-- Step 2 -->
+    <g transform="translate(24, 165)">
+      <circle cx="16" cy="16" r="14" fill="rgba(16, 185, 129, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#34d399" text-anchor="middle">2</text>
+      <text x="44" y="15" class="text-step-title">ส่ง OTP ผ่าน Twilio / SMS Provider</text>
+      <text x="44" y="30" class="text-step-desc">Supabase ประสานงานส่งข้อความ OTP 6 หลักเข้าเครื่องผ่าน SMS Gateway ที่ผูกไว้</text>
+    </g>
+
+    <!-- Step 3 -->
+    <g transform="translate(24, 225)">
+      <circle cx="16" cy="16" r="14" fill="rgba(16, 185, 129, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#34d399" text-anchor="middle">3</text>
+      <text x="44" y="15" class="text-step-title">กรอกรหัสตัวเลข 6 หลัก</text>
+      <text x="44" y="30" class="text-step-desc">กรอกเลข 6 ตัวที่ได้รับในกล่องอินพุตบนหน้าเว็บของเซลล์</text>
+    </g>
+
+    <!-- Step 4 -->
+    <g transform="translate(24, 285)">
+      <circle cx="16" cy="16" r="14" fill="rgba(16, 185, 129, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#34d399" text-anchor="middle">4</text>
+      <text x="44" y="15" class="text-step-title">Supabase ยืนยันรหัสถูกต้อง -> คืนค่า Session JWT</text>
+      <text x="44" y="30" class="text-step-desc">ยืนยันตัวตนสำเร็จ คืนค่า Token เพื่อใช้รับส่งข้อมูลกับระบบ</text>
+    </g>
+
+    <!-- Step 5 -->
+    <g transform="translate(24, 345)">
+      <circle cx="16" cy="16" r="14" fill="rgba(16, 185, 129, 0.2)" />
+      <text x="16" y="20" family="Outfit" font-weight="700" font-size="12" fill="#34d399" text-anchor="middle">5</text>
+      <text x="44" y="15" class="text-step-title">ส่งต่อ ID Token ไปให้ Express API หลังบ้าน</text>
+      <text x="44" y="30" class="text-step-desc">ส่ง Authorization Header ผ่านระบบ API เช่นเดียวกับ Email Login เพื่อบันทึกประวัติสร้าง QR</text>
+    </g>
+  </g>
+
+  <!-- ==================== FOOTER NOTE BLOCK ==================== -->
+  <g transform="translate(50, 550)">
+    <rect width="1100" height="70" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="rgba(16, 185, 129, 0.15)" stroke-width="1" />
+    <path d="M 25,35 A 10,10 0 1,1 45,35 A 10,10 0 1,1 25,35 Z M 35,29 L 35,31 M 35,34 L 35,41" stroke="#34d399" stroke-width="2" stroke-linecap="round" fill="none" />
+    <text x="60" y="33" class="text-footer-title">ข้อมูลประกอบการพิจารณาด้านค่าบริการ:</text>
+    <text x="60" y="52" class="text-footer-body">Supabase Authentication ให้สิทธิ์การใช้งานสำหรับ Email / Social Logins ฟรีสูงสุดถึง 50,000 ผู้ใช้งานต่อเดือน (MAU) | การส่ง SMS OTP จำเป็นต้องผูกบัญชี Twilio หรือ SMS Gateway ภายนอก ค่าใช้จ่ายคิดตามราคาเกตเวย์ปลายทาง</text>
+  </g>
+</svg>

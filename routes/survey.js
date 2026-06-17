@@ -3,13 +3,26 @@ const router = express.Router();
 const { supabase, insertRow } = require('../db/supabase-client');
 const { randomUUID } = require('crypto');
 
+// Helper functions for sanitizing inputs
+const sanitizeString = (str) => {
+    if (typeof str !== 'string') return '';
+    return str.replace(/<[^>]*>/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s\-_./()]/g, '').trim().substring(0, 100);
+};
+
+const sanitizeEmail = (str) => {
+    if (typeof str !== 'string') return '';
+    return str.replace(/<[^>]*>/g, '').replace(/[^\w.@+-]/g, '').trim().substring(0, 100);
+};
+
 // ตรวจสอบการส่งแบบประเมินซ้ำ (GET /api/survey/check-completed)
 router.get('/check-completed', async (req, res) => {
-    const { project } = req.query;
+    const rawProject = req.query.project;
 
-    if (!project) {
+    if (!rawProject) {
         return res.status(400).json({ error: 'Missing required query parameter: project' });
     }
+
+    const project = sanitizeString(rawProject);
 
     try {
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -54,29 +67,27 @@ router.get('/check-completed', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const {
-        session_id,
-        employee_id,
-        employee_name,
-        project_name,
-        customer_name,
-        pdpa_consent_1,
-        score_q1,
-        score_q2,
-        score_q3,
-        score_q4,
-        improvements,
-        improvements_other,
-        contact_name,
-        contact_phone,
-        contact_email,
-        pdpa_consent_2
-    } = req.body;
-
     // Validation
-    if (!employee_id || !score_q1 || !score_q2 || !score_q3 || !score_q4 || !pdpa_consent_1) {
+    if (!req.body.employee_id || !req.body.score_q1 || !req.body.score_q2 || !req.body.score_q3 || !req.body.score_q4 || !req.body.pdpa_consent_1) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    const session_id = sanitizeString(req.body.session_id);
+    const employee_id = sanitizeString(req.body.employee_id);
+    const employee_name = sanitizeString(req.body.employee_name);
+    const project_name = sanitizeString(req.body.project_name);
+    const customer_name = sanitizeString(req.body.customer_name);
+    const pdpa_consent_1 = sanitizeString(req.body.pdpa_consent_1);
+    const score_q1 = parseInt(req.body.score_q1, 10);
+    const score_q2 = parseInt(req.body.score_q2, 10);
+    const score_q3 = parseInt(req.body.score_q3, 10);
+    const score_q4 = parseInt(req.body.score_q4, 10);
+    const improvements = sanitizeString(req.body.improvements);
+    const improvements_other = sanitizeString(req.body.improvements_other);
+    const contact_name = sanitizeString(req.body.contact_name);
+    const contact_phone = sanitizeString(req.body.contact_phone);
+    const contact_email = sanitizeEmail(req.body.contact_email);
+    const pdpa_consent_2 = sanitizeString(req.body.pdpa_consent_2);
 
     try {
         // 1. ป้องกันการบันทึกซ้ำ (Idempotency) ที่ฝั่ง Server โดยตรวจเช็คจาก session_id ในตาราง events

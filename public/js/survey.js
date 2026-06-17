@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Helper to sanitize client-side parameters
+    const sanitizeString = (str) => {
+        if (!str) return '';
+        return str.replace(/<[^>]*>/g, '').replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s\-_./()]/g, '').trim().substring(0, 100);
+    };
+
     // 1. Retrieve Session Data from LocalStorage
     let empId, empName, project, customer;
     
@@ -6,17 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const sessionStr = localStorage.getItem('sst_session');
         if (sessionStr) {
             const session = JSON.parse(sessionStr);
-            empId = session.emp_id;
-            empName = session.emp_name;
-            project = session.project;
-            customer = session.customer;
+            empId = sanitizeString(session.emp_id);
+            empName = sanitizeString(session.emp_name);
+            project = sanitizeString(session.project);
+            customer = sanitizeString(session.customer);
         } else {
             // Fallback to URL Parameters (just in case they accessed directly)
             const params = new URLSearchParams(window.location.search);
-            empId = params.get('emp_id');
-            empName = params.get('emp_name');
-            project = params.get('project');
-            customer = params.get('customer');
+            empId = sanitizeString(params.get('emp_id'));
+            empName = sanitizeString(params.get('emp_name'));
+            project = sanitizeString(params.get('project'));
+            customer = sanitizeString(params.get('customer'));
         }
     } catch (e) {
         console.error('Error parsing session', e);

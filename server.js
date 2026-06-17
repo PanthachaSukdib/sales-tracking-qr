@@ -2,6 +2,32 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const rateLimit = require('express-rate-limit');
+
+// Rate limiters configurations
+const surveyLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 5,
+    message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const eventsLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 10,
+    message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const configLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 10,
+    message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -69,10 +95,11 @@ const eventsRouter = require('./routes/events');
 const employeesRouter = require('./routes/employees');
 
 app.use('/api/qr-logs', validateSupabaseToken, qrLogsRouter);
-app.use('/api/survey', surveyRouter);
+app.use('/api/survey', surveyLimiter, surveyRouter);
 app.use('/api/reports', reportsRouter);
-app.use('/api/events', eventsRouter);
+app.use('/api/events', eventsLimiter, eventsRouter);
 app.use('/api/employees', validateSupabaseToken, employeesRouter);
+app.use('/api/config', configLimiter);
 
 // Config Endpoints
 app.get('/api/config/supabase-anon', (req, res) => {
