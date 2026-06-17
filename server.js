@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 // Rate limiters configurations
 const surveyLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 5,
+    max: 60, // Increased to 60 to prevent blocking multiple clients on the same office/public Wi-Fi
     message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
     standardHeaders: true,
     legacyHeaders: false
@@ -15,7 +15,7 @@ const surveyLimiter = rateLimit({
 
 const eventsLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 10,
+    max: 120, // Increased to 120 to support high concurrent scans
     message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
     standardHeaders: true,
     legacyHeaders: false
@@ -23,13 +23,14 @@ const eventsLimiter = rateLimit({
 
 const configLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 10,
+    max: 120, // Increased to 120 to support high concurrent config fetches
     message: { error: 'คุณส่งคำขอถี่เกินไป กรุณาลองใหม่อีกครั้งในภายหลัง' },
     standardHeaders: true,
     legacyHeaders: false
 });
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Vercel) to resolve correct client IP instead of Vercel router IP
 const PORT = process.env.PORT || 3000;
 
 // Middleware
