@@ -412,6 +412,8 @@ function setupAutoFill() {
         modalJobList.appendChild(customItem);
     }
 
+    const clearSearchInput = document.getElementById('clearSearchInput');
+
     if (jobSelectTrigger && jobSearchModal) {
         jobSelectTrigger.addEventListener('click', () => {
             jobSearchModal.hidden = false;
@@ -419,6 +421,7 @@ function setupAutoFill() {
                 modalSearchInput.value = '';
                 setTimeout(() => modalSearchInput.focus(), 80);
             }
+            if (clearSearchInput) clearSearchInput.style.display = 'none';
             renderModalJobList('');
         });
     }
@@ -439,7 +442,20 @@ function setupAutoFill() {
 
     if (modalSearchInput) {
         modalSearchInput.addEventListener('input', function() {
-            renderModalJobList(this.value);
+            const val = this.value.trim();
+            if (clearSearchInput) {
+                clearSearchInput.style.display = val ? 'flex' : 'none';
+            }
+            renderModalJobList(val);
+        });
+    }
+
+    if (clearSearchInput && modalSearchInput) {
+        clearSearchInput.addEventListener('click', () => {
+            modalSearchInput.value = '';
+            clearSearchInput.style.display = 'none';
+            modalSearchInput.focus();
+            renderModalJobList('');
         });
     }
 }
