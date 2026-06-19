@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานวิเคราะห์ข้อมูลสถิติงาน - Sales Tracking QR</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --gray-dark: #1f2937;
+            --gray-medium: #4b5563;
+            --gray-light: #f3f4f6;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Prompt', -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: var(--gray-dark);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 5px solid #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card.primary { border-left-color: var(--primary); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-medium);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gray-dark);
+            line-height: 1.1;
+        }
+
+        .stat-subtext {
+            font-size: 0.8rem;
+            color: var(--gray-medium);
+            margin-top: 8px;
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 900px) {
+            .layout-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray-light);
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--gray-light);
+            color: var(--gray-dark);
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--gray-medium);
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+            color: var(--gray-dark);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge.open {
+            background-color: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .badge.received {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+
+        /* Quantities block */
+        .qty-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .qty-row:last-child {
+            border-bottom: none;
+        }
+        .qty-name {
+            font-weight: 500;
+        }
+        .qty-val {
+            font-weight: 700;
+            color: var(--gray-dark);
+        }
+
+        /* Alerts Callouts */
+        .callout {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .callout.warning {
+            background-color: var(--warning-light);
+            border-color: var(--warning);
+            color: #78350f;
+        }
+
+        .callout.important {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: #1e3a8a;
+        }
+
+        .callout.danger {
+            background-color: var(--danger-light);
+            border-color: var(--danger);
+            color: #7f1d1d;
+        }
+
+        .progress-bar-container {
+            background-color: var(--gray-light);
+            border-radius: 9999px;
+            height: 8px;
+            width: 100%;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📊 รายงานวิเคราะห์ข้อมูลสถิติงาน (Sales Tracking QR)</h1>
+        <p>วิเคราะห์โครงสร้างข้อมูลจากไฟล์สถิติการสร้างงานระบบ</p>
+        <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.8;">ช่วงวันที่ของข้อมูล: 27/04/2026 ถึง 19/06/2026</p>
+    </div>
+
+    <div class="container">
+        
+        <!-- Stats Row -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div>
+                    <div class="stat-label">จำนวนงานทั้งหมด (Total Jobs)</div>
+                    <div class="stat-value">124</div>
+                </div>
+                <div class="stat-subtext">รายการงานในระบบทั้งหมด</div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div>
+                    <div class="stat-label">งานสถานะ OPEN</div>
+                    <div class="stat-value">93</div>
+                </div>
+                <div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 75%; background-color: var(--warning);"></div>
+                    </div>
+                    <div class="stat-subtext">คิดเป็น 75.0% ของงานทั้งหมด</div>
+                </div>
+            </div>
+
+            <div class="stat-card success">
+                <div>
+                    <div class="stat-label">งานสถานะ RECEIVED</div>
+                    <div class="stat-value">31</div>
+                </div>
+                <div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 25%; background-color: var(--success);"></div>
+                    </div>
+                    <div class="stat-subtext">คิดเป็น 25.0% ของงานทั้งหมด</div>
+                </div>
+            </div>
+
+            <div class="stat-card primary">
+                <div>
+                    <div class="stat-label">ความก้าวหน้า Check-In / POD</div>
+                    <div class="stat-value">17 / 2</div>
+                </div>
+                <div class="stat-subtext">Check-In 17 งาน | Check-Out 2 งาน</div>
+            </div>
+        </div>
+
+        <!-- Layout Grid 1 -->
+        <div class="layout-grid">
+            
+            <!-- Job Prefix Types -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🏷️ จำแนกประเภทงาน (Job Prefix)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ชื่อย่อกลุ่มงาน</th>
+                            <th style="text-align: right;">จำนวนงาน</th>
+                            <th style="text-align: right;">สัดส่วน (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td><strong>EPF</strong></td>
+                            <td style="text-align: right;">45</td>
+                            <td style="text-align: right;">36.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WA</strong></td>
+                            <td style="text-align: right;">28</td>
+                            <td style="text-align: right;">22.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FPJ</strong></td>
+                            <td style="text-align: right;">16</td>
+                            <td style="text-align: right;">12.9%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ESS</strong></td>
+                            <td style="text-align: right;">9</td>
+                            <td style="text-align: right;">7.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LO</strong></td>
+                            <td style="text-align: right;">9</td>
+                            <td style="text-align: right;">7.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AEE</strong></td>
+                            <td style="text-align: right;">7</td>
+                            <td style="text-align: right;">5.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EPP</strong></td>
+                            <td style="text-align: right;">3</td>
+                            <td style="text-align: right;">2.4%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FSP</strong></td>
+                            <td style="text-align: right;">2</td>
+                            <td style="text-align: right;">1.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FSO</strong></td>
+                            <td style="text-align: right;">2</td>
+                            <td style="text-align: right;">1.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NC</strong></td>
+                            <td style="text-align: right;">2</td>
+                            <td style="text-align: right;">1.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WS</strong></td>
+                            <td style="text-align: right;">1</td>
+                            <td style="text-align: right;">0.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🏢 ลูกค้ารายใหญ่ที่สุด (Top 5 Customers)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ลำดับ</th>
+                            <th>ชื่อลูกค้า</th>
+                            <th style="text-align: right; width: 100px;">จำนวนงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td><strong>บริษัท ไทยฮอนด้า จำกัด - (PE) โรงเล็ก</strong></td>
+                            <td style="text-align: right;">11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>ชุมนุมสหกรณ์ออมทรัพย์แห่งประเทศไทย จำกัด</strong></td>
+                            <td style="text-align: right;">9</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>บริษัท คินเดน (ประเทศไทย) จำกัด</strong></td>
+                            <td style="text-align: right;">8</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>บริษัท ฤทธา จำกัด</strong></td>
+                            <td style="text-align: right;">7</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><strong>บริษัท ไพน์ - แปซิฟิคคอร์ปอเรชั่น จำกัด  - บ้านพักผู้บริหาร อินทามระ 44</strong></td>
+                            <td style="text-align: right;">7</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Layout Grid 2 -->
+        <div class="layout-grid">
+            
+            <!-- Top Creators -->
+            <div class="card">
+                <div class="card-title">
+                    <span>✍️ ผู้สร้างงานหลัก (Top 5 Creators)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ลำดับ</th>
+                            <th>รายชื่อผู้สร้าง</th>
+                            <th style="text-align: right; width: 100px;">จำนวนงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>Nuttikarn</td>
+                            <td style="text-align: right;">28</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Sunisa Autka</td>
+                            <td style="text-align: right;">26</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Benjamas</td>
+                            <td style="text-align: right;">25</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>sirirak</td>
+                            <td style="text-align: right;">10</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Jidapa - Sofia Madsalae</td>
+                            <td style="text-align: right;">9</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top Sales -->
+            <div class="card">
+                <div class="card-title">
+                    <span>💼 พนักงานขายที่ดูแล (Top 5 Sales Reps)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ลำดับ</th>
+                            <th>รหัส/ชื่อย่อ</th>
+                            <th style="text-align: right; width: 100px;">จำนวนงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td><strong>PSK</strong></td>
+                            <td style="text-align: right;">27</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>CKS</strong></td>
+                            <td style="text-align: right;">26</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>TRL</strong></td>
+                            <td style="text-align: right;">11</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>์WRR</strong></td>
+                            <td style="text-align: right;">11</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><strong>YSK</strong></td>
+                            <td style="text-align: right;">9</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Layout Grid 3 (Quantities & Financials) -->
+        <div class="layout-grid">
+            
+            <!-- Qty Summary -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📦 สรุปจำนวนชิ้นงานและน้ำหนัก</span>
+                </div>
+                <div class="qty-row">
+                    <span class="qty-name">จำนวนสินค้าที่คาดหวังรวม (Expect QTY)</span>
+                    <span class="qty-val">156 ชิ้น</span>
+                </div>
+                <div class="qty-row">
+                    <span class="qty-name">จำนวนสินค้าที่ได้รับจริงรวม (Receive QTY)</span>
+                    <span class="qty-val" style="color: var(--success);">43 ชิ้น</span>
+                </div>
+                <div class="qty-row">
+                    <span class="qty-name">จำนวนสินค้าที่ส่งมอบรวม (Delivery QTY)</span>
+                    <span class="qty-val" style="color: var(--danger);">0 ชิ้น (ข้อมูลเป็น 0 ทั้งหมด)</span>
+                </div>
+                <div class="qty-row">
+                    <span class="qty-name">น้ำหนักสินค้ารวม (Weight)</span>
+                    <span class="qty-val">0.00 kg (ข้อมูลเป็น 0 ทั้งหมด)</span>
+                </div>
+            </div>
+
+            <!-- Warranty Summary -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🛡️ รูปแบบการรับประกัน (Warranty Options)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ระยะเวลารับประกัน</th>
+                            <th style="text-align: right; width: 120px;">จำนวนงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>EMPTY</td>
+                            <td style="text-align: right;">105</td>
+                        </tr>
+                        <tr>
+                            <td>5 ปี</td>
+                            <td style="text-align: right;">7</td>
+                        </tr>
+                        <tr>
+                            <td>2 ปี</td>
+                            <td style="text-align: right;">4</td>
+                        </tr>
+                        <tr>
+                            <td>1 ปี</td>
+                            <td style="text-align: right;">3</td>
+                        </tr>
+                        <tr>
+                            <td>3 ปี เข้า PM 4 ครั้ง/ปี ทั้งหมด 12 ครั้ง</td>
+                            <td style="text-align: right;">2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Full Width Alerts Section -->
+        <div class="card" style="margin-top: 30px;">
+            <div class="card-title" style="color: var(--danger);">
+                <span>⚠️ ข้อสังเกตและคุณภาพของชุดข้อมูล (Data Quality Insights)</span>
+            </div>
+            
+            <!-- Alert 1 -->
+            <div class="callout warning">
+                <div class="callout-title">
+                    <span>✏️ 1. ความซ้ำซ้อนในชื่อย่อพนักงานขาย (Typo)</span>
+                </div>
+                <p>พบพนักงานขายชื่อย่อ <strong>"์WRR"</strong> (มีตัวการันต์นำหน้า) จำนวน <strong>11 งาน</strong> และพนักงานขายชื่อย่อ <strong>"WRR"</strong> ปกติจำนวน <strong>8 งาน</strong> คาดว่าเกิดจากข้อผิดพลาดในการป้อนข้อมูลลงฟิลด์ ซึ่งความจริงควรยุบรวมเป็นบุคคลเดียวกัน</p>
+            </div>
+
+            <!-- Alert 2 -->
+            <div class="callout important">
+                <div class="callout-title">
+                    <span>💰 2. ข้อมูลการบันทึกทับฟิลด์ (Field Mixed-up)</span>
+                </div>
+                <p>ช่อง **"การคิดค่าใช้จ่าย"** มีการนำมูลค่าสัญญาหรือมูลค่าโครงการตัวเลขหลักล้านมาเก็บไว้ เช่น <strong>"96,000,000"</strong>, <strong>"38,000,000"</strong>, <strong>"4,800,000.00 บาท"</strong> ปะปนอยู่กับประเภทของค่าใช้จ่าย เช่น "ไม่คิดค่าใช้จ่าย" และ "คิดค่าใช้จ่ายจากลูกค้า" คาดว่าระบบนำข้อมูลของฟิลด์อื่นมาบันทึกผิดคอลัมน์</p>
+            </div>
+
+            <!-- Alert 3 -->
+            <div class="callout danger">
+                <div class="callout-title">
+                    <span>📏 3. ข้อมูลปริมาณส่งจริง (Delivery QTY) และน้ำหนักเป็น 0</span>
+                </div>
+                <p>ข้อมูลในช่อง Sum (Delivery QTY) และ Sum (Weight) มีค่าเป็น 0.00 ทั้งหมดทุกแถวในไฟล์นี้ แม้ว่างานหลายชิ้นจะมีจำนวนการรับสินค้าจริง (Receive QTY) แล้วก็ตาม ควรตรวจสอบว่าแอปพลิเคชันไม่ทำงานหรือไม่ได้บันทึกค่าลงฟิลด์เหล่านี้หรือไม่</p>
+            </div>
+
+            <!-- Alert 4 -->
+            <div class="callout warning" style="border-left-color: var(--gray-medium); background-color: var(--gray-light); color: var(--gray-dark);">
+                <div class="callout-title" style="color: var(--gray-dark);">
+                    <span>🕒 4. งานที่ยังไม่ได้ปิดสมบูรณ์ (Open Milestone POD)</span>
+                </div>
+                <p>มีงานจำนวนหนึ่งที่มีข้อมูลบันทึกว่าเริ่ม Check-In และทำ POD/Check-Out ครบกระบวนการแล้ว แต่สถานะหลัก (JobStatus) ของงานนั้นยังคงระบุว่า <strong>"OPEN"</strong> แทนที่จะเปลี่ยนสถานะเป็นปิดงาน คาดว่าระบบขาดทริกเกอร์เปลี่ยนสถานะอัตโนมัติหรือผู้ใช้งานลืมกดอัปเดต</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
